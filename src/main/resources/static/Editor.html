@@ -150,8 +150,12 @@
 
 
 
-        // 테스트용 parkingLotID
-        let parkingLotId = 88893;
+
+
+
+         // 블록 추가
+        
+
 
 
         // 주차장 이름과 위치 먼저 입력 받기
@@ -184,44 +188,7 @@
          svg.appendChild(group);
 });
 
-        // 블록 추가
-        function createBlock(type, x, y, label) {
-            const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
-            const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-
-            let rectWidth = type === "entrance" || type === "exit" ? entranceExitWidth : blockWidth;
-            let rectHeight = type === "entrance" || type === "exit" ? entranceExitHeight : blockHeight;
-
-            rect.setAttribute("class", type);
-            rect.setAttribute("x", x);
-            rect.setAttribute("y", y);
-            rect.setAttribute("width", rectWidth);
-            rect.setAttribute("height", rectHeight);
-            rect.dataset.rotation = "0";
-
-            if (isRotateMode) {
-                rect.dataset.rotation = "90";
-                rect.setAttribute(
-                    "transform",
-                    `rotate(90, ${x + rectWidth / 2}, ${y + rectHeight / 2})`
-                );
-            }
-
-            group.appendChild(rect);
-
-            const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-            text.setAttribute("x", x + rectWidth / 2);
-            text.setAttribute("y", y + rectHeight / 2);
-            text.setAttribute("text-anchor", "middle");
-            text.setAttribute("dominant-baseline", "middle");
-            text.textContent = label || type;
-
-            group.appendChild(text);
-
-            svg.appendChild(group);
-            return group;
-        }
-
+       
         // 입구 추가
         function addEntrance() {
             const group = createBlock("entrance", 10, 10, "입구");
@@ -297,6 +264,29 @@
 
 
 
+async function saveParkingLot() {
+            try {
+                const response = await fetch("/api/parking-lots", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ name: parkingLotName, location: parkingLotLocation }),
+                });
+
+                if (!response.ok) {
+                    throw new Error("주차장 정보를 저장하는 중 오류가 발생했습니다.");
+                }
+
+                const parkingLot = await response.json();
+                parkingLotId = parkingLot.parkingLotID; // 서버에서 받은 ID 저장
+                alert(`주차장 ID: ${parkingLotId}`);
+            } catch (error) {
+                console.error(error);
+                alert("주차장 저장에 실패했습니다.");
+            }
+        }
+
+
+
 function addBlockListeners(group) {
     group.addEventListener("click", (e) => {
         e.stopPropagation();
@@ -318,6 +308,8 @@ function addBlockListeners(group) {
                 sensorIdInput.value = selectedBlock.querySelector("rect").dataset.sensorId || "";
             }
         }
+
+
 
         // 드래그 시작
         function startDrag(e) {
@@ -389,34 +381,25 @@ function addBlockListeners(group) {
 
 
 
-   document.getElementById("save-button").addEventListener("click", async () => {
-            // 주차 공간 데이터 생성
+        document.getElementById("save-button").addEventListener("click", async () => {
+            if (!parkingLotId) {
+                return alert("주차장 ID가 없습니다. 주차장을 먼저 저장하세요.");
+            }
+
             const layout = [];
             svg.querySelectorAll("g").forEach(group => {
                 const rect = group.querySelector("rect");
                 const x = rect.getAttribute("x");
                 const y = rect.getAttribute("y");
 
-                // x, y 값 검증
-                if (isNaN(x) || isNaN(y)) {
-                    console.warn(`Invalid coordinates for rect element: x=${x}, y=${y}`);
-                    return; // 잘못된 좌표 건너뜀
-                }
-
-                // Layout 데이터 구성
                 layout.push({
-                    parkingLotId, // 테스트용 주차장 ID 사용
-                    spaceLocation: `${x},${y}`, // x와 y를 'x,y' 형식으로 저장
-                    status: "UNKNOWN", // 상태 기본값 설정
-                    sensorId: rect.dataset.sensorId || null, // 센서 정보
+                    parkingLot: { parkingLotID: parkingLotId },
+                    spaceLocation: `${x},${y}`,
+                    status: "UNKNOWN",
+                    sensorId: rect.dataset.sensorId || null,
                 });
             });
 
-            if (layout.length === 0) {
-                return alert("주차 공간 레이아웃 데이터가 없습니다. SVG를 확인해주세요.");
-            }
-
-            // 서버로 주차 공간 데이터 전송
             try {
                 const response = await fetch("/api/parking-spaces", {
                     method: "POST",
@@ -425,22 +408,25 @@ function addBlockListeners(group) {
                 });
 
                 if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(`주차 공간 저장 실패: ${errorData.message}`);
+                    throw new Error("주차 공간 정보를 저장하는 중 오류가 발생했습니다.");
                 }
 
-                alert("모든 주차 공간 데이터가 서버로 저장되었습니다.");
+                alert("모든 주차 공간 데이터가 서버에 저장되었습니다.");
             } catch (error) {
-                console.error("주차 공간 저장 중 오류 발생:", error);
+                console.error(error);
                 alert("주차 공간 저장에 실패했습니다.");
             }
         });
+
+
         // SVG 클릭 시 블록 회전
         svg.addEventListener("click", e => {
             if (e.target.tagName === "rect") {
                 rotateBlock(e.target.closest("g"));
             }
         });
+
+        saveParkingLot();
     </script>
 </body>
 </html>
