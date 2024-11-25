@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>맵 편집 툴</title>
+    <script type="text/javascript" src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=rzg4gxzu0k&submodules=geocoder"></script>
+    <style>
+        #map {
+            width: 100%;
+            height: 500px;
+        }
+        html, body { width: 100%; height: 100%; padding: 0; margin: 0; }
+    </style>
+</head>
+<body>
+    <div>
+        <input type="text" id="search-input" placeholder="장소 검색">
+        <button id="search-btn">검색</button>
+        <button id="back-btn">뒤로가기</button>
+    </div>
+    <div id="map"></div>
+
+    <script>
+        // 지도 초기화
+        const map = new naver.maps.Map('map', {
+            center: new naver.maps.LatLng(36.852587903317065, 127.15023817064628),
+            zoom: 15,
+        });
+
+        let currentMarkers = [];
+        let deletedMarkers = [];
+        let activeInfoWindow = null;
+
+        // 기존 마커 삭제
+        function clearMarkers() {
+            currentMarkers.forEach(marker => {
+                deletedMarkers.push({
+                    lat: marker.getPosition().lat(),
+                    lng: marker.getPosition().lng(),
+                    title: marker.getTitle(),
+                    spaceId: marker.spaceId,
+                });
+                marker.setMap(null);
+            });
+            currentMarkers = [];
+        }
+
+        // 삭제된 마커 복구
+        function restoreDeletedMarkers() {
+            deletedMarkers.forEach(markerData => {
+                const position = new naver.maps.LatLng(markerData.lat, markerData.lng);
+                addMarker(position, markerData.title, markerData.spaceId);
+            });
+            deletedMarkers = [];
+        }
+
+        // 마커 추가
+        function addMarker(position, title = '마커', spaceId = null, id = null) {
+            const marker = new naver.maps.Marker({
+                position,
+                map,
+                icon: {
+                    url: 'https://ssl.pstatic.net/static/maps/img/icons/pin_s_1.png',
+                    size: new naver.maps.Size(22, 30),
+                    anchor: new naver.maps.Point(11, 30),
+                },
+                title,
+            });
+
+            currentMarkers.push(marker);
+            marker.spaceId = spaceId;
+
+            const iwContent = `
+                <div>
+                    <div style="margin:0;padding:0;">
+                        <a href="#" class="spmc btn_clear">핀 삭제</a>
+                        <div>${title}</div>
+                        ${
+                            spaceId
+                                ? `<button><a href="/layout-view?spaceId=${spaceId}" target="_blank">주차장 보기</a></button>`
+                                : `<button onclick="alert('SpaceID가 필요합니다!')">주차장 보기</button>`
+                        }
+                        <button onclick="alert('즐겨찾기에 추가되었습니다!')">즐겨찾기 추가</button>
+                    </div>
+                </div>
+            `;
+
+            const infoWindow = new naver.maps.InfoWindow({ content: iwContent });
+
+            // 마커 클릭 시 정보 창 열기
+            naver.maps.Event.addListener(marker, 'click', () => {
+                if (activeInfoWindow) activeInfoWindow.close();
+                infoWindow.open(map, marker);
+                activeInfoWindow = infoWindow;
+            });
+
+            // 핀 삭제 버튼 이벤트
+            infoWindow.open = function (map, marker) {
+                naver.maps.InfoWindow.prototype.open.call(this, map, marker);
+                const closeButton = this.getWrapElement().querySelector('.btn_clear');
+                closeButton.addEventListener('click', function () {
+                    marker.setMap(null);
+                    infoWindow.close();
+                    if (id) deleteMarkerFromServer(id);
+                });
+            };
+
+            if (!id) {
+                saveMarkerToServer({ lat: position.lat(), lng: position.lng(), title, spaceId });
+            }
+        }
+
+        // 서버와 통신 함수들
+        async function fetchMarkers(query = '') {
+            try {
+                const url = query ? `/api/markers/search?query=${encodeURIComponent(query)}` : '/api/markers';
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('서버에서 마커 데이터를 가져오는 데 실패했습니다.');
+                return await response.json();
+            } catch (error) {
+                console.error('마커 데이터를 가져오는 중 오류 발생:', error);
+                return [];
+            }
+        }
+
+        async function saveMarkerToServer(markerData) {
+            try {
+                const response = await fetch('/api/markers', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(markerData),
+                });
+                if (!response.ok) {
+                    throw new Error('마커 저장 실패');
+                }
+            } catch (error) {
+                console.error('마커 데이터를 저장하는 중 오류 발생:', error);
+            }
+        }
+
+        async function deleteMarkerFromServer(markerId) {
+            try {
+                const response = await fetch(`/api/markers/${markerId}`, {
+                    method: 'DELETE',
+                });
+                if (!response.ok) {
+                    throw new Error('마커 삭제 실패');
+                }
+            } catch (error) {
+                console.error('마커 데이터를 삭제하는 중 오류 발생:', error);
+            }
+        }
+
+        // 검색 버튼 클릭 이벤트
+        document.getElementById('search-btn').addEventListener('click', async () => {
+            const query = document.getElementById('search-input').value.trim();
+
+            if (!query) {
+                alert('검색어를 입력하세요.');
+                return;
+            }
+
+            // 서버에서 사용자 마커 검색
+            try {
+                const markers = await fetchMarkers(query);
+                if (markers.length > 0) {
+                    clearMarkers();
+                    markers.forEach(markerData => {
+                        const position = new naver.maps.LatLng(markerData.lat, markerData.lng);
+                        addMarker(position, markerData.title, markerData.spaceId, markerData.id);
+                    });
+                    alert('사용자 마커 검색 결과를 표시합니다.');
+                    return;
+                }
+            } catch (error) {
+                console.error('사용자 마커 검색 중 오류 발생:', error);
+            }
+
+            alert('검색 결과가 없습니다.');
+        });
+
+        // 뒤로가기 버튼 클릭 이벤트
+        document.getElementById('back-btn').addEventListener('click', () => {
+            if (deletedMarkers.length > 0) {
+                restoreDeletedMarkers();
+                alert('이전 마커들이 복구되었습니다.');
+            } else {
+                alert('복구할 마커가 없습니다.');
+            }
+        });
+
+        // 마우스 우클릭으로 마커 추가
+        naver.maps.Event.addListener(map, 'rightclick', function (e) {
+            const position = e.coord;
+            const title = prompt('마커 제목을 입력하세요:', '새 마커');
+            const spaceId = prompt('SpaceID를 입력하세요:', '');
+
+            if (title && spaceId) {
+                addMarker(position, title, spaceId);
+            }
+        });
+
+        // 지도 클릭 및 이동 시 정보 창 닫기
+        naver.maps.Event.addListener(map, 'click', () => {
+            if (activeInfoWindow) activeInfoWindow.close();
+        });
+
+        naver.maps.Event.addListener(map, 'dragstart', () => {
+            if (activeInfoWindow) activeInfoWindow.close();
+        });
+
+        // 초기화 시 모든 마커 복원
+        async function restoreMarkers() {
+            const markers = await fetchMarkers();
+            markers.forEach(markerData => {
+                const position = new naver.maps.LatLng(markerData.lat, markerData.lng);
+                addMarker(position, markerData.title, markerData.spaceId, markerData.id);
+            });
+        }
+
+        // 초기화 실행
+        restoreMarkers();
+    </script>
+</body>
+</html>

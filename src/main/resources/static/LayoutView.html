@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>주차장 레이아웃</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            margin: 20px;
+            font-size: 2rem;
+            color: #333;
+        }
+
+        svg {
+            border: 2px solid #333;
+            width: 90%;
+            height: 600px;
+            margin-top: 20px;
+            background-color: white;
+        }
+
+        .parking-spot,
+        .entrance,
+        .exit {
+            stroke: black;
+            stroke-width: 2;
+        }
+
+        .parking-spot {
+            fill: lightgray;
+        }
+
+        .available {
+            fill: green !important;
+        }
+
+        .occupied {
+            fill: red !important;
+        }
+
+        .no-sensor {
+            fill: black !important;
+        }
+
+        .entrance {
+            fill: lightgreen;
+        }
+
+        .exit {
+            fill: lightcoral;
+        }
+
+        text {
+            font-size: 12px;
+            fill: white;
+            text-anchor: middle;
+        }
+    </style>
+</head>
+<body>
+    <h1>주차장 레이아웃</h1>
+
+    <svg id="parking-lot">
+        <defs>
+            <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="black" stroke-width="1" />
+            </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#grid)" style="pointer-events: none;" />
+    </svg>
+
+    <script>
+        const svg = document.getElementById("parking-lot");
+
+        // 서버에서 데이터를 가져와 레이아웃을 생성
+        async function fetchAndRenderLayout(parkingLotId) {
+            try {
+                const response = await fetch(`/api/parking-spaces?parkingLotId=${parkingLotId}`);
+                if (!response.ok) {
+                    throw new Error("주차 공간 데이터를 가져오는 데 실패했습니다.");
+                }
+
+                const parkingSpaces = await response.json();
+
+                // SVG 초기화
+                svg.innerHTML = `
+                    <defs>
+                        <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="black" stroke-width="1" />
+                        </pattern>
+                    </defs>
+                    <rect width="100%" height="100%" fill="url(#grid)" style="pointer-events: none;" />
+                `;
+
+                parkingSpaces.forEach(space => {
+                    const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+
+                    const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                    // `spaceLocation`을 ','로 나눠서 x와 y 좌표 추출
+                    const [x, y] = space.spaceLocation.split(',');
+                    rect.setAttribute("x", x);
+                    rect.setAttribute("y", y);
+                    rect.setAttribute("width", 40);
+                    rect.setAttribute("height", 80);
+
+                    // 블록 유형에 따라 색상 설정
+                    rect.setAttribute("class", "parking-spot");
+                    if (!space.sensor) {
+                        rect.classList.add("no-sensor");
+                    } else if (space.status === "Available") {
+                        rect.classList.add("available");
+                    } else if (space.status === "Occupied") {
+                        rect.classList.add("occupied");
+                    }
+
+                    group.appendChild(rect);
+
+                    // 센서 ID 텍스트 추가
+                    const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                    text.setAttribute("x", parseFloat(x) + 20); // 중앙 정렬
+                    text.setAttribute("y", parseFloat(y) + 45); // 중앙 정렬
+                    text.textContent = space.sensor ? space.sensor.sensorId : "N/A";
+                    group.appendChild(text);
+
+                    svg.appendChild(group);
+                });
+            } catch (error) {
+                console.error("에러 발생:", error);
+                alert("주차장 데이터를 불러오는 중 오류가 발생했습니다.");
+            }
+        }
+
+        // 페이지 로드 시 주차장 ID 입력 및 데이터 렌더링
+        document.addEventListener("DOMContentLoaded", () => {
+            const parkingLotId = prompt("주차장 ID를 입력하세요:");
+            if (parkingLotId) {
+                fetchAndRenderLayout(parkingLotId);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>주차장 디자이너</title>
+    <style>
+        /* 기본 스타일 */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            margin: 20px;
+            font-size: 2rem;
+            color: #333;
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #007BFF;
+            color: white;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        button.active {
+            background-color: #FF5733;
+        }
+
+        svg {
+            border: 2px solid #333;
+            width: 90%;
+            height: 600px;
+            margin-top: 20px;
+            background-color: white;
+        }
+
+        .parking-spot,
+        .entrance,
+        .exit {
+            stroke: black;
+            stroke-width: 2;
+            cursor: grab;
+        }
+
+        .parking-spot {
+            fill: lightgray;
+        }
+
+        .entrance {
+            fill: lightgreen;
+        }
+
+        .exit {
+            fill: lightcoral;
+        }
+
+        .selected {
+            stroke: blue;
+            stroke-width: 3;
+        }
+
+        text {
+            font-size: 16px;
+            fill: black;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        #sensor-form {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        #sensor-form input {
+            padding: 10px;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        label {
+            font-size: 1rem;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <h1>주차장 디자이너</h1>
+
+    <div class="button-group">
+        <button id="save-button">서버로 저장</button>
+        <button id="rotate-button" onclick="toggleRotateMode()">회전 모드 켜기/끄기</button>
+        <button onclick="addEntrance()">입구 추가</button>
+        <button onclick="addExit()">출구 추가</button>
+    </div>
+
+    <svg id="parking-lot">
+        <defs>
+            <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="black" stroke-width="1" />
+            </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#grid)" style="pointer-events: none;" />
+    </svg>
+
+
+     <!-- 센서 할당 폼 -->
+     <div id="sensor-form">
+        <label for="sensor-id">센서 ID:</label>
+        <input type="text" id="sensor-id" />
+        <button onclick="assignSensor()">센서 할당</button>
+    </div>
+
+    
+    <script>
+       const svg = document.getElementById("parking-lot");
+        let selectedBlock = null;
+        let isDragging = false;
+        let isRotateMode = false;
+        const blockWidth = 40;
+        const blockHeight = 80;
+        const entranceExitWidth = 120;
+        const entranceExitHeight = 120;
+        const gridSize = 20;
+
+        // 회전 모드 토글
+        function toggleRotateMode() {
+            isRotateMode = !isRotateMode;
+            document.getElementById("rotate-button").classList.toggle("active", isRotateMode);
+        }
+
+
+        // 클릭하여 주차 블록 추가
+        svg.addEventListener("click", (e) => {
+        if (e.target !== svg || isDragging) return; // 드래그 중이면 블록 생성 금지
+        const x = snapToGrid(e.offsetX, gridSize);
+        const y = snapToGrid(e.offsetY, gridSize);
+         const group = createBlock("parking-spot", x, y, "P");
+         svg.appendChild(group);
+});
+
+        // 블록 추가
+        function createBlock(type, x, y, label) {
+            const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+            const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+
+            let rectWidth = type === "entrance" || type === "exit" ? entranceExitWidth : blockWidth;
+            let rectHeight = type === "entrance" || type === "exit" ? entranceExitHeight : blockHeight;
+
+            rect.setAttribute("class", type);
+            rect.setAttribute("x", x);
+            rect.setAttribute("y", y);
+            rect.setAttribute("width", rectWidth);
+            rect.setAttribute("height", rectHeight);
+            rect.dataset.rotation = "0";
+
+            if (isRotateMode) {
+                rect.dataset.rotation = "90";
+                rect.setAttribute(
+                    "transform",
+                    `rotate(90, ${x + rectWidth / 2}, ${y + rectHeight / 2})`
+                );
+            }
+
+            group.appendChild(rect);
+
+            const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            text.setAttribute("x", x + rectWidth / 2);
+            text.setAttribute("y", y + rectHeight / 2);
+            text.setAttribute("text-anchor", "middle");
+            text.setAttribute("dominant-baseline", "middle");
+            text.textContent = label || type;
+
+            group.appendChild(text);
+
+            svg.appendChild(group);
+            return group;
+        }
+
+        // 입구 추가
+        function addEntrance() {
+            const group = createBlock("entrance", 10, 10, "입구");
+            svg.appendChild(group);
+        }
+
+        // 출구 추가
+        function addExit() {
+            const group = createBlock("exit", 200, 10, "출구");
+            svg.appendChild(group);
+        }
+
+
+         // 블록 생성 공통 함수
+         function createBlock(type, x, y, label = "") {
+            const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+
+            const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+            rect.setAttribute("class", type);
+
+            // 입구와 출구는 더 큰 크기로 설정
+            let rectWidth, rectHeight;
+
+            if (type === "entrance" || type === "exit") {
+                rectWidth = entranceExitWidth;
+                rectHeight = entranceExitHeight;
+            } else {
+                rectWidth = blockWidth;
+                rectHeight = blockHeight;
+            }
+
+            // 회전 모드 활성화 시 위치 조정
+                if (isRotateMode) {
+                    rect.setAttribute("x", x ); // 가로 세로 반전
+                    rect.setAttribute("y", y - rectHeight );
+                    rect.dataset.rotation = 90;
+                    rect.setAttribute(
+                        "transform",
+                        `rotate(90, ${x}, ${y})`
+                    );
+                } else {
+                    rect.setAttribute("x", x);
+                    rect.setAttribute("y", y);
+                    rect.dataset.rotation = 0;
+                }
+
+                rect.setAttribute("width", rectWidth);
+                rect.setAttribute("height", rectHeight);
+                rect.dataset.sensorId = "";
+
+                group.appendChild(rect);
+
+    // 텍스트 추가
+    if (label) {
+        const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        text.setAttribute(
+            "x",
+            x + (isRotateMode ? rectHeight / 2 : rectWidth / 2)
+        );
+        text.setAttribute(
+            "y",
+            y + (isRotateMode ? rectWidth / 2 : rectHeight / 2)
+        );
+        text.setAttribute("text-anchor", "middle");
+        text.setAttribute("dominant-baseline", "middle");
+        text.textContent = label;
+        group.appendChild(text);
+    }
+
+    addBlockListeners(group);
+    return group;
+}
+
+
+
+function addBlockListeners(group) {
+    group.addEventListener("click", (e) => {
+        e.stopPropagation();
+        selectBlock(group);
+    });
+
+    group.addEventListener("mousedown", startDrag);
+}
+
+        // 선택된 블록 관리
+        function selectBlock(block) {
+            if (selectedBlock) {
+                selectedBlock.classList.remove("selected");
+            }
+            selectedBlock = block;
+            if (selectedBlock) {
+                selectedBlock.classList.add("selected");
+                const sensorIdInput = document.getElementById("sensor-id");
+                sensorIdInput.value = selectedBlock.querySelector("rect").dataset.sensorId || "";
+            }
+        }
+
+        // 드래그 시작
+        function startDrag(e) {
+        if (isDragging) return;
+        isDragging = true;
+        const rect = e.target.closest("g").querySelector("rect");
+        const group = e.target.closest("g");
+        const rotation = parseInt(rect.dataset.rotation);
+        const startX = parseFloat(rect.getAttribute("x"));
+        const startY = parseFloat(rect.getAttribute("y"));
+        if(rotation === "90"){
+        startX = parseFloat(rect.getAttribute("y"));
+        startY = parseFloat(rect.getAttribute("x"));
+        }
+
+        const dragMove = (moveEvent) => {
+            const dx = moveEvent.clientX - e.clientX;
+            const dy = moveEvent.clientY - e.clientY;
+
+            let newX = startX + dx;
+            let newY = startY + dy;
+
+            if (rotation === 90 || rotation === 270) {
+                newX = snapToGrid(startX + dx, gridSize);
+                newY = snapToGrid(startY + dy, gridSize);
+            } else {
+                newX = snapToGrid(newX, gridSize);
+                newY = snapToGrid(newY, gridSize);
+            }
+
+            rect.setAttribute("x", newX);
+            rect.setAttribute("y", newY);
+            rect.setAttribute(
+                "transform",
+                `rotate(${rotation}, ${newX + parseFloat(rect.getAttribute("width")) / 2}, ${newY + parseFloat(rect.getAttribute("height")) / 2})`
+            );
+
+            const text = group.querySelector("text");
+            if (text) {
+                text.setAttribute(
+                    "x",
+                    newX + (rect.getAttribute("class") === "parking-spot" ? blockWidth / 2 : entranceExitWidth / 2)
+                );
+                text.setAttribute(
+                    "y",
+                    newY + (rect.getAttribute("class") === "parking-spot" ? blockHeight / 2 : entranceExitHeight / 2)
+                );
+            }
+    };
+
+    const dragEnd = () => {
+        isDragging = false; // 드래그 상태 종료
+        window.removeEventListener("mousemove", dragMove);
+        window.removeEventListener("mouseup", dragEnd);
+    };
+
+    window.addEventListener("mousemove", dragMove);
+    window.addEventListener("mouseup", dragEnd);
+
+
+}
+
+
+ // 그리드 맞춤
+ function snapToGrid(value, size) {
+            return Math.round(value / size) * size;
+        }
+
+
+
+
+         // 키보드 이벤트 리스너 추가
+         document.getElementById("save-button").addEventListener("click", async () => {
+    // 주차장 이름 입력
+    const parkingLotName = prompt("주차장 이름을 입력하세요:");
+    if (!parkingLotName || parkingLotName.trim() === "") {
+        return alert("주차장 이름은 필수입니다.");
+    }
+
+    // 주차장 위치 입력
+    const parkingLotLocation = prompt("주차장 위치를 입력하세요:");
+    if (!parkingLotLocation || parkingLotLocation.trim() === "") {
+        return alert("주차장 위치는 필수입니다.");
+    }
+
+    // 주차장 데이터를 먼저 생성
+    const parkingLotData = {
+        name: parkingLotName.trim(),
+        location: parkingLotLocation.trim(),
+    };
+
+    let parkingLotId; // 생성된 parkingLotID를 저장할 변수
+    try {
+        // parkinglot 테이블에 데이터 삽입 요청
+        const parkingLotResponse = await fetch("/api/parking-lots", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(parkingLotData),
+        });
+
+        if (!parkingLotResponse.ok) {
+            const errorData = parkingLotResponse.headers.get("Content-Type").includes("application/json")
+                ? await parkingLotResponse.json()
+                : { message: parkingLotResponse.statusText };
+            throw new Error(`주차장 생성 실패: ${errorData.message}`);
+        }
+
+        // 생성된 주차장 데이터에서 parkingLotID 추출
+        const createdParkingLot = await parkingLotResponse.json();
+        parkingLotId = createdParkingLot.parkingLotID;
+
+        alert(`주차장 정보가 저장되었습니다. 주차장 ID: ${parkingLotId}`);
+    } catch (error) {
+        console.error("주차장 생성 중 오류 발생:", error);
+        return alert("주차장 생성에 실패했습니다.");
+    }
+
+    // 주차 공간 데이터 생성
+    const layout = [];
+    svg.querySelectorAll("g").forEach(group => {
+        const rect = group.querySelector("rect");
+        const x = rect.getAttribute("x");
+        const y = rect.getAttribute("y");
+
+        // x, y 값 검증
+        if (isNaN(x) || isNaN(y)) {
+            console.warn(`Invalid coordinates for rect element: x=${x}, y=${y}`);
+            return; // 잘못된 좌표 건너뜀
+        }
+
+        // Layout 데이터 구성
+        layout.push({
+            parkingLotId, // 서버에서 받은 주차장 ID 사용
+            spaceLocation: `${x},${y}`, // x와 y를 'x,y' 형식으로 저장
+            status: "UNKNOWN", // 상태 기본값 설정
+            sensorId: rect.dataset.sensorId || null, // 센서 정보
+        });
+    });
+
+    if (layout.length === 0) {
+        return alert("주차 공간 레이아웃 데이터가 없습니다. SVG를 확인해주세요.");
+    }
+
+    // parkingspace 데이터 삽입
+    try {
+        for (const space of layout) {
+            // 센서 ID 유효성 검사 추가
+            if (space.sensorId && isNaN(space.sensorId)) {
+                console.warn(`Invalid sensorId for space: ${space.sensorId}`);
+                continue; // 잘못된 sensorId 건너뜀
+            }
+
+            const response = await fetch("/api/parking-spaces", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(space),
+            });
+
+            if (!response.ok) {
+                const errorData = response.headers.get("Content-Type").includes("application/json")
+                    ? await response.json()
+                    : { message: response.statusText };
+                throw new Error(`주차 공간 저장 실패: ${errorData.message}`);
+            }
+        }
+        alert("모든 주차장 레이아웃이 저장되었습니다.");
+        svg.innerHTML = ''; // SVG 초기화
+        window.location.reload(); // 페이지 새로고침
+    } catch (error) {
+        console.error("주차 공간 저장 중 오류 발생:", error);
+        alert("주차 공간 저장에 실패했습니다.");
+    }
+});
+
+
+
+        // SVG 클릭 시 블록 회전
+        svg.addEventListener("click", e => {
+            if (e.target.tagName === "rect") {
+                rotateBlock(e.target.closest("g"));
+            }
+        });
+    </script>
+</body>
+</html>

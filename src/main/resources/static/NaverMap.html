@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>맵 편집 툴</title>
+    <script type="text/javascript" src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=rzg4gxzu0k"></script>
+    <style>
+        #map {
+            width: 100%;
+            height: 500px;
+        }
+        html, body { width:100%; height:100%; padding:0; margin:0; }
+    </style>
+</head>
+<body>
+    <input type="text" id="naver-search" placeholder="장소 검색">
+        <button onclick="searchPlace()">지도 검색</button>
+    <div id="map">
+    </div>
+
+    <script>
+
+ // 지도 초기화
+ const map = new naver.maps.Map('map', {
+            center: new naver.maps.LatLng(36.852587903317065, 127.15023817064628),
+            zoom: 15,
+        });
+
+        // 공통 HTTP 요청 처리 함수
+async function sendRequest(url, method = 'GET', body = null) {
+    const options = {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+    };
+    if (body) {
+        options.body = JSON.stringify(body);
+    }
+
+    try {
+        const response = await fetch(url, options);
+        if (!response.ok) throw new Error(`${method} 요청 실패: ${response.statusText}`);
+        return await response.json();
+    } catch (error) {
+        console.error(`${method} 요청 중 오류 발생:`, error);
+        return [];
+    }
+}
+
+// 마커 데이터 가져오기 (전체 또는 검색 조건)
+async function fetchMarkers(query = '') {
+    const url = query ? `/api/markers/search?query=${encodeURIComponent(query)}` : '/api/markers';
+    return await sendRequest(url);
+}
+
+// 마커 데이터 저장
+async function saveMarkerToServer(markerData) {
+    await sendRequest('/api/markers', 'POST', markerData);
+}
+
+// 마커 데이터 삭제
+async function deleteMarkerFromServer(markerId) {
+    await sendRequest(`/api/markers/${markerId}`, 'DELETE');
+}
+
+// 지도에 마커 추가
+function addMarker(position, title = '마커', page = 'default.html', id = null) {
+    const marker = new naver.maps.Marker({
+        position,
+        map,
+        icon: {
+            url: 'https://ssl.pstatic.net/static/maps/img/icons/pin_s_1.png',
+            size: new naver.maps.Size(22, 30),
+            anchor: new naver.maps.Point(11, 30),
+        },
+        title,
+    });
+
+    const iwContent = `
+        <div>
+            <div style="margin:0;padding:0;">
+                <a href="#" class="spmc btn_clear">핀 삭제</a>
+                <div>${title}</div>
+                <button><a href="${page}" target="_blank">주차장 확인</a></button>
+                <button onclick="saveFavorite('${page}', '${title}')">주차장 즐겨찾기</button>
+            </div>
+        </div>
+    `;
+
+    const infoWindow = new naver.maps.InfoWindow({ content: iwContent });
+
+    naver.maps.Event.addListener(marker, 'click', () => {
+        infoWindow.open(map, marker);
+    });
+
+    infoWindow.open = function (map, marker) {
+        naver.maps.InfoWindow.prototype.open.call(this, map, marker);
+        const closeButton = this.getWrapElement().querySelector('.btn_clear');
+        closeButton.addEventListener('click', function () {
+            marker.setMap(null);
+            infoWindow.close();
+            if (id) deleteMarkerFromServer(id);
+        });
+    };
+
+    if (!id) {
+        saveMarkerToServer({ lat: position.lat(), lng: position.lng(), title, page });
+    }
+}
+
+// 여러 마커를 지도에 표시
+function displayMarkers(markers) {
+    markers.forEach(markerData => {
+        const position = new naver.maps.LatLng(markerData.lat, markerData.lng);
+        addMarker(position, markerData.title, markerData.page, markerData.id);
+    });
+}
+
+// 장소 검색 및 지도 중심 이동
+async function searchPlace() {
+    const query = document.getElementById('naver-search').value.trim();
+    if (!query) {
+        alert('검색어를 입력하세요.');
+        return;
+    }
+
+    // 서버 검색
+    const serverResults = await fetchMarkers(query);
+    if (serverResults.length > 0) {
+        displayMarkers(serverResults);
+        return;
+    } else {
+        alert('서버에서 검색 결과를 찾을 수 없습니다. 네이버 API를 통해 검색합니다.');
+    }
+
+    // 네이버 지도 API 검색
+    const geocoder = new naver.maps.Service.Geocoder();
+    geocoder.geocode({ query }, function (status, response) {
+        if (status !== naver.maps.Service.Status.OK) {
+            alert('네이버 API 검색 결과가 없습니다.');
+            return;
+        }
+
+        const result = response.v2.addresses[0];
+        const position = new naver.maps.LatLng(result.y, result.x);
+        map.setCenter(position);
+        addMarker(position, result.roadAddress || result.jibunAddress, 'default.html');
+        alert(`"${query}" 장소로 이동합니다.`);
+    });
+}
+
+// 초기화 시 모든 마커 복원
+async function restoreMarkers() {
+    const markers = await fetchMarkers();
+    displayMarkers(markers);
+}
+
+// 초기화 실행
+restoreMarkers();
+
+    </script>
+</body>
+</html>
