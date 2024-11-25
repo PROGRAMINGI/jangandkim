@@ -149,6 +149,11 @@
         const gridSize = 20;
 
 
+
+        // 테스트용 parkingLotID
+        let parkingLotId = 88893;
+
+        
         // 주차장 이름과 위치 먼저 입력 받기
         let parkingLotName = prompt("주차장 이름을 입력하세요:");
         if (!parkingLotName || parkingLotName.trim() === "") {
@@ -162,7 +167,7 @@
             parkingLotLocation = "기본 위치";
         }
 
-        
+
         // 회전 모드 토글
         function toggleRotateMode() {
             isRotateMode = !isRotateMode;
@@ -386,38 +391,6 @@ function addBlockListeners(group) {
 
          // 키보드 이벤트 리스너 추가
         document.getElementById("save-button").addEventListener("click", async () => {
-            // 주차장 데이터를 먼저 생성
-            const parkingLotData = {
-                name: parkingLotName.trim(),
-                location: parkingLotLocation.trim(),
-            };
-
-            let parkingLotId; // 생성된 parkingLotID를 저장할 변수
-            try {
-                // parkinglot 테이블에 데이터 삽입 요청
-                const parkingLotResponse = await fetch("/api/parking-lots", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(parkingLotData),
-                });
-
-                if (!parkingLotResponse.ok) {
-                    const errorData = parkingLotResponse.headers.get("Content-Type").includes("application/json")
-                        ? await parkingLotResponse.json()
-                        : { message: parkingLotResponse.statusText };
-                    throw new Error(`주차장 생성 실패: ${errorData.message}`);
-                }
-
-                // 생성된 주차장 데이터에서 parkingLotID 추출
-                const createdParkingLot = await parkingLotResponse.json();
-                parkingLotId = createdParkingLot.parkingLotID;
-
-                alert(`주차장 정보가 저장되었습니다. 주차장 ID: ${parkingLotId}`);
-            } catch (error) {
-                console.error("주차장 생성 중 오류 발생:", error);
-                return alert("주차장 생성에 실패했습니다.");
-            }
-
             // 주차 공간 데이터 생성
             const layout = [];
             svg.querySelectorAll("g").forEach(group => {
@@ -433,7 +406,7 @@ function addBlockListeners(group) {
 
                 // Layout 데이터 구성
                 layout.push({
-                    parkingLotId, // 서버에서 받은 주차장 ID 사용
+                    parkingLotId, // 테스트용 주차장 ID 사용
                     spaceLocation: `${x},${y}`, // x와 y를 'x,y' 형식으로 저장
                     status: "UNKNOWN", // 상태 기본값 설정
                     sensorId: rect.dataset.sensorId || null, // 센서 정보
@@ -448,7 +421,6 @@ function addBlockListeners(group) {
             console.log("주차 공간 데이터:", layout);
             alert(`모든 주차 공간 데이터가 준비되었습니다. 주차장 ID: ${parkingLotId}`);
         });
-
 
         // SVG 클릭 시 블록 회전
         svg.addEventListener("click", e => {
