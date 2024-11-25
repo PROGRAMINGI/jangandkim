@@ -153,7 +153,7 @@
         // 테스트용 parkingLotID
         let parkingLotId = 88893;
 
-        
+
         // 주차장 이름과 위치 먼저 입력 받기
         let parkingLotName = prompt("주차장 이름을 입력하세요:");
         if (!parkingLotName || parkingLotName.trim() === "") {
@@ -389,8 +389,7 @@ function addBlockListeners(group) {
 
 
 
-         // 키보드 이벤트 리스너 추가
-        document.getElementById("save-button").addEventListener("click", async () => {
+   document.getElementById("save-button").addEventListener("click", async () => {
             // 주차 공간 데이터 생성
             const layout = [];
             svg.querySelectorAll("g").forEach(group => {
@@ -417,11 +416,25 @@ function addBlockListeners(group) {
                 return alert("주차 공간 레이아웃 데이터가 없습니다. SVG를 확인해주세요.");
             }
 
-            // 주차 공간 데이터를 서버로 전송하지 않음
-            console.log("주차 공간 데이터:", layout);
-            alert(`모든 주차 공간 데이터가 준비되었습니다. 주차장 ID: ${parkingLotId}`);
-        });
+            // 서버로 주차 공간 데이터 전송
+            try {
+                const response = await fetch("/api/parking-spaces", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(layout),
+                });
 
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(`주차 공간 저장 실패: ${errorData.message}`);
+                }
+
+                alert("모든 주차 공간 데이터가 서버로 저장되었습니다.");
+            } catch (error) {
+                console.error("주차 공간 저장 중 오류 발생:", error);
+                alert("주차 공간 저장에 실패했습니다.");
+            }
+        });
         // SVG 클릭 시 블록 회전
         svg.addEventListener("click", e => {
             if (e.target.tagName === "rect") {
