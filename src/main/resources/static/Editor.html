@@ -181,12 +181,13 @@
 
         // 클릭하여 주차 블록 추가
         svg.addEventListener("click", (e) => {
-        if (e.target !== svg || isDragging) return; // 드래그 중이면 블록 생성 금지
-        const x = snapToGrid(e.offsetX, gridSize);
-        const y = snapToGrid(e.offsetY, gridSize);
-         const group = createBlock("parking-spot", x, y, "P");
-         svg.appendChild(group);
+    if (e.target !== svg || isDragging || !parkingLotId) return; // 드래그 중이거나 ID 없으면 블록 생성 금지
+    const x = snapToGrid(e.offsetX, gridSize);
+    const y = snapToGrid(e.offsetY, gridSize);
+    const group = createBlock("parking-spot", x, y, "P");
+    svg.appendChild(group);
 });
+
 
        
         // 입구 추가
@@ -264,26 +265,31 @@
 
 
 
+// saveParkingLot 함수 수정
 async function saveParkingLot() {
-            try {
-                const response = await fetch("/api/parking-lots", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ name: parkingLotName, location: parkingLotLocation }),
-                });
+    try {
+        const response = await fetch("/api/parking-lots", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name: parkingLotName, location: parkingLotLocation }),
+        });
 
-                if (!response.ok) {
-                    throw new Error("주차장 정보를 저장하는 중 오류가 발생했습니다.");
-                }
-
-                const parkingLot = await response.json();
-                parkingLotId = parkingLot.parkingLotID; // 서버에서 받은 ID 저장
-                alert(`주차장 ID: ${parkingLotId}`);
-            } catch (error) {
-                console.error(error);
-                alert("주차장 저장에 실패했습니다.");
-            }
+        if (!response.ok) {
+            throw new Error("주차장 정보를 저장하는 중 오류가 발생했습니다.");
         }
+
+        const parkingLot = await response.json();
+        parkingLotId = parkingLot.parkingLotID; // 서버에서 받은 ID 저장
+        alert(`주차장 ID: ${parkingLotId}`);
+        document.getElementById("save-button").disabled = false; // 저장 버튼 활성화
+    } catch (error) {
+        console.error(error);
+        alert("주차장 저장에 실패했습니다.");
+    }
+}
+
+// 초기 상태에서 저장 버튼 비활성화
+document.getElementById("save-button").disabled = true;
 
 
 
@@ -373,6 +379,27 @@ function addBlockListeners(group) {
 }
 
 
+
+
+function rotateBlock(group) {
+    const rect = group.querySelector("rect");
+    const currentRotation = parseInt(rect.dataset.rotation, 10) || 0;
+    const newRotation = (currentRotation + 90) % 360;
+
+    const x = parseFloat(rect.getAttribute("x"));
+    const y = parseFloat(rect.getAttribute("y"));
+    const width = parseFloat(rect.getAttribute("width"));
+    const height = parseFloat(rect.getAttribute("height"));
+
+    rect.dataset.rotation = newRotation;
+    rect.setAttribute(
+        "transform",
+        `rotate(${newRotation}, ${x + width / 2}, ${y + height / 2})`
+    );
+}
+
+
+
  // 그리드 맞춤
  function snapToGrid(value, size) {
             return Math.round(value / size) * size;
@@ -401,21 +428,23 @@ function addBlockListeners(group) {
             });
 
             try {
-                const response = await fetch("/api/parking-spaces", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(layout),
-                });
+    const response = await fetch("/api/parking-spaces", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(layout),
+    });
 
-                if (!response.ok) {
-                    throw new Error("주차 공간 정보를 저장하는 중 오류가 발생했습니다.");
-                }
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`주차 공간 저장 실패: ${errorData.message}`);
+    }
 
-                alert("모든 주차 공간 데이터가 서버에 저장되었습니다.");
-            } catch (error) {
-                console.error(error);
-                alert("주차 공간 저장에 실패했습니다.");
-            }
+    alert("모든 주차 공간 데이터가 서버에 저장되었습니다.");
+} catch (error) {
+    console.error("주차 공간 저장 중 오류 발생:", error.message);
+    alert(error.message || "주차 공간 저장에 실패했습니다.");
+}
+
         });
 
 
