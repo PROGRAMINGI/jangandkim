@@ -125,19 +125,23 @@
         }
 
         async function saveMarkerToServer(markerData) {
-            try {
-                const response = await fetch('/api/markers', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(markerData),
-                });
-                if (!response.ok) {
-                    throw new Error('마커 저장 실패');
-                }
-            } catch (error) {
-                console.error('마커 데이터를 저장하는 중 오류 발생:', error);
-            }
+    try {
+        console.log("저장할 마커 데이터:", markerData);
+        const response = await fetch('/api/markers', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(markerData),
+        });
+        if (!response.ok) {
+            const errorDetails = await response.text(); // 응답 내용을 텍스트로 확인
+            throw new Error(`마커 저장 실패: ${response.status} - ${response.statusText}\n상세 정보: ${errorDetails}`);
         }
+        alert('마커가 서버에 성공적으로 저장되었습니다.');
+    } catch (error) {
+        console.error('마커 데이터를 저장하는 중 오류 발생:', error);
+        alert('마커 저장 중 오류 발생: ' + error.message);
+    }
+}
 
         async function deleteMarkerFromServer(markerId) {
             try {
