@@ -113,7 +113,7 @@
     <h1>주차장 디자이너</h1>
 
     <div class="button-group">
-        <button id="save-button">서버로 저장</button>
+        <button id="save-button" disabled>서버로 저장</button>
         <button id="rotate-button" onclick="toggleRotateMode()">회전 모드 켜기/끄기</button>
         <button onclick="addEntrance()">입구 추가</button>
         <button onclick="addExit()">출구 추가</button>
@@ -149,14 +149,7 @@
         const gridSize = 20;
 
 
-
-
-
-
          // 블록 추가
-        
-
-
 
         // 주차장 이름과 위치 먼저 입력 받기
         let parkingLotName = prompt("주차장 이름을 입력하세요:");
@@ -179,15 +172,18 @@
         }
 
 
-        // 클릭하여 주차 블록 추가
         svg.addEventListener("click", (e) => {
-    if (e.target !== svg || isDragging || !parkingLotId) return; // 드래그 중이거나 ID 없으면 블록 생성 금지
+    if (!parkingLotId) {
+        alert("주차장을 먼저 저장하세요.");
+        return;
+    }
+
+    if (e.target !== svg || isDragging) return;
     const x = snapToGrid(e.offsetX, gridSize);
     const y = snapToGrid(e.offsetY, gridSize);
     const group = createBlock("parking-spot", x, y, "P");
     svg.appendChild(group);
 });
-
 
        
         // 입구 추가
@@ -285,8 +281,10 @@ async function saveParkingLot() {
     } catch (error) {
         console.error(error);
         alert("주차장 저장에 실패했습니다.");
+        document.getElementById("save-button").disabled = true; // 버튼 활성화 방지
     }
 }
+
 
 // 초기 상태에서 저장 버튼 비활성화
 document.getElementById("save-button").disabled = true;
@@ -366,6 +364,13 @@ function addBlockListeners(group) {
             }
     };
 
+
+    window.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("save-parking-lot-button").addEventListener("click", saveParkingLot);
+});
+
+
+
     const dragEnd = () => {
         isDragging = false; // 드래그 상태 종료
         window.removeEventListener("mousemove", dragMove);
@@ -400,6 +405,7 @@ function rotateBlock(group) {
 
 
 
+
  // 그리드 맞춤
  function snapToGrid(value, size) {
             return Math.round(value / size) * size;
@@ -414,18 +420,23 @@ function rotateBlock(group) {
             }
 
             const layout = [];
-            svg.querySelectorAll("g").forEach(group => {
-                const rect = group.querySelector("rect");
-                const x = rect.getAttribute("x");
-                const y = rect.getAttribute("y");
+svg.querySelectorAll("g").forEach((group) => {
+    const rect = group.querySelector("rect");
+    const x = rect.getAttribute("x");
+    const y = rect.getAttribute("y");
 
-                layout.push({
-                    parkingLot: { parkingLotID: parkingLotId },
-                    spaceLocation: `${x},${y}`,
-                    status: "UNKNOWN",
-                    sensorId: rect.dataset.sensorId || null,
-                });
-            });
+    if (!x || !y) {
+        console.warn("Invalid coordinates for parking space:", rect);
+        return; // 잘못된 블록은 건너뜀
+    }
+
+    layout.push({
+        parkingLot: { parkingLotID: parkingLotId },
+        spaceLocation: `${x},${y}`,
+        status: "UNKNOWN",
+        sensorId: rect.dataset.sensorId || null,
+    });
+});
 
             try {
     const response = await fetch("/api/parking-spaces", {
@@ -455,7 +466,6 @@ function rotateBlock(group) {
             }
         });
 
-        saveParkingLot();
     </script>
 </body>
 </html>
