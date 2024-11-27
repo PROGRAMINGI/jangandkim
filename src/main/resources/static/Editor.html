@@ -173,11 +173,6 @@
 
 
         svg.addEventListener("click", (e) => {
-    if (!parkingLotId) { // 얘 또 null 으로 오류남
-        alert("주차장을 먼저 저장하세요.");
-        return;
-    }
-
     if (e.target !== svg || isDragging) return;
     const x = snapToGrid(e.offsetX, gridSize);
     const y = snapToGrid(e.offsetY, gridSize);
@@ -215,6 +210,7 @@
             } else {
                 rectWidth = blockWidth;
                 rectHeight = blockHeight;
+                label = "P"
             }
 
             // 회전 모드 활성화 시 위치 조정
