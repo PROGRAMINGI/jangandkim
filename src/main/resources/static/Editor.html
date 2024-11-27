@@ -173,7 +173,7 @@
 
 
         svg.addEventListener("click", (e) => {
-    if (!parkingLotId) {
+    if (!parkingLotId) { // 얘 또 null 으로 오류남
         alert("주차장을 먼저 저장하세요.");
         return;
     }
@@ -415,6 +415,8 @@ function rotateBlock(group) {
 
 
         document.getElementById("save-button").addEventListener("click", async () => {
+            const parkingLot = await response.json();
+            parkingLotId = parkingLot.parkingLotID
             if (!parkingLotId) {
                 return alert("주차장 ID가 없습니다. 주차장을 먼저 저장하세요.");
             }
