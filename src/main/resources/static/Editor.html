@@ -412,52 +412,64 @@ function rotateBlock(group) {
 
 
 
-document.getElementById("save-button").addEventListener("click", async () => {
-            const parkingLot = await response.json();
-            parkingLotId = parkingLot.parkingLotID
-            if (!parkingLotId) {
-                return alert("주차장 ID가 없습니다. 주차장을 먼저 저장하세요.");
+        document.getElementById("save-button").addEventListener("click", async () => {
+    try {
+        // 주차장 정보 먼저 저장
+        const parkingLotResponse = await fetch("/api/parking-lots", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name: parkingLotName, location: parkingLotLocation }),
+        });
+
+        if (!parkingLotResponse.ok) {
+            throw new Error("주차장 정보를 저장하는 중 오류가 발생했습니다.");
+        }
+
+        const parkingLot = await parkingLotResponse.json();
+        const parkingLotId = parkingLot.parkingLotID;
+
+        if (!parkingLotId) {
+            return alert("주차장 ID가 없습니다. 주차장을 먼저 저장하세요.");
+        }
+
+        const layout = [];
+
+        svg.querySelectorAll("g").forEach((group) => {
+            const rect = group.querySelector("rect");
+            const x = rect.getAttribute("x");
+            const y = rect.getAttribute("y");
+
+            if (!x || !y) {
+                console.warn("Invalid coordinates for parking space:", rect);
+                return; // 잘못된 블록은 건너뜀
             }
 
-            const layout = [];
+            layout.push({
+                parkingLot: { parkingLotID: parkingLotId },
+                spaceLocation: `${x},${y}`,
+                status: "UNKNOWN",
+                sensorId: rect.dataset.sensorId || null,
+            });
+        });
 
-svg.querySelectorAll("g").forEach((group) => {
-    const rect = group.querySelector("rect");
-    const x = rect.getAttribute("x");
-    const y = rect.getAttribute("y");
+        const layoutResponse = await fetch("/api/parking-spaces", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(layout),
+        });
 
-    if (!x || !y) {
-        console.warn("Invalid coordinates for parking space:", rect);
-        return; // 잘못된 블록은 건너뜀
+        if (!layoutResponse.ok) {
+            const errorData = await layoutResponse.json();
+            throw new Error(`주차 공간 저장 실패: ${errorData.message}`);
+        }
+
+        alert("모든 주차 공간 데이터가 서버에 저장되었습니다.");
+    } catch (error) {
+        console.error("저장 중 오류 발생:", error.message);
+        alert(error.message || "저장에 실패했습니다.");
     }
-
-    layout.push({
-        parkingLot: { parkingLotID: parkingLotId },
-        spaceLocation: `${x},${y}`,
-        status: "UNKNOWN",
-        sensorId: rect.dataset.sensorId || null,
-    });
 });
 
-            try {
-    const response = await fetch("/api/parking-spaces", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(layout),
-    });
-
-    if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(`주차 공간 저장 실패: ${errorData.message}`);
-    }
-
-    alert("모든 주차 공간 데이터가 서버에 저장되었습니다.");
-} catch (error) {
-    console.error("주차 공간 저장 중 오류 발생:", error.message);
-    alert(error.message || "주차 공간 저장에 실패했습니다.");
-}
-
-        });
 
 
         // SVG 클릭 시 블록 회전
