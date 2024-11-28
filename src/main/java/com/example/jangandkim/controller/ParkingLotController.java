@@ -34,7 +34,8 @@ public class ParkingLotController {
                              .body("주차장을 찾을 수 없습니다. ID: " + id);
     }
 
-    @PostMapping
+
+    @PostMapping("/api/parking-lots")
 public ResponseEntity<?> createParkingLot(@RequestBody ParkingLot parkingLot) {
     System.out.println("요청 데이터: " + parkingLot);
     try {
