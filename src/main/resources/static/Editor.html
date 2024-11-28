@@ -364,7 +364,7 @@ function addBlockListeners(group) {
 
 
     window.addEventListener("DOMContentLoaded", () => {
-    document.getElementById("save-parking-lot-button").addEventListener("click", saveParkingLot);
+    document.getElementById("save-button").addEventListener("click", saveParkingLot);
 });
 
 
@@ -412,7 +412,7 @@ function rotateBlock(group) {
 
 
 
-        document.getElementById("save-button").addEventListener("click", async () => {
+document.getElementById("save-button").addEventListener("click", async () => {
             const parkingLot = await response.json();
             parkingLotId = parkingLot.parkingLotID
             if (!parkingLotId) {
@@ -420,6 +420,7 @@ function rotateBlock(group) {
             }
 
             const layout = [];
+
 svg.querySelectorAll("g").forEach((group) => {
     const rect = group.querySelector("rect");
     const x = rect.getAttribute("x");
