@@ -35,16 +35,19 @@ public class ParkingLotController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createParkingLot(@RequestBody ParkingLot parkingLot) {
-        try {
-            parkingLot.setParkingLotID(0); // ID는 자동 생성
-            ParkingLot savedLot = parkingLotService.saveParkingLot(parkingLot);
-            return ResponseEntity.ok(savedLot);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                 .body("주차장 생성 실패: " + e.getMessage());
-        }
+public ResponseEntity<?> createParkingLot(@RequestBody ParkingLot parkingLot) {
+    System.out.println("요청 데이터: " + parkingLot);
+    try {
+        parkingLot.setParkingLotID(0); // ID는 자동 생성
+        ParkingLot savedLot = parkingLotService.saveParkingLot(parkingLot);
+        return ResponseEntity.ok(savedLot);
+    } catch (Exception e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                             .body("주차장 생성 실패: " + e.getMessage());
     }
+}
+
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateParkingLot(@PathVariable int id, @RequestBody ParkingLot parkingLot) {
