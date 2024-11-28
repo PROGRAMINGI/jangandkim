@@ -19,10 +19,10 @@ public class ParkingLot {
     @Version
     private int version; // 낙관적 잠금에 사용할 버전 필드
     
-    @Column(name = "Name", length = 100, nullable = false)
+    @Column(name = "name", length = 100, nullable = false)
     private String name;
 
-    @Column(name = "Location", length = 255, nullable = false)
+    @Column(name = "location", length = 255, nullable = false)
     private String location;
 
     @OneToMany(mappedBy = "parkingLot", cascade = CascadeType.ALL)
