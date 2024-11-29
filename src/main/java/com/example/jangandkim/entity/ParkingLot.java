@@ -20,7 +20,8 @@ public class ParkingLot {
     private int parkingLotID;
 
 
-
+    @Column(nullable = true) 
+    private int version;
     
    @Column(name = "name", length = 100, nullable = false)
     @NotNull(message = "주차장 이름은 필수입니다.")
