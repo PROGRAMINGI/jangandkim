@@ -35,14 +35,25 @@ public class ParkingSpaceController {
     }
 
     @PostMapping
-public ResponseEntity<?> createParkingSpace(@RequestBody ParkingSpace parkingSpace) {
-    try {
-        ParkingSpace savedSpace = parkingSpaceService.saveParkingSpace(parkingSpace);
-        return ResponseEntity.ok(savedSpace);
-    } catch (Exception e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("주차 공간 생성 실패: " + e.getMessage());
+    public ResponseEntity<?> createParkingSpace(@RequestBody ParkingSpace parkingSpace) {
+        try {
+            ParkingSpace savedSpace = parkingSpaceService.saveParkingSpace(parkingSpace);
+            return ResponseEntity.ok(savedSpace);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("주차 공간 생성 실패: " + e.getMessage());
+        }
     }
-}
+    
+    @PostMapping("/bulk")
+    public ResponseEntity<?> createParkingSpaces(@RequestBody List<ParkingSpace> parkingSpaces) {
+        try {
+            parkingSpaceService.saveAllParkingSpaces(parkingSpaces);
+            return ResponseEntity.ok("모든 주차 공간이 저장되었습니다.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("주차 공간 생성 실패: " + e.getMessage());
+        }
+    }
+    
 
 
     @GetMapping
