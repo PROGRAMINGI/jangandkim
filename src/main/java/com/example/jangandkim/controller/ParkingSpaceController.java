@@ -23,17 +23,6 @@ public class ParkingSpaceController {
         this.parkingSpaceService = parkingSpaceService;
     }
 
-    @PostMapping("/bulk")
-    public ResponseEntity<String> saveParkingSpacesWithLot(@RequestBody List<ParkingSpace> parkingSpaces) {
-        try {
-            parkingSpaceService.saveAllParkingSpaces(parkingSpaces);
-            return ResponseEntity.ok("주차 공간 정보가 저장되었습니다.");
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("저장 중 오류 발생: " + e.getMessage());
-        }
-    }
-
     @PostMapping
     public ResponseEntity<?> createParkingSpace(@RequestBody ParkingSpace parkingSpace) {
         try {
