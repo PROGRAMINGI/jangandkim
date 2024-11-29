@@ -25,9 +25,6 @@ public class ParkingLotService {
     }
 
     public ParkingLot saveParkingLot(ParkingLot parkingLot) {
-        if (parkingLot.getParkingLotID() == 0) {
-            throw new RuntimeException("Invalid ParkingLotID");
-        }
         if (parkingLotRepository.existsById(parkingLot.getParkingLotID())) {
             throw new RuntimeException("주차장 ID " + parkingLot.getParkingLotID() + "가 이미 존재합니다.");
         }

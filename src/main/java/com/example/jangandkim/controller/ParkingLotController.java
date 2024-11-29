@@ -40,7 +40,6 @@ public class ParkingLotController {
     public ResponseEntity<?> createParkingLot(@RequestBody ParkingLot parkingLot) {
         System.out.println("요청 데이터: " + parkingLot);
         try {
-            parkingLot.setParkingLotID(0); // ID는 자동 생성
             ParkingLot savedLot = parkingLotService.saveParkingLot(parkingLot);
             return ResponseEntity.ok(savedLot);
         } catch (Exception e) {
