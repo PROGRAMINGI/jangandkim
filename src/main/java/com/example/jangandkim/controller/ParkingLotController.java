@@ -35,7 +35,7 @@ public class ParkingLotController {
     }
 
 
-    @PostMapping("/api/parking-lots")
+    @PostMapping
 public ResponseEntity<?> createParkingLot(@RequestBody ParkingLot parkingLot) {
     System.out.println("요청 데이터: " + parkingLot);
     try {

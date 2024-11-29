@@ -416,12 +416,15 @@ function rotateBlock(group) {
     try {
         // 주차장 정보 먼저 저장
         const parkingLotResponse = await fetch("/api/parking-lots", {
+            
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ name: parkingLotName, location: parkingLotLocation }),
         });
 
         if (!parkingLotResponse.ok) {
+            const errorDetails = await parkingLotResponse.json();
+            console.error("서버 응답 오류:", errorDetails);
             throw new Error("주차장 정보를 저장하는 중 오류가 발생했습니다.");
         }
 
