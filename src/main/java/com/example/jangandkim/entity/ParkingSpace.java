@@ -1,7 +1,6 @@
 package com.example.jangandkim.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import jakarta.persistence.*;
 
 @Entity
@@ -28,6 +27,9 @@ public class ParkingSpace {
     @ManyToOne
     @JoinColumn(name = "SensorID", nullable = true) // NULL 허용 명시
     private Sensor sensor;
+
+    @Column(name = "SpaceNumber", length = 50, nullable = false)
+    private String spaceNumber;
 
     // Getters and Setters
     public int getSpaceID() {
@@ -68,5 +70,13 @@ public class ParkingSpace {
 
     public void setSensor(Sensor sensor) {
         this.sensor = sensor;
+    }
+
+    public String getSpaceNumber() {
+        return spaceNumber;
+    }
+
+    public void setSpaceNumber(String spaceNumber) {
+        this.spaceNumber = spaceNumber;
     }
 }
