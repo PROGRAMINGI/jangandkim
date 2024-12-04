@@ -413,14 +413,13 @@ function rotateBlock(group) {
     
         document.getElementById("save-button").addEventListener("click", async () => {
     try {
-        // Step 1: 주차장 정보 저장
         const parkingLotResponse = await fetch("/api/parking-lots", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 Name: parkingLotName,
                 Location: parkingLotLocation,
-                version: 1, // 기본 버전 설정 (필요 시 변경 가능)
+                version: 1, // 기본 버전 설정
             }),
         });
 
@@ -431,36 +430,33 @@ function rotateBlock(group) {
         }
 
         const parkingLot = await parkingLotResponse.json();
-        const parkingLotId = parkingLot.ParkingLotID; // DB에서 반환된 ParkingLotID
+        const parkingLotId = parkingLot.ParkingLotID;
 
         if (!parkingLotId) {
             return alert("주차장 ID가 없습니다. 주차장을 먼저 저장하세요.");
         }
 
-        // Step 2: 레이아웃 데이터 생성
         const layout = [];
-
         svg.querySelectorAll("g").forEach((group) => {
             const rect = group.querySelector("rect");
             const x = rect.getAttribute("x");
             const y = rect.getAttribute("y");
-            const spaceNumber = group.querySelector("text")?.textContent || "UNKNOWN"; // 텍스트에서 SpaceNumber 가져오기
+            const spaceNumber = group.querySelector("text")?.textContent?.trim() || null;
 
-            if (!x || !y) {
-                console.warn("Invalid coordinates for parking space:", rect);
-                return; // 잘못된 블록은 건너뜀
+            if (!x || !y || !spaceNumber) {
+                console.warn("Invalid data for parking space:", { x, y, spaceNumber });
+                return; // 잘못된 데이터는 건너뜀
             }
 
             layout.push({
-                ParkingLotID: parkingLotId, // Foreign Key로 참조
-                SpaceLocation: `${x},${y}`, // 좌표 저장
-                Status: "UNKNOWN", // 초기 상태
-                SensorID: rect.dataset.sensorId || null, // 센서 ID가 없으면 null
-                SpaceNumber: spaceNumber, // 공간 번호 추가
+                ParkingLotID: parkingLotId,
+                SpaceLocation: `${x},${y}`,
+                Status: "UNKNOWN",
+                SensorID: rect.dataset.sensorId || null,
+                SpaceNumber: spaceNumber,
             });
         });
 
-        // Step 3: 주차 공간 정보 저장
         const layoutResponse = await fetch("/api/parking-spaces", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -478,6 +474,7 @@ function rotateBlock(group) {
         alert(error.message || "저장에 실패했습니다.");
     }
 });
+
 
 
 
