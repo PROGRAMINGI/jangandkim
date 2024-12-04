@@ -452,8 +452,8 @@ function rotateBlock(group) {
                 ParkingLotID: parkingLotId,
                 SpaceLocation: `${x},${y}`,
                 Status: "UNKNOWN",
-                SensorID: rect.dataset.sensorId || null,
-                SpaceNumber: spaceNumber,
+                SensorID: rect.dataset.sensorId || 10000,
+                SpaceNumber: spaceNumber || 100,
             });
         });
 
