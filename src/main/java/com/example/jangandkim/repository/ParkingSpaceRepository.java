@@ -1,5 +1,6 @@
 package com.example.jangandkim.repository;
 
+import com.example.jangandkim.entity.ParkingLot;
 import com.example.jangandkim.entity.ParkingSpace;
 
 import java.util.List;
@@ -15,4 +16,6 @@ public interface ParkingSpaceRepository extends JpaRepository<ParkingSpace, Inte
 
     // 특정 ParkingLotID의 주차 공간 조회
     List<ParkingSpace> findByParkingLot_ParkingLotID(int parkingLotID);
+
+     List<ParkingSpace> findByParkingLot(ParkingLot parkingLot);
 }

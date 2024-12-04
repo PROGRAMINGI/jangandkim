@@ -23,12 +23,12 @@ public class ParkingLot {
     @Column(nullable = true) 
     private int version;
     
-   @Column(name = "name", length = 100, nullable = false)
+   @Column(name = "Name", length = 100, nullable = false)
     @NotNull(message = "주차장 이름은 필수입니다.")
 @Size(min = 1, max = 100, message = "주차장 이름은 1자 이상, 100자 이하로 입력해야 합니다.")
 private String name;
 
-@Column(name = "location", length = 255, nullable = false)
+@Column(name = "Location", length = 255, nullable = false)
 @NotNull(message = "주차장 위치는 필수입니다.")
 @Size(min = 1, max = 255, message = "주차장 위치는 1자 이상, 255자 이하로 입력해야 합니다.")
 private String location;

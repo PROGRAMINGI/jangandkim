@@ -419,7 +419,7 @@ function rotateBlock(group) {
             
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name: parkingLotName, location: parkingLotLocation }),
+            body: JSON.stringify({ Name: parkingLotName, Location: parkingLotLocation }),
         });
 
         if (!parkingLotResponse.ok) {
@@ -448,8 +448,8 @@ function rotateBlock(group) {
             }
 
             layout.push({
-                parkingLot: { parkingLotID: parkingLotId },
-                spaceLocation: `${x},${y}`,
+                ParkingLot: { ParkingLotID: parkingLotId },
+                Location: `${x},${y}`,
                 status: "UNKNOWN",
                 sensorId: rect.dataset.sensorId || null,
             });
