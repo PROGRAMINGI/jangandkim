@@ -405,15 +405,14 @@ function rotateBlock(group) {
 
 
  // 그리드 맞춤 dd
- function snapToGrid(value, size) {
+        function snapToGrid(value, size) {
             return Math.round(value / size) * size;
         }
 
 
-
-
+    
         document.getElementById("save-button").addEventListener("click", async () => {
-    try {
+        try {
         // 주차장 정보 먼저 저장
         const parkingLotResponse = await fetch("/api/parking-lots", {
             
@@ -451,7 +450,7 @@ function rotateBlock(group) {
                 ParkingLot: { ParkingLotID: parkingLotId },
                 Location: `${x},${y}`,
                 status: "UNKNOWN",
-                sensorId: rect.dataset.sensorId || null,
+                sensorId: rect.dataset.sensorId || 10000,
             });
         });
 
