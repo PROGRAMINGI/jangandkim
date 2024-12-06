@@ -44,6 +44,7 @@ public class ParkingLotController {
     @PostMapping
     public ResponseEntity<?> createParkingLot(@RequestBody ParkingLot parkingLot) {
         try {
+            // 클라이언트 요청에서 ParkingLotID는 전달되지 않아야 함
             ParkingLot savedParkingLot = parkingLotService.saveParkingLot(parkingLot);
             return ResponseEntity.status(HttpStatus.CREATED).body(savedParkingLot);
         } catch (Exception e) {
@@ -52,6 +53,7 @@ public class ParkingLotController {
                                  .body(Map.of("error", "주차장 생성 실패", "message", e.getMessage()));
         }
     }
+    
 
     // 주차장 정보 업데이트
     @PutMapping("/{id}")
@@ -77,27 +79,29 @@ public class ParkingLotController {
         }
     }
 
-    // 특정 주차장에 주차 공간 저장
-    @PostMapping("/{id}/parking-spaces")
-    public ResponseEntity<?> saveParkingSpaces(@PathVariable int id, @RequestBody List<ParkingSpace> parkingSpaces) {
-        try {
-            ParkingLot parkingLot = parkingLotService.getParkingLotById(id);
-            if (parkingLot == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                     .body(Map.of("error", "주차장을 찾을 수 없습니다.", "id", id));
-            }
-
-            // 각 주차 공간에 ParkingLotID 설정
-        
-
-            List<ParkingSpace> savedSpaces = parkingSpaceService.saveAllParkingSpaces(parkingSpaces);
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedSpaces);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                 .body(Map.of("error", "주차 공간 저장 실패", "message", e.getMessage()));
+  // 주차 공간 저장에서 `ParkingLotID` 검증 추가
+@PostMapping("/{id}/parking-spaces")
+public ResponseEntity<?> saveParkingSpaces(@PathVariable int id, @RequestBody List<ParkingSpace> parkingSpaces) {
+    try {
+        ParkingLot parkingLot = parkingLotService.getParkingLotById(id);
+        if (parkingLot == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                 .body(Map.of("error", "주차장을 찾을 수 없습니다.", "id", id));
         }
+
+        for (ParkingSpace space : parkingSpaces) {
+            space.setParkingLotID(parkingLot.getParkingLotID());
+        }
+
+        List<ParkingSpace> savedSpaces = parkingSpaceService.saveAllParkingSpaces(parkingSpaces);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedSpaces);
+    } catch (Exception e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                             .body(Map.of("error", "주차 공간 저장 실패", "message", e.getMessage()));
     }
+}
+
 
     // 특정 주차장에 속한 모든 주차 공간 조회
     @GetMapping("/{id}/parking-spaces")

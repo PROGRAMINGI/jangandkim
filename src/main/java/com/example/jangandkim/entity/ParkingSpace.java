@@ -1,22 +1,19 @@
 package com.example.jangandkim.entity;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "parkingspace")
 public class ParkingSpace {
-//dd
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // 자동 생성 ID
     @Column(name = "SpaceID")
     private int spaceID;
 
-    //@ManyToOne
-    
     @Column(name = "ParkingLotID", nullable = false)
-    //@JsonProperty("parkingLotID")
-    private int parkingLotID;
+    private int parkingLotID; // 단순 정수로 저장
 
     @Column(name = "SpaceLocation", length = 50, nullable = false)
     private String spaceLocation;
@@ -25,10 +22,8 @@ public class ParkingSpace {
     @Column(name = "Status", nullable = false)
     private ParkingStatus status;
 
-    ///@ManyToOne
-    @Column(name = "SensorID", nullable = true)
-    private Integer sensorID; // Primitive int 대신 Integer 사용으로 null 값 처리 가능
-    
+    @Column(name = "SensorID", nullable = true) // NULL 허용
+    private Integer sensorID; // Integer로 수정하여 null 처리 가능
 
     @Column(name = "SpaceNumber", length = 50, nullable = false)
     private String spaceNumber;
@@ -46,7 +41,10 @@ public class ParkingSpace {
         return parkingLotID;
     }
 
- 
+    public void setParkingLotID(int parkingLotID) {
+        this.parkingLotID = parkingLotID;
+    }
+
     public String getSpaceLocation() {
         return spaceLocation;
     }
@@ -63,11 +61,11 @@ public class ParkingSpace {
         this.status = status;
     }
 
-    public int getSensorID() {
+    public Integer getSensorID() {
         return sensorID;
     }
 
-    public void setSensorID(int sensorID) {
+    public void setSensorID(Integer sensorID) {
         this.sensorID = sensorID;
     }
 
