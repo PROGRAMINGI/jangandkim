@@ -26,8 +26,9 @@ public class ParkingSpace {
     private ParkingStatus status;
 
     ///@ManyToOne
-    @Column(name = "SensorID", nullable = true) // NULL 허용 명시
-    private int sensorID;
+    @Column(name = "SensorID", nullable = true)
+    private Integer sensorID; // Primitive int 대신 Integer 사용으로 null 값 처리 가능
+    
 
     @Column(name = "SpaceNumber", length = 50, nullable = false)
     private String spaceNumber;
