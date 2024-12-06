@@ -88,9 +88,7 @@ public class ParkingLotController {
             }
 
             // 각 주차 공간에 ParkingLotID 설정
-            for (ParkingSpace space : parkingSpaces) {
-                space.setParkingLotID(parkingLot.getParkingLotID());
-            }
+        
 
             List<ParkingSpace> savedSpaces = parkingSpaceService.saveAllParkingSpaces(parkingSpaces);
             return ResponseEntity.status(HttpStatus.CREATED).body(savedSpaces);

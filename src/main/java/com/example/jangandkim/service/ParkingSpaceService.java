@@ -53,7 +53,6 @@ public class ParkingSpaceService {
         }
         existing.setSpaceLocation(parkingSpace.getSpaceLocation());
         existing.setStatus(parkingSpace.getStatus());
-        existing.setParkingLotID(parkingSpace.getParkingLotID());
         existing.setSensorID(parkingSpace.getSensorID());
         existing.setSpaceNumber(parkingSpace.getSpaceNumber());
         return parkingSpaceRepository.save(existing);
