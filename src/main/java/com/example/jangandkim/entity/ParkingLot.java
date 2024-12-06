@@ -16,7 +16,7 @@ public class ParkingLot {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ParkingLotID" , nullable = false)
-    @JsonProperty("parkingLotID") // JSON에서 "parkingLotID" 키를 매핑
+    //@JsonProperty("parkingLotID") // JSON에서 "parkingLotID" 키를 매핑
     private int parkingLotID;
 
     @Column(name = "Name", length = 100, nullable = false)
