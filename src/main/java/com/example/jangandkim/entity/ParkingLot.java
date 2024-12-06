@@ -17,7 +17,7 @@ public class ParkingLot {
     @JsonProperty("parkingLotID") // JSON에서 "parkingLotID" 키를 매핑
     private int parkingLotID;
 
-   @Column(name = "Name", length = 100, nullable = false)
+    @Column(name = "Name", length = 100, nullable = false)
     @NotNull(message = "주차장 이름은 필수입니다.")
 
     @Size(min = 1, max = 100, message = "주차장 이름은 1자 이상, 100자 이하로 입력해야 합니다.")

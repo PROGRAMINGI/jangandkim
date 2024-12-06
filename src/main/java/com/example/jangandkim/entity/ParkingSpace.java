@@ -12,7 +12,7 @@ public class ParkingSpace {
     @Column(name = "SpaceID")
     private int spaceID;
 
-    @ManyToOne
+    //@ManyToOne
     @Column(name = "ParkingLotID", nullable = false)
     private int parkingLotID;
 
@@ -23,7 +23,7 @@ public class ParkingSpace {
     @Column(name = "Status", nullable = false)
     private ParkingStatus status;
 
-    @ManyToOne
+    ///@ManyToOne
     @Column(name = "SensorID", nullable = true) // NULL 허용 명시
     private int sensorID;
 
