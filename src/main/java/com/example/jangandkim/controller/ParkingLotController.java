@@ -77,23 +77,21 @@ public class ParkingLotController {
         }
     }
 
-    // 주차 공간 저장
+    // 특정 주차장에 주차 공간 저장
     @PostMapping("/{id}/parking-spaces")
     public ResponseEntity<?> saveParkingSpaces(@PathVariable int id, @RequestBody List<ParkingSpace> parkingSpaces) {
         try {
-            // ID로 주차장 확인
             ParkingLot parkingLot = parkingLotService.getParkingLotById(id);
             if (parkingLot == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                                      .body(Map.of("error", "주차장을 찾을 수 없습니다.", "id", id));
             }
 
-            // 각 주차 공간에 주차장 설정
+            // 각 주차 공간에 ParkingLotID 설정
             for (ParkingSpace space : parkingSpaces) {
-                space.setParkingLot(parkingLot);
+                space.setParkingLotID(parkingLot.getParkingLotID());
             }
 
-            // 저장
             List<ParkingSpace> savedSpaces = parkingSpaceService.saveAllParkingSpaces(parkingSpaces);
             return ResponseEntity.status(HttpStatus.CREATED).body(savedSpaces);
         } catch (Exception e) {
@@ -103,7 +101,7 @@ public class ParkingLotController {
         }
     }
 
-    // 모든 주차 공간 조회
+    // 특정 주차장에 속한 모든 주차 공간 조회
     @GetMapping("/{id}/parking-spaces")
     public ResponseEntity<?> getParkingSpacesByParkingLotId(@PathVariable int id) {
         try {
@@ -113,7 +111,7 @@ public class ParkingLotController {
                                      .body(Map.of("error", "주차장을 찾을 수 없습니다.", "id", id));
             }
 
-            List<ParkingSpace> parkingSpaces = parkingSpaceService.getParkingSpacesByParkingLot(parkingLot);
+            List<ParkingSpace> parkingSpaces = parkingSpaceService.getParkingSpacesByParkingLotId(id);
             return ResponseEntity.ok(parkingSpaces);
         } catch (Exception e) {
             e.printStackTrace();

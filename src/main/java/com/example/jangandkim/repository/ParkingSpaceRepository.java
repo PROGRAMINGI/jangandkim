@@ -18,4 +18,6 @@ public interface ParkingSpaceRepository extends JpaRepository<ParkingSpace, Inte
     List<ParkingSpace> findByParkingLot_ParkingLotID(int parkingLotID);
 
      List<ParkingSpace> findByParkingLot(ParkingLot parkingLot);
+
+     public List<ParkingSpace> getParkingSpacesByParkingLotId(int parkingLotId);
 }

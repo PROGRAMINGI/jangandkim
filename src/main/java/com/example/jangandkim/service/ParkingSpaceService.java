@@ -1,9 +1,7 @@
 package com.example.jangandkim.service;
 
 import com.example.jangandkim.entity.ParkingSpace;
-import com.example.jangandkim.entity.ParkingLot;
 import com.example.jangandkim.repository.ParkingSpaceRepository;
-import com.example.jangandkim.repository.ParkingLotRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,30 +10,29 @@ import java.util.List;
 public class ParkingSpaceService {
 
     private final ParkingSpaceRepository parkingSpaceRepository;
-    private final ParkingLotRepository parkingLotRepository;
 
-    public ParkingSpaceService(ParkingSpaceRepository parkingSpaceRepository, ParkingLotRepository parkingLotRepository) {
+    public ParkingSpaceService(ParkingSpaceRepository parkingSpaceRepository) {
         this.parkingSpaceRepository = parkingSpaceRepository;
-        this.parkingLotRepository = parkingLotRepository;
     }
 
     // 모든 주차 공간 저장
     public List<ParkingSpace> saveAllParkingSpaces(List<ParkingSpace> parkingSpaces) {
-        for (ParkingSpace space : parkingSpaces) {
-            validateAndSetParkingLot(space);
-        }
         return parkingSpaceRepository.saveAll(parkingSpaces);
     }
 
     // 단일 주차 공간 저장
     public ParkingSpace saveParkingSpace(ParkingSpace parkingSpace) {
-        validateAndSetParkingLot(parkingSpace);
         return parkingSpaceRepository.save(parkingSpace);
     }
 
-    // 특정 ParkingLot의 모든 주차 공간 조회
-    public List<ParkingSpace> getParkingSpacesByParkingLot(ParkingLot parkingLot) {
-        return parkingSpaceRepository.findByParkingLot(parkingLot);
+    // 특정 ParkingLotID의 모든 주차 공간 조회
+    public List<ParkingSpace> getParkingSpacesByParkingLotId(int parkingLotId) {
+        return parkingSpaceRepository.findByParkingLot_ParkingLotID(parkingLotId);
+    }
+
+    // Sensor가 NULL인 주차 공간 조회
+    public List<ParkingSpace> getParkingSpacesWithoutSensor() {
+        return parkingSpaceRepository.findBySensorIsNull();
     }
 
     // 모든 주차 공간 조회
@@ -56,8 +53,9 @@ public class ParkingSpaceService {
         }
         existing.setSpaceLocation(parkingSpace.getSpaceLocation());
         existing.setStatus(parkingSpace.getStatus());
-        existing.setParkingLot(parkingSpace.getParkingLot());
-        existing.setSensor(parkingSpace.getSensor());
+        existing.setParkingLotID(parkingSpace.getParkingLotID());
+        existing.setSensorID(parkingSpace.getSensorID());
+        existing.setSpaceNumber(parkingSpace.getSpaceNumber());
         return parkingSpaceRepository.save(existing);
     }
 
@@ -67,21 +65,6 @@ public class ParkingSpaceService {
             parkingSpaceRepository.deleteById(id);
         } catch (Exception e) {
             throw new RuntimeException("ID가 " + id + "인 주차 공간 삭제 중 오류 발생: " + e.getMessage(), e);
-        }
-    }
-
-    // 주차 공간 유효성 검사 및 ParkingLot 설정
-    private void validateAndSetParkingLot(ParkingSpace parkingSpace) {
-        if (parkingSpace.getParkingLot() == null || parkingSpace.getParkingLot().getParkingLotID() == 0) {
-            throw new IllegalArgumentException("유효하지 않은 ParkingLotID입니다.");
-        }
-
-        ParkingLot lot = parkingLotRepository.findById(parkingSpace.getParkingLot().getParkingLotID())
-                .orElseThrow(() -> new IllegalArgumentException("ID가 " + parkingSpace.getParkingLot().getParkingLotID() + "인 주차장을 찾을 수 없습니다."));
-        parkingSpace.setParkingLot(lot);
-
-        if (parkingSpace.getSpaceLocation() == null || !parkingSpace.getSpaceLocation().matches("\\d+,\\d+")) {
-            throw new IllegalArgumentException("유효하지 않은 spaceLocation 형식입니다: " + parkingSpace.getSpaceLocation());
         }
     }
 }

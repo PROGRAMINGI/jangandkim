@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 @Entity
 @Table(name = "parkingspace")
 public class ParkingSpace {
-
+//dd
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "SpaceID")
@@ -43,7 +43,7 @@ public class ParkingSpace {
         return parkingLotID;
     }
 
-    public void setParkingLot(int parkingLotID) {
+    public void setParkingLotID(int parkingLotID) {
         this.parkingLotID = parkingLotID;
     }
 
@@ -67,7 +67,7 @@ public class ParkingSpace {
         return sensorID;
     }
 
-    public void setSensor(int sensorID) {
+    public void setSensorID(int sensorID) {
         this.sensorID = sensorID;
     }
 
