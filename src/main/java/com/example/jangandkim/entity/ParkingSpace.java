@@ -13,9 +13,8 @@ public class ParkingSpace {
     private int spaceID;
 
     @ManyToOne
-    @JoinColumn(name = "ParkingLotID", nullable = false)
-    @JsonProperty("parkingLot") // JSON에서 "parkingLot" 키를 매핑
-    private ParkingLot parkingLot;
+    @Column(name = "ParkingLotID", nullable = false)
+    private int parkingLotID;
 
     @Column(name = "SpaceLocation", length = 50, nullable = false)
     private String spaceLocation;
@@ -25,8 +24,8 @@ public class ParkingSpace {
     private ParkingStatus status;
 
     @ManyToOne
-    @JoinColumn(name = "SensorID", nullable = true) // NULL 허용 명시
-    private Sensor sensor;
+    @Column(name = "SensorID", nullable = true) // NULL 허용 명시
+    private int sensorID;
 
     @Column(name = "SpaceNumber", length = 50, nullable = false)
     private String spaceNumber;
@@ -40,12 +39,12 @@ public class ParkingSpace {
         this.spaceID = spaceID;
     }
 
-    public ParkingLot getParkingLot() {
-        return parkingLot;
+    public int getParkingLotID() {
+        return parkingLotID;
     }
 
-    public void setParkingLot(ParkingLot parkingLot) {
-        this.parkingLot = parkingLot;
+    public void setParkingLot(int parkingLotID) {
+        this.parkingLotID = parkingLotID;
     }
 
     public String getSpaceLocation() {
@@ -64,12 +63,12 @@ public class ParkingSpace {
         this.status = status;
     }
 
-    public Sensor getSensor() {
-        return sensor;
+    public int getSensorID() {
+        return sensorID;
     }
 
-    public void setSensor(Sensor sensor) {
-        this.sensor = sensor;
+    public void setSensor(int sensorID) {
+        this.sensorID = sensorID;
     }
 
     public String getSpaceNumber() {

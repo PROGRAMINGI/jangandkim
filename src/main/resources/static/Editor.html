@@ -164,6 +164,8 @@
             parkingLotLocation = "기본 위치";
         }
 
+        saveParkingLot();
+
 
         // 회전 모드 토글ddddd
         function toggleRotateMode() {
@@ -232,7 +234,7 @@
 
                 rect.setAttribute("width", rectWidth);
                 rect.setAttribute("height", rectHeight);
-                rect.dataset.sensorId = "";
+                rect.dataset.sensorId = NULL;
 
                 group.appendChild(rect);
 
@@ -265,7 +267,7 @@ async function saveParkingLot() {
         const response = await fetch("/api/parking-lots", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name: parkingLotName, location: parkingLotLocation }),
+            body: JSON.stringify({ name: parkingLotName, location: parkingLotLocation}),
         });
 
         if (!response.ok) {
@@ -273,8 +275,15 @@ async function saveParkingLot() {
         }
 
         const parkingLot = await response.json();
-        parkingLotId = parkingLot.parkingLotID; // 서버에서 받은 ID 저장
-        alert(`주차장 ID: ${parkingLotId}`);
+        if(!parkingLot.parkingLotID){
+        parkingLotId = 10000;
+        alert(`주차장 ID: 주차장 ID가 없어 기본값으로 지정됐습니다.`);
+        }
+        else{
+            parkingLotID = parkingLot.parikingLotID;
+            alert(`주차장 ID: ${parkingLotId}`);
+        }               // 서버에서 받은 ID 저장
+       
         
     } catch (error) {
         console.error(error);
@@ -295,6 +304,7 @@ function addBlockListeners(group) {
         selectBlock(group);
     });
 
+    
     group.addEventListener("mousedown", startDrag);
 }
 
@@ -307,7 +317,7 @@ function addBlockListeners(group) {
             if (selectedBlock) {
                 selectedBlock.classList.add("selected");
                 const sensorIdInput = document.getElementById("sensor-id");
-                sensorIdInput.value = selectedBlock.querySelector("rect").dataset.sensorId || "";
+                sensorIdInput.value = selectedBlock.querySelector("rect").dataset.sensorId || NULL;
             }
         }
 
@@ -364,7 +374,7 @@ function addBlockListeners(group) {
 
 
     window.addEventListener("DOMContentLoaded", () => {
-    document.getElementById("save-button").addEventListener("click", saveParkingLot);
+    document.getElementById("save-button").addEventListener("click");
 });
 
 
@@ -409,8 +419,6 @@ function rotateBlock(group) {
             return Math.round(value / size) * size;
         }
 
-
-    
         document.getElementById("save-button").addEventListener("click", async () => {
     try {
         const parkingLotResponse = await fetch("/api/parking-lots", {
@@ -419,7 +427,6 @@ function rotateBlock(group) {
             body: JSON.stringify({
                 Name: parkingLotName,
                 Location: parkingLotLocation,
-                version: 1, // 기본 버전 설정
             }),
         });
 
@@ -452,7 +459,7 @@ function rotateBlock(group) {
                 ParkingLotID: parkingLotId,
                 SpaceLocation: `${x},${y}`,
                 Status: "UNKNOWN",
-                SensorID: rect.dataset.sensorId || 10000,
+                SensorID: rect.dataset.sensorId || NULL,
                 SpaceNumber: spaceNumber || 100,
             });
         });
