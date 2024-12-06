@@ -13,7 +13,9 @@ public class ParkingSpace {
     private int spaceID;
 
     //@ManyToOne
+    
     @Column(name = "ParkingLotID", nullable = false)
+    @JsonProperty("parkingLotID")
     private int parkingLotID;
 
     @Column(name = "SpaceLocation", length = 50, nullable = false)

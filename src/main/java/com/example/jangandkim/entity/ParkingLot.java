@@ -12,7 +12,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @Entity
 @Table(name = "parkinglot")
 public class ParkingLot {
-
+    
+    @Id
     @Column(name = "ParkingLotID" , nullable = false)
     @JsonProperty("parkingLotID") // JSON에서 "parkingLotID" 키를 매핑
     private int parkingLotID;
