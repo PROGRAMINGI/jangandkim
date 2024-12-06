@@ -46,10 +46,7 @@ public class ParkingSpace {
         return parkingLotID;
     }
 
-    public void setParkingLotID(int parkingLotID) {
-        this.parkingLotID = parkingLotID;
-    }
-
+ 
     public String getSpaceLocation() {
         return spaceLocation;
     }
