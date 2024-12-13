@@ -85,14 +85,19 @@
         // 서버에서 데이터를 가져와 레이아웃을 생성
         async function fetchAndRenderLayout(parkingLotID) {
     try {
-        // parkingLotID로 해당 주차장의 모든 주차공간 데이터 조회
+        console.log(`API 요청: /api/parking-spaces?parkingLotID=${parkingLotID}`);
         const response = await fetch(`/api/parking-spaces?parkingLotID=${parkingLotID}`);
+        
         if (!response.ok) {
+            const errorText = await response.text();
+            console.error('API 응답 에러:', errorText);
             throw new Error("주차 공간 데이터를 가져오는 데 실패했습니다.");
         }
 
         const parkingSpaces = await response.json();
+        console.log('받은 주차 공간 데이터:', parkingSpaces);
 
+        // ... 나머지 코드 ...
         // SVG 초기화
         svg.innerHTML = `
             <defs>
@@ -140,13 +145,21 @@
 }
 
 // URL 파라미터에서 parkingLotID 가져오기
-document.addEventListener("DOMContentLoaded", () => {
+// URL 파라미터에서 parkingLotID 가져오기
+document.addEventListener("DOMContentLoaded", async () => {
     const urlParams = new URLSearchParams(window.location.search);
     const parkingLotID = urlParams.get('parkingLotID');
     
     if (parkingLotID) {
-        fetchAndRenderLayout(parkingLotID);
+        try {
+            console.log('주차장 ID:', parkingLotID); // 디버깅용
+            await fetchAndRenderLayout(parkingLotID);
+        } catch (error) {
+            console.error('레이아웃 렌더링 중 오류:', error);
+            alert("주차장 데이터를 불러오는데 실패했습니다.");
+        }
     } else {
+        console.error('주차장 ID가 없음');
         alert("주차장 ID가 필요합니다.");
     }
 });

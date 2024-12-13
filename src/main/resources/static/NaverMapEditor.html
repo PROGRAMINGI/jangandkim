@@ -80,15 +80,11 @@ function addMarker(position, parkingLotID = null, id = null) {
         <div style="margin:0;padding:0;">
             <a href="#" class="spmc btn_clear">핀 삭제</a>
             <div>주차장 ID: ${numericParkingLotID || 'N/A'}</div>
-            ${
-                numericParkingLotID
-                    ? `<button><a href="/layout-view?parkingLotID=${numericParkingLotID}" target="_blank">주차장 보기</a></button>
-                       <button onclick="addToFavorites(${numericParkingLotID})">즐겨찾기 추가</button>`
-                    : `<div>
-                         <button onclick="alert('주차장 ID가 필요합니다!')">주차장 보기</button>
-                         <button onclick="alert('주차장 ID가 필요합니다!')">즐겨찾기 추가</button>
-                       </div>`
-            }
+           ${
+            numericParkingLotID
+                ? `<button><a href="/LayoutView.html?parkingLotID=${numericParkingLotID}" target="_blank">주차장 보기</a></button>`
+                : `<button onclick="alert('주차장 ID가 필요합니다!')">주차장 보기</button>`
+        }
         </div>
     </div>
 `;
