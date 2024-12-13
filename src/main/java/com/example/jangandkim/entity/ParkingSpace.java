@@ -1,32 +1,32 @@
 package com.example.jangandkim.entity;
 
 import jakarta.persistence.*;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "parkingspace")
 public class ParkingSpace {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // 자동 생성 ID
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "SpaceID")
     private int spaceID;
 
-    @Column(name = "parkingspace", nullable = false)
-    private int parkingLotID; // 단순 정수로 저장
+    @Column(name = "ParkingLotID", nullable = false)
+    private int parkingLotID;
 
     @Column(name = "SpaceLocation", length = 50, nullable = false)
     private String spaceLocation;
+
+    @Column(name = "SpaceNumber", length = 50, nullable = false)
+    private String spaceNumber;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "Status", nullable = false)
     private ParkingStatus status;
 
-    @Column(name = "SensorID", nullable = true) // NULL 허용
-    private Integer sensorID; // Integer로 수정하여 null 처리 가능
-
-    @Column(name = "SpaceNumber", length = 50, nullable = false)
-    private String spaceNumber;
+    @ManyToOne
+    @JoinColumn(name = "SensorID")
+    private Sensor sensor;
 
     // Getters and Setters
     public int getSpaceID() {
@@ -53,6 +53,14 @@ public class ParkingSpace {
         this.spaceLocation = spaceLocation;
     }
 
+    public String getSpaceNumber() {
+        return spaceNumber;
+    }
+
+    public void setSpaceNumber(String spaceNumber) {
+        this.spaceNumber = spaceNumber;
+    }
+
     public ParkingStatus getStatus() {
         return status;
     }
@@ -61,19 +69,11 @@ public class ParkingSpace {
         this.status = status;
     }
 
-    public Integer getSensorID() {
-        return sensorID;
+    public Sensor getSensor() {
+        return sensor;
     }
 
-    public void setSensorID(Integer sensorID) {
-        this.sensorID = sensorID;
-    }
-
-    public String getSpaceNumber() {
-        return spaceNumber;
-    }
-
-    public void setSpaceNumber(String spaceNumber) {
-        this.spaceNumber = spaceNumber;
+    public void setSensor(Sensor sensor) {
+        this.sensor = sensor;
     }
 }

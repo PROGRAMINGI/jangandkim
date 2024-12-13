@@ -1,6 +1,7 @@
 package com.example.jangandkim.entity;
 
 import jakarta.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -16,10 +17,10 @@ public class Sensor {
     private String sensorName;
 
     @OneToMany(mappedBy = "sensor", cascade = CascadeType.ALL)
-    private List<ParkingSpace> parkingSpaces;
+    private List<ParkingSpace> parkingSpaces = new ArrayList<>();
 
     @OneToMany(mappedBy = "sensor", cascade = CascadeType.ALL)
-    private List<SensorData> sensorDataList;
+    private List<SensorData> sensorDataList = new ArrayList<>();
 
     // Getters and Setters
     public int getSensorID() {

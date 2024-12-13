@@ -2,13 +2,13 @@ package com.example.jangandkim.entity;
 
 import jakarta.persistence.*;
 
-// 엔티티 클래스
 @Entity
 @Table(name = "favorites")
 public class Favorite {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private int id;
 
     @Column(name = "page", nullable = false)

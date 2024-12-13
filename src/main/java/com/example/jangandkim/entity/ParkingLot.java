@@ -9,8 +9,8 @@ import jakarta.validation.constraints.NotNull;
 public class ParkingLot {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // 자동 생성 ID 설정
-    @Column(name = "parkingLotID", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ParkingLotID")
     private int parkingLotID;
 
     @Column(name = "name", length = 100, nullable = false)
@@ -22,6 +22,9 @@ public class ParkingLot {
     @NotNull(message = "주차장 위치는 필수입니다.")
     @Size(min = 1, max = 255, message = "주차장 위치는 1자 이상, 255자 이하로 입력해야 합니다.")
     private String location;
+
+    @Column(name = "version")
+    private Integer version;
 
     // Getters and Setters
     public int getParkingLotID() {
@@ -46,5 +49,13 @@ public class ParkingLot {
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
     }
 }

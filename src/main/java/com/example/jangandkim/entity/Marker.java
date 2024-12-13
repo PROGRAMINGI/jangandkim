@@ -8,18 +8,19 @@ public class Marker {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
-    @Column(nullable = false)
+    @Column(name = "lat", nullable = false)
     private double lat;
 
-    @Column(nullable = false)
+    @Column(name = "lng", nullable = false)
     private double lng;
 
-    @Column(length = 100, nullable = false)
+    @Column(name = "title", length = 100, nullable = false)
     private String title;
 
-    @Column(length = 255, nullable = false)
+    @Column(name = "page", length = 255, nullable = false)
     private String page;
 
     // Getters and Setters
