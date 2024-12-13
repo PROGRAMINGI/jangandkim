@@ -57,7 +57,7 @@
 
        
 // 마커 추가 함수 수정
-function addMarker(position, title = '마커', parkingLotID = null, id = null) {
+function addMarker(position, parkingLotID = null, id = null) {
     const marker = new naver.maps.Marker({
         position,
         map,
@@ -65,40 +65,37 @@ function addMarker(position, title = '마커', parkingLotID = null, id = null) {
             url: 'https://ssl.pstatic.net/static/maps/img/icons/pin_s_1.png',
             size: new naver.maps.Size(22, 30),
             anchor: new naver.maps.Point(11, 30),
-        },
-        title,
+        }
     });
 
     currentMarkers.push(marker);
-    marker.parkingLotID = parkingLotID; // spaceId -> parkingLotID
+    marker.parkingLotID = parkingLotID;
 
     const iwContent = `
     <div>
         <div style="margin:0;padding:0;">
             <a href="#" class="spmc btn_clear">핀 삭제</a>
-            <div>${title}</div>
+            <div>주차장 ID: ${parkingLotID || 'N/A'}</div>
             ${
                 parkingLotID
                     ? `<button><a href="/layout-view?parkingLotID=${parkingLotID}" target="_blank">주차장 보기</a></button>`
                     : `<button onclick="alert('주차장 ID가 필요합니다!')">주차장 보기</button>`
             }
-            <button onclick="addToFavorites(${parkingLotID}, '${title}')">즐겨찾기 추가</button>
+            <button onclick="addToFavorites(${parkingLotID})">즐겨찾기 추가</button>
         </div>
     </div>
-`;
+    `;
 
     const infoWindow = new naver.maps.InfoWindow({
         content: iwContent
     });
 
-    // 마커 클릭 시 정보 창 열기
     naver.maps.Event.addListener(marker, 'click', () => {
         if (activeInfoWindow) activeInfoWindow.close();
         infoWindow.open(map, marker);
         activeInfoWindow = infoWindow;
     });
 
-    // 핀 삭제 버튼 이벤트
     infoWindow.open = function(map, marker) {
         naver.maps.InfoWindow.prototype.open.call(this, map, marker);
         const closeButton = this.getWrapElement().querySelector('.btn_clear');
@@ -110,16 +107,18 @@ function addMarker(position, title = '마커', parkingLotID = null, id = null) {
     };
 
     if (!id) {
-        saveMarkerToServer({ 
-            lat: position.lat(), 
-            lng: position.lng(), 
-            title, 
-            parkingLotID: parkingLotID // spaceId -> parkingLotID
+        saveMarkerToServer({
+            lat: position.lat(),
+            lng: position.lng(),
+            parkingLot: {
+                parkingLotID: parkingLotID
+            }
         });
     }
 }
 
-function addToFavorites(parkingLotID, title) {
+// 즐겨찾기 추가 함수
+function addToFavorites(parkingLotID) {
     if (!parkingLotID) {
         alert('주차장 ID가 필요합니다!');
         return;
@@ -127,11 +126,9 @@ function addToFavorites(parkingLotID, title) {
 
     let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
     
-    // 중복 체크
     if (!favorites.some(fav => fav.parkingLotID === parkingLotID)) {
         favorites.push({
-            parkingLotID: parkingLotID,
-            title: title
+            parkingLotID: parkingLotID
         });
         localStorage.setItem('favorites', JSON.stringify(favorites));
         alert('즐겨찾기에 추가되었습니다!');
@@ -140,14 +137,14 @@ function addToFavorites(parkingLotID, title) {
     }
 }
 
-// 마우스 우클릭으로 마커 추가하는 부분도 수정
+
+// 우클릭으로 마커 추가
 naver.maps.Event.addListener(map, 'rightclick', function (e) {
     const position = e.coord;
-    const title = prompt('마커 제목을 입력하세요:', '새 마커');
     const parkingLotID = prompt('주차장 ID를 입력하세요:', '');
 
-    if (title && parkingLotID) {
-        addMarker(position, title, parkingLotID);
+    if (parkingLotID) {
+        addMarker(position, parkingLotID);
     }
 });
 
@@ -244,14 +241,23 @@ naver.maps.Event.addListener(map, 'rightclick', function (e) {
             if (activeInfoWindow) activeInfoWindow.close();
         });
 
-        // 초기화 시 모든 마커 복원
-        async function restoreMarkers() {
+        // 마커 초기화 함수
+    async function restoreMarkers() {
+        try {
             const markers = await fetchMarkers();
             markers.forEach(markerData => {
                 const position = new naver.maps.LatLng(markerData.lat, markerData.lng);
-                addMarker(position, markerData.title, markerData.spaceId, markerData.id);
+                addMarker(
+                    position, 
+                    markerData.parkingLot ? markerData.parkingLot.parkingLotID : null,
+                    markerData.id
+                );
             });
+        } catch (error) {
+            console.error('마커 복원 중 오류 발생:', error);
         }
+    }
+
 
         // 초기화 실행
         restoreMarkers();
