@@ -27,7 +27,7 @@ public class ParkingSpaceService {
 
     // 특정 ParkingLotID의 모든 주차 공간 조회
     public List<ParkingSpace> getParkingSpacesByParkingLotId(int parkingLotId) {
-        return parkingSpaceRepository.findByParkingLot_ParkingLotID(parkingLotId);
+        return parkingSpaceRepository.findByParkingLotID(parkingLotId); 
     }
 
     // Sensor가 NULL인 주차 공간 조회
@@ -51,10 +51,24 @@ public class ParkingSpaceService {
         if (existing == null) {
             throw new RuntimeException("ID가 " + id + "인 주차 공간을 찾을 수 없습니다.");
         }
-        existing.setSpaceLocation(parkingSpace.getSpaceLocation());
-        existing.setStatus(parkingSpace.getStatus());
-        existing.setSensor(parkingSpace.getSensor());
-        existing.setSpaceNumber(parkingSpace.getSpaceNumber());
+        
+        // 기존 값 유지를 위한 null 체크 추가
+        if (parkingSpace.getSpaceLocation() != null) {
+            existing.setSpaceLocation(parkingSpace.getSpaceLocation());
+        }
+        if (parkingSpace.getStatus() != null) {
+            existing.setStatus(parkingSpace.getStatus());
+        }
+        if (parkingSpace.getSensor() != null) {
+            existing.setSensor(parkingSpace.getSensor());
+        }
+        if (parkingSpace.getSpaceNumber() != null) {
+            existing.setSpaceNumber(parkingSpace.getSpaceNumber());
+        }
+        if (parkingSpace.getParkingLotID() != 0) {  // 0이 아닌 경우에만 업데이트
+            existing.setParkingLotID(parkingSpace.getParkingLotID());
+        }
+
         return parkingSpaceRepository.save(existing);
     }
 

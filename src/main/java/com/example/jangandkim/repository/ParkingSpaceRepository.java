@@ -12,12 +12,9 @@ import org.springframework.stereotype.Repository;
 public interface ParkingSpaceRepository extends JpaRepository<ParkingSpace, Integer> {
 
     // Sensor가 NULL인 주차 공간 조회
+    List<ParkingSpace> findByParkingLotID(int parkingLotID);  // parkingLotID 필드를 직접 사용
+
+    // Sensor 관련 메서드는 유지
     List<ParkingSpace> findBySensorIsNull();
-
-    // 특정 ParkingLotID의 주차 공간 조회
-    List<ParkingSpace> findByParkingLot_ParkingLotID(int parkingLotID);
-
-     List<ParkingSpace> findByParkingLot(ParkingLot parkingLot);
-
-     public List<ParkingSpace> getParkingSpacesByParkingLotId(int parkingLotId);
+//
 }
