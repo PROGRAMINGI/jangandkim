@@ -4,8 +4,11 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 ///
 @Entity
+@JsonIgnoreProperties({"parkingSpaces"})  // JSON 직렬화 시 parkingSpaces 무시
 @Table(name = "parkinglot")
 public class ParkingLot {
 

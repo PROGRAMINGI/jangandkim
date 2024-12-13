@@ -7,11 +7,38 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/markers")
 @CrossOrigin(origins = "*")
 public class MarkerController {
+    
+    // DTO 클래스 정의
+    static class MarkerDTO {
+        private Long id;
+        private double lat;
+        private double lng;
+        private Integer parkingLotId;
+
+        public MarkerDTO(Long id, double lat, double lng, Integer parkingLotId) {
+            this.id = id;
+            this.lat = lat;
+            this.lng = lng;
+            this.parkingLotId = parkingLotId;
+        }
+
+        // getter/setter
+        public Long getId() { return id; }
+        public void setId(Long id) { this.id = id; }
+        public double getLat() { return lat; }
+        public void setLat(double lat) { this.lat = lat; }
+        public double getLng() { return lng; }
+        public void setLng(double lng) { this.lng = lng; }
+        public Integer getParkingLotId() { return parkingLotId; }
+        public void setParkingLotId(Integer parkingLotId) { this.parkingLotId = parkingLotId; }
+    }
+
     private final MarkerService markerService;
 
     @Autowired
@@ -19,15 +46,27 @@ public class MarkerController {
         this.markerService = markerService;
     }
 
-    // searchMarkers를 영역 기반 검색으로 변경
+    // Marker를 MarkerDTO로 변환하는 유틸리티 메서드
+    private MarkerDTO convertToDTO(Marker marker) {
+        return new MarkerDTO(
+            marker.getId(),
+            marker.getLat(),
+            marker.getLng(),
+            marker.getParkingLot() != null ? marker.getParkingLot().getParkingLotID() : null
+        );
+    }
+
     @GetMapping("/search")
-    public ResponseEntity<List<Marker>> searchMarkersByArea(
+    public ResponseEntity<List<MarkerDTO>> searchMarkersByArea(
             @RequestParam double minLat,
             @RequestParam double maxLat,
             @RequestParam double minLng,
             @RequestParam double maxLng) {
         try {
-            List<Marker> results = markerService.searchMarkersByArea(minLat, maxLat, minLng, maxLng);
+            List<MarkerDTO> results = markerService.searchMarkersByArea(minLat, maxLat, minLng, maxLng)
+                .stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
             return ResponseEntity.ok(results);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
@@ -35,19 +74,23 @@ public class MarkerController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Marker>> getAllMarkers() {
+    public ResponseEntity<List<MarkerDTO>> getAllMarkers() {
         try {
-            return ResponseEntity.ok(markerService.getAllMarkers());
+            List<MarkerDTO> markers = markerService.getAllMarkers()
+                .stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+            return ResponseEntity.ok(markers);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
     }
 
     @PostMapping
-    public ResponseEntity<Marker> saveMarker(@RequestBody Marker marker) {
+    public ResponseEntity<MarkerDTO> saveMarker(@RequestBody Marker marker) {
         try {
             Marker savedMarker = markerService.saveMarker(marker);
-            return ResponseEntity.ok(savedMarker);
+            return ResponseEntity.ok(convertToDTO(savedMarker));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
         } catch (Exception e) {
