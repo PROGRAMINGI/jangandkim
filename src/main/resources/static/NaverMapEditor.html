@@ -56,74 +56,64 @@
         }
 
         // 마커 추가
-        function addMarker(position, title = '마커', spaceId = null, id = null) {
-            const marker = new naver.maps.Marker({
-                position,
-                map,
-                icon: {
-                    url: 'https://ssl.pstatic.net/static/maps/img/icons/pin_s_1.png',
-                    size: new naver.maps.Size(22, 30),
-                    anchor: new naver.maps.Point(11, 30),
-                },
-                title,
-            });
+        // 마커 추가 함수 수정
+function addMarker(position, title = '마커', spaceId = null, id = null) {
+    const marker = new naver.maps.Marker({
+        position,
+        map,
+        icon: {
+            url: 'https://ssl.pstatic.net/static/maps/img/icons/pin_s_1.png',
+            size: new naver.maps.Size(22, 30),
+            anchor: new naver.maps.Point(11, 30),
+        },
+        title,
+    });
 
-            currentMarkers.push(marker);
-            marker.spaceId = spaceId;
+    currentMarkers.push(marker);
+    marker.spaceId = spaceId;
 
-                const iwContent = `
-                <div>
-                    <div style="margin:0;padding:0;">
-                        <a href="#" class="spmc btn_clear">핀 삭제</a>
-                        <div>${title}</div>
-                        ${
-                            spaceId
-                                ? `<button><a href="/layout-view?spaceId=${spaceId}" target="_blank">주차장 보기</a></button>`
-                                : `<button onclick="alert('SpaceID가 필요합니다!')">주차장 보기</button>`
-                        }
-                        <button onclick="addToFavorites('${spaceId}', '${title}')">즐겨찾기 추가</button>
-                    </div>
-                </div>
-            `;
+    const iwContent = `
+        <div>
+            <div style="margin:0;padding:0;">
+                <a href="#" class="spmc btn_clear">핀 삭제</a>
+                <div>${title}</div>
+                ${
+                    spaceId
+                        ? `<button><a href="/layout-view?spaceId=${spaceId}" target="_blank">주차장 보기</a></button>`
+                        : `<button onclick="alert('SpaceID가 필요합니다!')">주차장 보기</button>`
+                }
+                <button onclick="addToFavorites('${spaceId}', '${title}')">즐겨찾기 추가</button>
+            </div>
+        </div>
+    `;
 
-            function addToFavorites(spaceId, title) {
-            let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
-            
-            // 중복 체크
-            if (!favorites.some(fav => fav.spaceID === spaceId)) {
-                favorites.push({
-                    spaceID: spaceId,
-                    title: title
-                });
-                localStorage.setItem('favorites', JSON.stringify(favorites));
-                alert('즐겨찾기에 추가되었습니다!');
-            } else {
-                alert('이미 즐겨찾기에 추가된 주차장입니다.');
-            }
-        }
+    // infoWindow 생성
+    const infoWindow = new naver.maps.InfoWindow({
+        content: iwContent
+    });
 
-            // 마커 클릭 시 정보 창 열기
-            naver.maps.Event.addListener(marker, 'click', () => {
-                if (activeInfoWindow) activeInfoWindow.close();
-                infoWindow.open(map, marker);
-                activeInfoWindow = infoWindow;
-            });
+    // 마커 클릭 시 정보 창 열기
+    naver.maps.Event.addListener(marker, 'click', () => {
+        if (activeInfoWindow) activeInfoWindow.close();
+        infoWindow.open(map, marker);
+        activeInfoWindow = infoWindow;
+    });
 
-            // 핀 삭제 버튼 이벤트
-            infoWindow.open = function (map, marker) {
-                naver.maps.InfoWindow.prototype.open.call(this, map, marker);
-                const closeButton = this.getWrapElement().querySelector('.btn_clear');
-                closeButton.addEventListener('click', function () {
-                    marker.setMap(null);
-                    infoWindow.close();
-                    if (id) deleteMarkerFromServer(id);
-                });
-            };
+    // 핀 삭제 버튼 이벤트
+    infoWindow.open = function(map, marker) {
+        naver.maps.InfoWindow.prototype.open.call(this, map, marker);
+        const closeButton = this.getWrapElement().querySelector('.btn_clear');
+        closeButton.addEventListener('click', function () {
+            marker.setMap(null);
+            infoWindow.close();
+            if (id) deleteMarkerFromServer(id);
+        });
+    };
 
-            if (!id) {
-                saveMarkerToServer({ lat: position.lat(), lng: position.lng(), title, spaceId });
-            }
-        }
+    if (!id) {
+        saveMarkerToServer({ lat: position.lat(), lng: position.lng(), title, spaceId });
+    }
+}
 
         // 서버와 통신 함수들
         async function fetchMarkers(query = '') {
