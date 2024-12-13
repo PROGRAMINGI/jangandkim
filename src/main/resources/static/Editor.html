@@ -451,12 +451,16 @@ function rotateBlock(group) {
                 const spaceNumber = group.querySelector("text")?.textContent?.trim();
                 
                 parkingSpaces.push({
-                    parkingLotID: parkingLotID,  // 필드명 수정
-                    spaceNumber: spaceNumber,
-                    spaceLocation: `${x},${y}`,
-                    sensorId: rect.dataset.sensorId || null,
-                    status: "AVAILABLE" // 기본 상태 설정
-                });
+                parkingLot: {
+                    parkingLotID: parkingLotID  // ParkingLot 객체 형태로 전달
+                },
+                spaceNumber: spaceNumber,
+                spaceLocation: `${x},${y}`,
+                sensor: rect.dataset.sensorId ? {
+                    sensorID: rect.dataset.sensorId
+                } : null,
+                status: "UNKNOWN"
+            });
             }
         });
 
