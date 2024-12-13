@@ -3,6 +3,8 @@ package com.example.jangandkim.controller;
 import com.example.jangandkim.entity.Marker;
 import com.example.jangandkim.service.MarkerService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -86,17 +88,26 @@ public class MarkerController {
         }
     }
 
-    @PostMapping
-    public ResponseEntity<MarkerDTO> saveMarker(@RequestBody Marker marker) {
-        try {
-            Marker savedMarker = markerService.saveMarker(marker);
-            return ResponseEntity.ok(convertToDTO(savedMarker));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
-        }
+  @PostMapping
+public ResponseEntity<MarkerDTO> saveMarker(@RequestBody Marker marker) {
+    try {
+        Marker savedMarker = markerService.saveMarker(marker);
+        return ResponseEntity.ok(convertToDTO(savedMarker));
+    } catch (DataIntegrityViolationException e) {
+        // 중복 키 등 데이터 무결성 위반 예외
+        return ResponseEntity
+            .status(HttpStatus.CONFLICT)
+            .build();
+    } catch (IllegalArgumentException e) {
+        return ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
+            .build();
+    } catch (Exception e) {
+        return ResponseEntity
+            .status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .build();
     }
+}
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteMarker(@PathVariable Long id) {

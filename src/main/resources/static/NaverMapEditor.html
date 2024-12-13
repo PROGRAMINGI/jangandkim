@@ -58,6 +58,9 @@
        
 // 마커 추가 함수 수정
 function addMarker(position, parkingLotID = null, id = null) {
+    // parkingLotID가 문자열일 경우 숫자로 변환
+    const numericParkingLotID = parkingLotID ? parseInt(parkingLotID) : null;
+
     const marker = new naver.maps.Marker({
         position,
         map,
@@ -69,7 +72,8 @@ function addMarker(position, parkingLotID = null, id = null) {
     });
 
     currentMarkers.push(marker);
-    marker.parkingLotID = parkingLotID;
+    marker.parkingLotID = numericParkingLotID;
+
 
     const iwContent = `
     <div>
@@ -78,13 +82,16 @@ function addMarker(position, parkingLotID = null, id = null) {
             <div>주차장 ID: ${parkingLotID || 'N/A'}</div>
             ${
                 parkingLotID
-                    ? `<button><a href="/layout-view?parkingLotID=${parkingLotID}" target="_blank">주차장 보기</a></button>`
-                    : `<button onclick="alert('주차장 ID가 필요합니다!')">주차장 보기</button>`
+                    ? `<button><a href="/layout-view?parkingLotID=${parkingLotID}" target="_blank">주차장 보기</a></button>
+                       <button onclick="addToFavorites(${parkingLotID})">즐겨찾기 추가</button>`
+                    : `<div>
+                         <button onclick="alert('주차장 ID가 필요합니다!')">주차장 보기</button>
+                         <button onclick="alert('주차장 ID가 필요합니다!')">즐겨찾기 추가</button>
+                       </div>`
             }
-            <button onclick="addToFavorites(${parkingLotID})">즐겨찾기 추가</button>
         </div>
     </div>
-    `;
+`;
 
     const infoWindow = new naver.maps.InfoWindow({
         content: iwContent
@@ -119,16 +126,18 @@ function addMarker(position, parkingLotID = null, id = null) {
 
 // 즐겨찾기 추가 함수
 function addToFavorites(parkingLotID) {
-    if (!parkingLotID) {
-        alert('주차장 ID가 필요합니다!');
+    const numericParkingLotID = parseInt(parkingLotID);
+    
+    if (!parkingLotID || isNaN(numericParkingLotID)) {
+        alert('유효한 주차장 ID가 필요합니다!');
         return;
     }
 
     let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
     
-    if (!favorites.some(fav => fav.parkingLotID === parkingLotID)) {
+    if (!favorites.some(fav => fav.parkingLotID === numericParkingLotID)) {
         favorites.push({
-            parkingLotID: parkingLotID
+            parkingLotID: numericParkingLotID
         });
         localStorage.setItem('favorites', JSON.stringify(favorites));
         alert('즐겨찾기에 추가되었습니다!');
@@ -136,7 +145,6 @@ function addToFavorites(parkingLotID) {
         alert('이미 즐겨찾기에 추가된 주차장입니다.');
     }
 }
-
 
 // 우클릭으로 마커 추가
 naver.maps.Event.addListener(map, 'rightclick', function (e) {
