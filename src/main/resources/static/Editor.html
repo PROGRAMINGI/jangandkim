@@ -429,11 +429,16 @@ function rotateBlock(group) {
             throw new Error("주차장 정보를 저장하는 중 오류가 발생했습니다.");
         }
 
-        const parkingLot = await parkingLotResponse.json();
-        const parkingLotId = parkingLot.parkingLotId; // ID 필드명 수정
+            const parkingLot = await parkingLotResponse.json();
+         
+            const parkingLotID = parkingLot.parkingLotID; 
 
-        if (!parkingLotId) {
-            throw new Error("주차장 ID를 받아오지 못했습니다.");
+            // 디버깅을 위한 로그 추가
+            console.log('서버 응답:', parkingLot);
+
+        if (!parkingLotID) {
+            console.error('주차장 응답 데이터:', parkingLot);
+            throw new Error("주차장 ID를 받아오지 못했습니다. 서버 응답:", JSON.stringify(parkingLot));
         }
 
         // 2. SVG에서 주차 공간 정보를 수집하여 배열로 만듦
@@ -446,7 +451,7 @@ function rotateBlock(group) {
                 const spaceNumber = group.querySelector("text")?.textContent?.trim();
                 
                 parkingSpaces.push({
-                    parkingLotId: parkingLotId,  // 필드명 수정
+                    parkingLotID: parkingLotID,  // 필드명 수정
                     spaceNumber: spaceNumber,
                     spaceLocation: `${x},${y}`,
                     sensorId: rect.dataset.sensorId || null,

@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
-//
+///
 @Entity
 @Table(name = "parkinglot")
 public class ParkingLot {
