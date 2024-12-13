@@ -83,9 +83,9 @@
         const svg = document.getElementById("parking-lot");
 
         // 서버에서 데이터를 가져와 레이아웃을 생성
-        async function fetchAndRenderLayout(parkingLotId) {
+        async function fetchAndRenderLayout(parkingLotID) {
             try {
-                const response = await fetch(`/api/parking-spaces?parkingLotId=${parkingLotId}`);
+                const response = await fetch(`/api/parking-spaces?parkingLotID=${parkingLotID}`);
                 if (!response.ok) {
                     throw new Error("주차 공간 데이터를 가져오는 데 실패했습니다.");
                 }
@@ -142,9 +142,9 @@
 
         // 페이지 로드 시 주차장 ID 입력 및 데이터 렌더링
         document.addEventListener("DOMContentLoaded", () => {
-            const parkingLotId = prompt("주차장 ID를 입력하세요:");
-            if (parkingLotId) {
-                fetchAndRenderLayout(parkingLotId);
+            const parkingLotID = prompt("주차장 ID를 입력하세요:");
+            if (parkingLotID) {
+                fetchAndRenderLayout(parkingLotID);
             }
         });
     </script>
