@@ -55,9 +55,9 @@
             deletedMarkers = [];
         }
 
-        // 마커 추가
-        // 마커 추가 함수 수정
-function addMarker(position, title = '마커', spaceId = null, id = null) {
+       
+// 마커 추가 함수 수정
+function addMarker(position, title = '마커', parkingLotID = null, id = null) {
     const marker = new naver.maps.Marker({
         position,
         map,
@@ -70,7 +70,7 @@ function addMarker(position, title = '마커', spaceId = null, id = null) {
     });
 
     currentMarkers.push(marker);
-    marker.spaceId = spaceId;
+    marker.parkingLotID = parkingLotID; // spaceId -> parkingLotID
 
     const iwContent = `
         <div>
@@ -78,16 +78,15 @@ function addMarker(position, title = '마커', spaceId = null, id = null) {
                 <a href="#" class="spmc btn_clear">핀 삭제</a>
                 <div>${title}</div>
                 ${
-                    spaceId
-                        ? `<button><a href="/layout-view?spaceId=${spaceId}" target="_blank">주차장 보기</a></button>`
-                        : `<button onclick="alert('SpaceID가 필요합니다!')">주차장 보기</button>`
+                    parkingLotID
+                        ? `<button><a href="/layout-view?parkingLotID=${parkingLotID}" target="_blank">주차장 보기</a></button>`
+                        : `<button onclick="alert('주차장 ID가 필요합니다!')">주차장 보기</button>`
                 }
-                <button onclick="addToFavorites('${spaceId}', '${title}')">즐겨찾기 추가</button>
+                <button onclick="addToFavorites('${parkingLotID}', '${title}')">즐겨찾기 추가</button>
             </div>
         </div>
     `;
 
-    // infoWindow 생성
     const infoWindow = new naver.maps.InfoWindow({
         content: iwContent
     });
@@ -111,9 +110,42 @@ function addMarker(position, title = '마커', spaceId = null, id = null) {
     };
 
     if (!id) {
-        saveMarkerToServer({ lat: position.lat(), lng: position.lng(), title, spaceId });
+        saveMarkerToServer({ 
+            lat: position.lat(), 
+            lng: position.lng(), 
+            title, 
+            parkingLotID: parkingLotID // spaceId -> parkingLotID
+        });
     }
 }
+
+// 즐겨찾기 추가 함수 수정
+function addToFavorites(parkingLotID, title) {
+    let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+    
+    // 중복 체크
+    if (!favorites.some(fav => fav.parkingLotID === parkingLotID)) {
+        favorites.push({
+            parkingLotID: parkingLotID,
+            title: title
+        });
+        localStorage.setItem('favorites', JSON.stringify(favorites));
+        alert('즐겨찾기에 추가되었습니다!');
+    } else {
+        alert('이미 즐겨찾기에 추가된 주차장입니다.');
+    }
+}
+
+// 마우스 우클릭으로 마커 추가하는 부분도 수정
+naver.maps.Event.addListener(map, 'rightclick', function (e) {
+    const position = e.coord;
+    const title = prompt('마커 제목을 입력하세요:', '새 마커');
+    const parkingLotID = prompt('주차장 ID를 입력하세요:', '');
+
+    if (title && parkingLotID) {
+        addMarker(position, title, parkingLotID);
+    }
+});
 
         // 서버와 통신 함수들
         async function fetchMarkers(query = '') {
@@ -198,16 +230,6 @@ function addMarker(position, title = '마커', spaceId = null, id = null) {
             }
         });
 
-        // 마우스 우클릭으로 마커 추가
-        naver.maps.Event.addListener(map, 'rightclick', function (e) {
-            const position = e.coord;
-            const title = prompt('마커 제목을 입력하세요:', '새 마커');
-            const spaceId = prompt('SpaceID를 입력하세요:', '');
-
-            if (title && spaceId) {
-                addMarker(position, title, spaceId);
-            }
-        });
 
         // 지도 클릭 및 이동 시 정보 창 닫기
         naver.maps.Event.addListener(map, 'click', () => {
