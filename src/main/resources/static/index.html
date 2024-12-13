@@ -1,225 +1,146 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Multi-Section Page</title>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      overflow: hidden;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>주차장 관리 시스템</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        /* 기존 스타일 유지 */
+        .no-content-message {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            color: #666;
+            text-align: center;
+            padding: 20px;
+        }
 
-    .top {
-      background: linear-gradient(90deg, #6a11cb, #2575fc);
-      color: #fff;
-      padding: 10px;
-      display: flex;
-      align-items: center;
-      position: relative;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    }
+        .no-content-message i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            color: #ccc;
+        }
 
-    #toggle-menu {
-      background-color: rgba(255, 255, 255, 0.1);
-      color: #fff;
-      border: none;
-      padding: 10px 15px;
-      cursor: pointer;
-      border-radius: 5px;
-      transition: background-color 0.3s;
-      margin-left: auto;
-    }
+        .no-content-message h2 {
+            margin-bottom: 10px;
+            color: #333;
+        }
 
-    #toggle-menu:hover {
-      background-color: rgba(255, 255, 255, 0.2);
-    }
-    
-    #menu {
-      position: absolute;
-      top: 50px;
-      right: 10px;
-      background: rgba(0, 0, 0, 0.8);
-      padding: 15px;
-      border-radius: 10px;
-      transform: scaleY(0);
-      transform-origin: top;
-      transition: transform 0.3s ease, opacity 0.3s;
-      opacity: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      z-index: 1000;
-    }
-
-    #menu.open {
-      transform: scaleY(1);
-      opacity: 1;
-    }
-
-    #menu button {
-      background-color: #444;
-      border: none;
-      color: white;
-      padding: 10px 15px;
-      cursor: pointer;
-      border-radius: 5px;
-      font-size: 1rem;
-      text-align: left;
-      transition: background-color 0.3s;
-    }
-
-    #menu button:hover {
-      background-color: #555;
-    }
-
-    iframe {
-      width: 100%;
-      height: 100%;
-      border-radius: 15px;
-      border: none;
-      z-index: 1;
-      position: relative;
-    }
-
-    .mid {
-      flex: 1;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .bottom {
-      background: linear-gradient(90deg, #2575fc, #6a11cb);
-      display: flex;
-      justify-content: space-around;
-      padding: 10px 0;
-      box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.2);
-    }
-
-    .nav-button {
-      background-color: rgba(255, 255, 255, 0.2);
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 50%;
-      cursor: pointer;
-      transition: background-color 0.3s, transform 0.2s;
-      font-size: 1.5rem;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .nav-button:hover {
-      background-color: rgba(255, 255, 255, 0.3);
-      transform: scale(1.1);
-    }
-
-    .nav-button.active {
-      background-color: #fff;
-      color: #2575fc;
-    }
-  </style>
+        .no-content-message p {
+            color: #666;
+        }
+    </style>
 </head>
 <body>
-  <!-- Top Section -->
-  <div class="top">
-    <button id="toggle-menu">☰ </button>
-    <div id="menu"></div>
-  </div>
+    <!-- Top Section -->
+    <div class="top">
+        <button id="toggle-menu">☰ 즐겨찾기</button>
+        <div id="menu"></div>
+    </div>
 
-  <!-- Middle Section -->
-  <div class="mid"> 
-    <iframe id="iframe" src="https://www.algumon.com/" frameborder="0"></iframe> <!-- 임시부분임 --> 
-  </div>
+    <!-- Middle Section -->
+    <div class="mid" id="content-area">
+        <div class="no-content-message" style="display: none;">
+            <i class="fas fa-parking"></i>
+            <h2>등록된 주차장이 없습니다</h2>
+            <p>주차장을 먼저 등록해주세요</p>
+        </div>
+        <iframe id="iframe" style="display: none;" frameborder="0"></iframe>
+    </div>
 
-  <!-- Bottom Section -->
-  <div class="bottom">
-    <button class="nav-button active" onclick="navigateTo('LayoutView.html')">
-      <i class="fas fa-home"></i>
-    </button>
-    <button class="nav-button" onclick="navigateTo('NaverMapEditor.html')">
-      <i class="fas fa-map-marker-alt"></i>
-    </button>
-    <button class="nav-button" onclick="navigateTo('Editor.html')">
-      <i class="fas fa-user"></i>
-    </button>
-  </div>
+    <!-- Bottom Section -->
+    <div class="bottom">
+        <button class="nav-button active" data-page="layoutView">
+            <i class="fas fa-home"></i>
+        </button>
+        <button class="nav-button" data-page="naverMapEditor">
+            <i class="fas fa-map-marker-alt"></i>
+        </button>
+        <button class="nav-button" data-page="editor">
+            <i class="fas fa-user"></i>
+        </button>
+    </div>
 
-  <script>
-    const toggleMenu = document.getElementById('toggle-menu');
-    const menu = document.getElementById('menu');
+    <script>
+        const toggleMenu = document.getElementById('toggle-menu');
+        const menu = document.getElementById('menu');
+        const iframe = document.getElementById('iframe');
+        const noContentMessage = document.querySelector('.no-content-message');
 
-    // 서버에서 즐겨찾기 SpaceID 가져오기
-    async function fetchFavoritesFromServer() {
-        try {
-            const response = await fetch('/api/favorites');
-            if (!response.ok) throw new Error('즐겨찾기 데이터를 가져오는 데 실패했습니다.');
-            return await response.json();
-        } catch (error) {
-            console.error('즐겨찾기 데이터를 가져오는 중 오류 발생:', error);
-            return [];
+        async function fetchFavoritesFromServer() {
+            try {
+                const response = await fetch('/api/favorites');
+                if (!response.ok) throw new Error('즐겨찾기 데이터를 가져오는 데 실패했습니다.');
+                return await response.json();
+            } catch (error) {
+                console.error('즐겨찾기 데이터를 가져오는 중 오류 발생:', error);
+                return [];
+            }
         }
-    }
 
-    // 메뉴 업데이트
-    async function updateMenu() {
-        const favorites = await fetchFavoritesFromServer();
-        menu.innerHTML = '';
+        async function updateMenu() {
+            const favorites = await fetchFavoritesFromServer();
+            menu.innerHTML = '';
 
-        if (favorites.length === 0) {
-            const emptyMessage = document.createElement('p');
-            emptyMessage.textContent = "즐겨찾기가 현재 없습니다.";
-            emptyMessage.style.color = "#fff";
-            emptyMessage.style.textAlign = "center";
-            menu.appendChild(emptyMessage);
-        } else {
-            favorites.forEach(favorite => {
-                const button = document.createElement('button');
-                button.textContent = `SpaceID: ${favorite.spaceId}`; // SpaceID 표시
-                button.onclick = () => navigateTo(`LayoutView.html?spaceId=${favorite.spaceId}`);
-                menu.appendChild(button);
+            if (favorites.length === 0) {
+                const emptyMessage = document.createElement('p');
+                emptyMessage.textContent = "즐겨찾기가 없습니다";
+                emptyMessage.style.color = "#fff";
+                emptyMessage.style.textAlign = "center";
+                menu.appendChild(emptyMessage);
+            } else {
+                favorites.forEach(favorite => {
+                    const button = document.createElement('button');
+                    button.textContent = `주차공간: ${favorite.spaceNumber}`; // spaceId 대신 spaceNumber 표시
+                    button.onclick = () => navigateTo('layoutView', favorite.spaceID);
+                    menu.appendChild(button);
+                });
+            }
+        }
+
+        toggleMenu.addEventListener('click', async () => {
+            const isOpen = menu.classList.contains('open');
+            if (!isOpen) {
+                await updateMenu();
+            }
+            menu.classList.toggle('open');
+        });
+
+        async function navigateTo(page, spaceId = null) {
+            const favorites = await fetchFavoritesFromServer();
+            
+            if (favorites.length === 0 && page === 'layoutView') {
+                iframe.style.display = 'none';
+                noContentMessage.style.display = 'flex';
+            } else {
+                iframe.style.display = 'block';
+                noContentMessage.style.display = 'none';
+                
+                let url = `${page}.html`;
+                if (spaceId) {
+                    url += `?spaceID=${spaceId}`;
+                }
+                iframe.src = url;
+            }
+
+            // 활성화된 버튼 스타일 업데이트
+            document.querySelectorAll('.nav-button').forEach(button => {
+                button.classList.toggle('active', button.dataset.page === page);
             });
         }
-    }
 
-    // Toggle Menu 클릭 이벤트
-    toggleMenu.addEventListener('click', async () => {
-        if (menu.classList.contains('open')) {
-            menu.classList.remove('open');
-        } else {
-            await updateMenu();
-            menu.classList.add('open');
-        }
-    });
-
-    // 페이지 이동 함수
-    function navigateTo(page) {
-        const iframe = document.getElementById('iframe');
-        iframe.src = page;
-
-        const buttons = document.querySelectorAll('.nav-button');
-        buttons.forEach(button => {
-            if (button.getAttribute('onclick').includes(page)) {
-                button.classList.add('active');
-            } else {
-                button.classList.remove('active');
-            }
+        // 페이지 초기화
+        document.addEventListener('DOMContentLoaded', async () => {
+            await navigateTo('layoutView');
         });
-    }
 
-    // 페이지 초기화
-    document.addEventListener('DOMContentLoaded', () => {
-        navigateTo('LayoutView.html');
-    });
-  </script>
+        // 하단 네비게이션 버튼 이벤트 리스너 추가
+        document.querySelectorAll('.nav-button').forEach(button => {
+            button.addEventListener('click', () => navigateTo(button.dataset.page));
+        });
+    </script>
 </body>
 </html>
