@@ -456,10 +456,10 @@ function rotateBlock(group) {
 
             layout.push({
                 parkingLotID: parkingLotID,
-                SpaceLocation: `${x},${y}`,
-                Status: "UNKNOWN",
-                SensorID: rect.dataset.sensorId || null,
-                SpaceNumber: spaceNumber || 100,
+                spaceLocation: `${x},${y}`,     // SpaceLocation -> spaceLocation
+                status: "UNKNOWN",              // Status -> status
+                sensorID: rect.dataset.sensorId || null,  // SensorID -> sensorID
+                spaceNumber: spaceNumber || 100,  // SpaceNumber -> spaceNumber
             });
         });
 

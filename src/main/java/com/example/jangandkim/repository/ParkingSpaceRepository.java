@@ -16,5 +16,5 @@ public interface ParkingSpaceRepository extends JpaRepository<ParkingSpace, Inte
 
     // Sensor 관련 메서드는 유지
     List<ParkingSpace> findBySensorIsNull();
-//
+////fff
 }

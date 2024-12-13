@@ -3,7 +3,7 @@ package com.example.jangandkim.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.NotNull;
-
+//
 @Entity
 @Table(name = "parkinglot")
 public class ParkingLot {
