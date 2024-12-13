@@ -79,11 +79,11 @@ function addMarker(position, parkingLotID = null, id = null) {
     <div>
         <div style="margin:0;padding:0;">
             <a href="#" class="spmc btn_clear">핀 삭제</a>
-            <div>주차장 ID: ${parkingLotID}</div>
+            <div>주차장 ID: ${numericParkingLotID || 'N/A'}</div>
             ${
-                parkingLotID
-                    ? `<button><a href="/layout-view?parkingLotID=${parkingLotID}" target="_blank">주차장 보기</a></button>
-                       <button onclick="addToFavorites(${parkingLotID})">즐겨찾기 추가</button>`
+                numericParkingLotID
+                    ? `<button><a href="/layout-view?parkingLotID=${numericParkingLotID}" target="_blank">주차장 보기</a></button>
+                       <button onclick="addToFavorites(${numericParkingLotID})">즐겨찾기 추가</button>`
                     : `<div>
                          <button onclick="alert('주차장 ID가 필요합니다!')">주차장 보기</button>
                          <button onclick="alert('주차장 ID가 필요합니다!')">즐겨찾기 추가</button>
@@ -226,33 +226,56 @@ naver.maps.Event.addListener(map, 'rightclick', function (e) {
             }
         }
 
-        // 검색 버튼 클릭 이벤트
-        document.getElementById('search-btn').addEventListener('click', async () => {
-            const query = document.getElementById('search-input').value.trim();
+       
+    // 검색 버튼 클릭 이벤트
+document.getElementById('search-btn').addEventListener('click', async () => {
+    const query = document.getElementById('search-input').value.trim();
 
-            if (!query) {
-                alert('검색어를 입력하세요.');
-                return;
-            }
+    if (!query) {
+        alert('검색어를 입력하세요.');
+        return;
+    }
 
-            // 서버에서 사용자 마커 검색
-            try {
-                const markers = await fetchMarkers(query);
-                if (markers.length > 0) {
-                    clearMarkers();
-                    markers.forEach(markerData => {
-                        const position = new naver.maps.LatLng(markerData.lat, markerData.lng);
-                        addMarker(position, markerData.title, markerData.spaceId, markerData.id);
-                    });
-                    alert('사용자 마커 검색 결과를 표시합니다.');
-                    return;
-                }
-            } catch (error) {
-                console.error('사용자 마커 검색 중 오류 발생:', error);
-            }
+    try {
+        const markers = await fetchMarkers(query);
+        if (markers.length > 0) {
+            clearMarkers();
+            markers.forEach(markerData => {
+                const position = new naver.maps.LatLng(markerData.lat, markerData.lng);
+                const parkingLotID = markerData.parkingLot ? markerData.parkingLot.parkingLotID : null;
+                addMarker(position, parkingLotID, markerData.id);
+            });
+            alert('사용자 마커 검색 결과를 표시합니다.');
+            return;
+        }
+    } catch (error) {
+        console.error('사용자 마커 검색 중 오류 발생:', error);
+    }
 
-            alert('검색 결과가 없습니다.');
+    alert('검색 결과가 없습니다.');
+});
+
+let markers = []; // 전역 변수로 추가
+
+async function initialize() {
+    try {
+        const fetchedMarkers = await fetchMarkers();
+        clearMarkers(); // 기존 마커 제거
+        markers = fetchedMarkers; // 마커 데이터 저장
+        
+        markers.forEach(markerData => {
+            const position = new naver.maps.LatLng(markerData.lat, markerData.lng);
+            const parkingLotID = markerData.parkingLot ? markerData.parkingLot.parkingLotID : null;
+            console.log('마커 생성:', markerData); // 디버깅용
+            addMarker(position, parkingLotID, markerData.id);
         });
+    } catch (error) {
+        console.error('초기화 중 오류 발생:', error);
+    }
+}
+
+// 초기화 실행을 initialize 함수로 변경
+window.onload = initialize;
 
         // 뒤로가기 버튼 클릭 이벤트
         document.getElementById('back-btn').addEventListener('click', () => {
@@ -299,7 +322,7 @@ async function restoreMarkers() {
 
 
         // 초기화 실행
-        restoreMarkers();
+    restoreMarkers();
     </script>
 </body>
 </html>
