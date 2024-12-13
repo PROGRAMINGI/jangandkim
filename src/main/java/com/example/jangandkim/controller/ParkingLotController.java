@@ -80,7 +80,7 @@ public class ParkingLotController {
     }
 
   // 주차 공간 저장에서 `ParkingLotID` 검증 추가
-@PostMapping("/{id}/parking-spaces")
+@PostMapping("/api/parking-spaces")
 public ResponseEntity<?> saveParkingSpaces(@PathVariable int id, @RequestBody List<ParkingSpace> parkingSpaces) {
     try {
         ParkingLot parkingLot = parkingLotService.getParkingLotById(id);

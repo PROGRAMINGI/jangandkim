@@ -12,7 +12,7 @@ public class ParkingSpace {
     @Column(name = "SpaceID")
     private int spaceID;
 
-    @Column(name = "ParkingLotID", nullable = false)
+    @Column(name = "parkingspace", nullable = false)
     private int parkingLotID; // 단순 정수로 저장
 
     @Column(name = "SpaceLocation", length = 50, nullable = false)
