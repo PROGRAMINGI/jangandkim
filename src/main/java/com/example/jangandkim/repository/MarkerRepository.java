@@ -9,6 +9,7 @@ import java.util.List;
 
 @Repository
 public interface MarkerRepository extends JpaRepository<Marker, Long> {
-    @Query("SELECT m FROM Marker m WHERE m.title LIKE %:query% OR m.page LIKE %:query%")
+    @Query("SELECT m FROM Marker m WHERE m.title LIKE %:query% OR m.spaceId LIKE %:query%")
     List<Marker> searchMarkers(@Param("query") String query);
 }
+
