@@ -85,19 +85,16 @@
         // 서버에서 데이터를 가져와 레이아웃을 생성
         async function fetchAndRenderLayout(parkingLotID) {
     try {
-        console.log(`API 요청: /api/parking-spaces?parkingLotID=${parkingLotID}`);
+        console.log(`주차장 데이터 요청: parkingLotID=${parkingLotID}`);
         const response = await fetch(`/api/parking-spaces?parkingLotID=${parkingLotID}`);
         
         if (!response.ok) {
-            const errorText = await response.text();
-            console.error('API 응답 에러:', errorText);
             throw new Error("주차 공간 데이터를 가져오는 데 실패했습니다.");
         }
 
         const parkingSpaces = await response.json();
         console.log('받은 주차 공간 데이터:', parkingSpaces);
 
-        // ... 나머지 코드 ...
         // SVG 초기화
         svg.innerHTML = `
             <defs>
@@ -108,31 +105,26 @@
             <rect width="100%" height="100%" fill="url(#grid)" style="pointer-events: none;" />
         `;
 
-        // 각 주차공간 렌더링
         parkingSpaces.forEach(space => {
             const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
             const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
             
-            const [x, y] = space.spaceLocation.split(',');
+            // spaceLocation 파싱
+            const [x, y] = space.spaceLocation.split(',').map(coord => parseInt(coord));
             rect.setAttribute("x", x);
             rect.setAttribute("y", y);
             rect.setAttribute("width", 40);
             rect.setAttribute("height", 80);
 
-            // 상태에 따른 스타일 적용
             rect.setAttribute("class", "parking-spot");
-            if (!space.sensor) {
-                rect.classList.add("no-sensor");
-            } else {
-                rect.classList.add(space.status.toLowerCase());
-            }
+            rect.classList.add(space.status.toLowerCase());
 
             group.appendChild(rect);
 
             // 번호 표시
             const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-            text.setAttribute("x", parseFloat(x) + 20);
-            text.setAttribute("y", parseFloat(y) + 45);
+            text.setAttribute("x", x + 20);
+            text.setAttribute("y", y + 40);
             text.textContent = space.spaceNumber;
             group.appendChild(text);
 
@@ -145,7 +137,7 @@
 }
 
 // URL 파라미터에서 parkingLotID 가져오기
-// URL 파라미터에서 parkingLotID 가져오기
+
 document.addEventListener("DOMContentLoaded", async () => {
     const urlParams = new URLSearchParams(window.location.search);
     const parkingLotID = urlParams.get('parkingLotID');

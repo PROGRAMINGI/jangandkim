@@ -39,9 +39,15 @@ public class ParkingSpaceController {
 
 
     @GetMapping
-    public ResponseEntity<List<ParkingSpace>> getAllParkingSpaces() {
-        return ResponseEntity.ok(parkingSpaceService.getAllParkingSpaces());
+public ResponseEntity<List<ParkingSpace>> getAllParkingSpaces(
+    @RequestParam(required = true) Integer parkingLotID) {
+    try {
+        List<ParkingSpace> spaces = parkingSpaceService.getParkingSpacesByParkingLotId(parkingLotID);
+        return ResponseEntity.ok(spaces);
+    } catch (Exception e) {
+        return ResponseEntity.internalServerError().build();
     }
+}
 
     @GetMapping("/{id}")
     public ResponseEntity<ParkingSpace> getParkingSpaceById(@PathVariable int id) {
