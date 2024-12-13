@@ -17,11 +17,9 @@ public class Marker {
     @Column(name = "lng", nullable = false)
     private double lng;
 
-    @Column(name = "title", length = 100, nullable = false)
-    private String title;
-
-    @Column(name = "page", length = 255, nullable = false)
-    private String page;
+    @OneToOne
+    @JoinColumn(name = "ParkingLotID", unique = true) // ParkingLotID 외래 키 추가
+    private ParkingLot parkingLot;
 
     // Getters and Setters
     public Long getId() {
@@ -48,19 +46,12 @@ public class Marker {
         this.lng = lng;
     }
 
-    public String getTitle() {
-        return title;
+    public ParkingLot getParkingLot() {
+        return parkingLot;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setParkingLot(ParkingLot parkingLot) {
+        this.parkingLot = parkingLot;
     }
 
-    public String getPage() {
-        return page;
-    }
-
-    public void setPage(String page) {
-        this.page = page;
-    }
 }

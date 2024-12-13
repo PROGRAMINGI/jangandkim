@@ -11,8 +11,9 @@ public class ParkingSpace {
     @Column(name = "SpaceID")
     private int spaceID;
 
-    @Column(name = "ParkingLotID", nullable = false)
-    private int parkingLotID;
+    @ManyToOne
+    @JoinColumn(name = "ParkingLotID", nullable = false)
+    private ParkingLot parkingLot;
 
     @Column(name = "SpaceLocation", length = 50, nullable = false)
     private String spaceLocation;
@@ -24,8 +25,8 @@ public class ParkingSpace {
     @Column(name = "Status", nullable = false)
     private ParkingStatus status;
 
-    @ManyToOne
-    @JoinColumn(name = "SensorID")
+    @OneToOne
+    @JoinColumn(name = "SensorID", unique = true)
     private Sensor sensor;
 
     // Getters and Setters
@@ -37,12 +38,12 @@ public class ParkingSpace {
         this.spaceID = spaceID;
     }
 
-    public int getParkingLotID() {
-        return parkingLotID;
+    public ParkingLot getParkingLot() {
+        return parkingLot;
     }
 
-    public void setParkingLotID(int parkingLotID) {
-        this.parkingLotID = parkingLotID;
+    public void setParkingLot(ParkingLot parkingLot) {
+        this.parkingLot = parkingLot;
     }
 
     public String getSpaceLocation() {

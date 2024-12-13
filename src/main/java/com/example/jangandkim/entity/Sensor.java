@@ -16,8 +16,8 @@ public class Sensor {
     @Column(name = "SensorName", length = 50, nullable = false)
     private String sensorName;
 
-    @OneToMany(mappedBy = "sensor", cascade = CascadeType.ALL)
-    private List<ParkingSpace> parkingSpaces = new ArrayList<>();
+    @OneToOne(mappedBy = "sensor", cascade = CascadeType.ALL)
+    private ParkingSpace parkingSpace;
 
     @OneToMany(mappedBy = "sensor", cascade = CascadeType.ALL)
     private List<SensorData> sensorDataList = new ArrayList<>();
@@ -39,12 +39,12 @@ public class Sensor {
         this.sensorName = sensorName;
     }
 
-    public List<ParkingSpace> getParkingSpaces() {
-        return parkingSpaces;
+    public ParkingSpace getParkingSpace() {
+        return parkingSpace;
     }
 
-    public void setParkingSpaces(List<ParkingSpace> parkingSpaces) {
-        this.parkingSpaces = parkingSpaces;
+    public void setParkingSpace(ParkingSpace parkingSpaces) {
+        this.parkingSpace = parkingSpaces;
     }
 
     public List<SensorData> getSensorDataList() {

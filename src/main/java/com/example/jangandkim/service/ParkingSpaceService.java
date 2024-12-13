@@ -65,8 +65,8 @@ public class ParkingSpaceService {
         if (parkingSpace.getSpaceNumber() != null) {
             existing.setSpaceNumber(parkingSpace.getSpaceNumber());
         }
-        if (parkingSpace.getParkingLotID() != 0) {  // 0이 아닌 경우에만 업데이트
-            existing.setParkingLotID(parkingSpace.getParkingLotID());
+        if (parkingSpace.getParkingLot() != null) {  // ParkingLot이 null이 아닌 경우에만 업데이트
+            existing.setParkingLot(parkingSpace.getParkingLot());
         }
 
         return parkingSpaceRepository.save(existing);

@@ -6,7 +6,6 @@ import com.example.jangandkim.entity.ParkingStatus;
 import com.example.jangandkim.repository.ParkingLotRepository;
 import com.example.jangandkim.repository.ParkingSpaceRepository;
 import com.example.jangandkim.service.ParkingSpaceService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

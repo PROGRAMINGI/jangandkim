@@ -35,7 +35,6 @@ public class ParkingLotService {
         ParkingLot existing = getParkingLotById(id);
         if (existing != null) {
             existing.setName(parkingLot.getName());
-            existing.setLocation(parkingLot.getLocation());
             return parkingLotRepository.save(existing);
         }
         return null;

@@ -90,8 +90,9 @@ public ResponseEntity<?> saveParkingSpaces(@PathVariable int id, @RequestBody Li
         }
 
         for (ParkingSpace space : parkingSpaces) {
-            space.setParkingLotID(parkingLot.getParkingLotID());
+            space.setParkingLot(parkingLot); // 객체 연관 관계를 설정
         }
+        
 
         List<ParkingSpace> savedSpaces = parkingSpaceService.saveAllParkingSpaces(parkingSpaces);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedSpaces);
