@@ -158,12 +158,6 @@
             parkingLotName = "기본 이름";
         }
 
-        let parkingLotLocation = prompt("주차장 위치를 입력하세요:");
-        if (!parkingLotLocation || parkingLotLocation.trim() === "") {
-            alert("주차장 위치는 필수입니다.");
-            parkingLotLocation = "기본 위치";
-        }
-
 
 
         // 회전 모드 토글ddddd
@@ -266,7 +260,7 @@ async function saveParkingLot() {
         const response = await fetch("/api/parking-lots", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name: parkingLotName, location: parkingLotLocation}),
+            body: JSON.stringify({name: parkingLotName}),
         });
 
         if (!response.ok) {
@@ -424,8 +418,7 @@ function rotateBlock(group) {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                name: parkingLotName,
-                location: parkingLotLocation,
+                name: parkingLotName
             }),
         });
 
