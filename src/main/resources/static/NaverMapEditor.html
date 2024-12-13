@@ -139,7 +139,7 @@ function addMarker(position, parkingLotID = null, id = null) {
 function addToFavorites(parkingLotID) {
     const numericParkingLotID = parseInt(parkingLotID);
     
-    if (!parkingLotID) {
+    if (!parkingLotID || isNaN(numericParkingLotID)) {
         alert('유효한 주차장 ID가 필요합니다!');
         return;
     }
@@ -148,7 +148,8 @@ function addToFavorites(parkingLotID) {
     
     if (!favorites.some(fav => fav.parkingLotID === numericParkingLotID)) {
         favorites.push({
-            parkingLotID: numericParkingLotID
+            parkingLotID: numericParkingLotID,
+            title: `주차장 ${numericParkingLotID}`  // 표시용 제목 추가
         });
         localStorage.setItem('favorites', JSON.stringify(favorites));
         alert('즐겨찾기에 추가되었습니다!');

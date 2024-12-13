@@ -169,58 +169,32 @@
     return favorites;
 }
 
-    async function updateMenu() {
-        const favorites = await fetchFavoritesFromServer();
-        menu.innerHTML = '';
+async function updateMenu() {
+    const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+    menu.innerHTML = '';
 
-        if (favorites.length === 0) {
-            const emptyMessage = document.createElement('p');
-            emptyMessage.textContent = "즐겨찾기가 현재 없습니다.";
-            emptyMessage.style.color = "#fff";
-            emptyMessage.style.textAlign = "center";
-            menu.appendChild(emptyMessage);
-        } else {
-            favorites.forEach(favorite => {
-                const button = document.createElement('button');
-                button.textContent = `SpaceID: ${favorite.parkingLotID}`;
-                button.onclick = () => navigateTo('LayoutView.html?spaceID=' + favorite.spaceID);
-                menu.appendChild(button);
-            });
-        }
-    }
-
-    toggleMenu.addEventListener('click', async () => {
-        if (menu.classList.contains('open')) {
-            menu.classList.remove('open');
-        } else {
-            await updateMenu();
-            menu.classList.add('open');
-        }
-    });
-
-    async function navigateTo(page) {
-        if (page === 'LayoutView.html') {
-            const favorites = await fetchFavoritesFromServer();
-            if (favorites.length === 0) {
-                iframe.style.display = 'none';
-                noContentMessage.style.display = 'block';
-                return;
-            }
-        }
-        
-        iframe.style.display = 'block';
-        noContentMessage.style.display = 'none';
-        iframe.src = page;
-
-        const buttons = document.querySelectorAll('.nav-button');
-        buttons.forEach(button => {
-            if (button.getAttribute('onclick').includes(page)) {
-                button.classList.add('active');
-            } else {
-                button.classList.remove('active');
-            }
+    if (favorites.length === 0) {
+        const emptyMessage = document.createElement('p');
+        emptyMessage.textContent = "즐겨찾기가 현재 없습니다.";
+        emptyMessage.style.color = "#fff";
+        emptyMessage.style.textAlign = "center";
+        menu.appendChild(emptyMessage);
+    } else {
+        favorites.forEach(favorite => {
+            const button = document.createElement('button');
+            button.textContent = `주차장 ${favorite.parkingLotID}`;
+            button.onclick = () => {
+                navigateToLayoutView(favorite.parkingLotID);
+            };
+            menu.appendChild(button);
         });
     }
+}
+
+function navigateToLayoutView(parkingLotID) {
+    const iframe = document.getElementById('iframe');
+    iframe.src = `LayoutView.html?parkingLotID=${parkingLotID}`;
+}
 
     document.addEventListener('DOMContentLoaded', () => {
         navigateTo('LayoutView.html');

@@ -109,7 +109,6 @@
             const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
             const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
             
-            // spaceLocation 파싱
             const [x, y] = space.spaceLocation.split(',').map(coord => parseInt(coord));
             rect.setAttribute("x", x);
             rect.setAttribute("y", y);
@@ -117,11 +116,13 @@
             rect.setAttribute("height", 80);
 
             rect.setAttribute("class", "parking-spot");
-            rect.classList.add(space.status.toLowerCase());
+            if (space.status) {
+                rect.classList.add(space.status.toLowerCase());
+            }
 
             group.appendChild(rect);
 
-            // 번호 표시
+            // 주차공간 번호 표시
             const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
             text.setAttribute("x", x + 20);
             text.setAttribute("y", y + 40);
@@ -136,22 +137,14 @@
     }
 }
 
-// URL 파라미터에서 parkingLotID 가져오기
-
-document.addEventListener("DOMContentLoaded", async () => {
+// URL 파라미터 처리
+document.addEventListener("DOMContentLoaded", () => {
     const urlParams = new URLSearchParams(window.location.search);
     const parkingLotID = urlParams.get('parkingLotID');
     
     if (parkingLotID) {
-        try {
-            console.log('주차장 ID:', parkingLotID); // 디버깅용
-            await fetchAndRenderLayout(parkingLotID);
-        } catch (error) {
-            console.error('레이아웃 렌더링 중 오류:', error);
-            alert("주차장 데이터를 불러오는데 실패했습니다.");
-        }
+        fetchAndRenderLayout(parkingLotID);
     } else {
-        console.error('주차장 ID가 없음');
         alert("주차장 ID가 필요합니다.");
     }
 });
