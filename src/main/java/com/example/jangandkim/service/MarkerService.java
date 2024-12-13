@@ -16,11 +16,10 @@ public class MarkerService {
         this.markerRepository = markerRepository;
     }
 
-    public List<Marker> searchMarkers(String query) {
-        if (query == null || query.trim().isEmpty()) {
-            throw new IllegalArgumentException("검색어는 비어있을 수 없습니다.");
-        }
-        return markerRepository.searchMarkers(query.trim());
+    // searchMarkers 메서드 삭제 또는 다른 검색 로직으로 변경
+    // 예: 영역 기반 검색으로 변경
+    public List<Marker> searchMarkersByArea(double minLat, double maxLat, double minLng, double maxLng) {
+        return markerRepository.findMarkersInArea(minLat, maxLat, minLng, maxLng);
     }
 
     public List<Marker> getAllMarkers() {
@@ -31,7 +30,6 @@ public class MarkerService {
         if (marker == null) {
             throw new IllegalArgumentException("마커 데이터는 null일 수 없습니다.");
         }
-        // 필수 필드 검증
         if (marker.getLat() == 0.0 || marker.getLng() == 0.0) {
             throw new IllegalArgumentException("위도와 경도는 필수입니다.");
         }

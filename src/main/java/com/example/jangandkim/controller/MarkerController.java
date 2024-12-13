@@ -10,7 +10,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/markers")
-@CrossOrigin(origins = "*")  // CORS 설정 추가
+@CrossOrigin(origins = "*")
 public class MarkerController {
     private final MarkerService markerService;
 
@@ -19,10 +19,15 @@ public class MarkerController {
         this.markerService = markerService;
     }
 
+    // searchMarkers를 영역 기반 검색으로 변경
     @GetMapping("/search")
-    public ResponseEntity<List<Marker>> searchMarkers(@RequestParam String query) {
+    public ResponseEntity<List<Marker>> searchMarkersByArea(
+            @RequestParam double minLat,
+            @RequestParam double maxLat,
+            @RequestParam double minLng,
+            @RequestParam double maxLng) {
         try {
-            List<Marker> results = markerService.searchMarkers(query);
+            List<Marker> results = markerService.searchMarkersByArea(minLat, maxLat, minLng, maxLng);
             return ResponseEntity.ok(results);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();

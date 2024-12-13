@@ -15,44 +15,39 @@ public class ParkingSpaceService {
         this.parkingSpaceRepository = parkingSpaceRepository;
     }
 
-    // 모든 주차 공간 저장
+    // 기존 메서드들 유지
     public List<ParkingSpace> saveAllParkingSpaces(List<ParkingSpace> parkingSpaces) {
         return parkingSpaceRepository.saveAll(parkingSpaces);
     }
 
-    // 단일 주차 공간 저장
     public ParkingSpace saveParkingSpace(ParkingSpace parkingSpace) {
         return parkingSpaceRepository.save(parkingSpace);
     }
 
-    // 특정 ParkingLotID의 모든 주차 공간 조회
+    // ParkingLotID로 조회하는 메서드 수정
     public List<ParkingSpace> getParkingSpacesByParkingLotId(int parkingLotId) {
-        return parkingSpaceRepository.findByParkingLotID(parkingLotId); 
+        return parkingSpaceRepository.findByParkingLot_ParkingLotID(parkingLotId);
     }
 
-    // Sensor가 NULL인 주차 공간 조회
+    // 나머지 메서드들은 그대로 유지
     public List<ParkingSpace> getParkingSpacesWithoutSensor() {
         return parkingSpaceRepository.findBySensorIsNull();
     }
 
-    // 모든 주차 공간 조회
     public List<ParkingSpace> getAllParkingSpaces() {
         return parkingSpaceRepository.findAll();
     }
 
-    // 특정 ID로 주차 공간 조회
     public ParkingSpace getParkingSpaceById(int id) {
         return parkingSpaceRepository.findById(id).orElse(null);
     }
 
-    // 주차 공간 업데이트
     public ParkingSpace updateParkingSpace(int id, ParkingSpace parkingSpace) {
         ParkingSpace existing = getParkingSpaceById(id);
         if (existing == null) {
             throw new RuntimeException("ID가 " + id + "인 주차 공간을 찾을 수 없습니다.");
         }
         
-        // 기존 값 유지를 위한 null 체크 추가
         if (parkingSpace.getSpaceLocation() != null) {
             existing.setSpaceLocation(parkingSpace.getSpaceLocation());
         }
@@ -65,14 +60,13 @@ public class ParkingSpaceService {
         if (parkingSpace.getSpaceNumber() != null) {
             existing.setSpaceNumber(parkingSpace.getSpaceNumber());
         }
-        if (parkingSpace.getParkingLot() != null) {  // ParkingLot이 null이 아닌 경우에만 업데이트
+        if (parkingSpace.getParkingLot() != null) {
             existing.setParkingLot(parkingSpace.getParkingLot());
         }
 
         return parkingSpaceRepository.save(existing);
     }
 
-    // 주차 공간 삭제
     public void deleteParkingSpace(int id) {
         try {
             parkingSpaceRepository.deleteById(id);
