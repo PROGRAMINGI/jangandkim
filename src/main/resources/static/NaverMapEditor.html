@@ -71,7 +71,7 @@
             currentMarkers.push(marker);
             marker.spaceId = spaceId;
 
-            const iwContent = `
+                const iwContent = `
                 <div>
                     <div style="margin:0;padding:0;">
                         <a href="#" class="spmc btn_clear">핀 삭제</a>
@@ -81,12 +81,26 @@
                                 ? `<button><a href="/layout-view?spaceId=${spaceId}" target="_blank">주차장 보기</a></button>`
                                 : `<button onclick="alert('SpaceID가 필요합니다!')">주차장 보기</button>`
                         }
-                        <button onclick="alert('즐겨찾기에 추가되었습니다!')">즐겨찾기 추가</button>
+                        <button onclick="addToFavorites('${spaceId}', '${title}')">즐겨찾기 추가</button>
                     </div>
                 </div>
             `;
 
-            const infoWindow = new naver.maps.InfoWindow({ content: iwContent });
+            function addToFavorites(spaceId, title) {
+            let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+            
+            // 중복 체크
+            if (!favorites.some(fav => fav.spaceID === spaceId)) {
+                favorites.push({
+                    spaceID: spaceId,
+                    title: title
+                });
+                localStorage.setItem('favorites', JSON.stringify(favorites));
+                alert('즐겨찾기에 추가되었습니다!');
+            } else {
+                alert('이미 즐겨찾기에 추가된 주차장입니다.');
+            }
+        }
 
             // 마커 클릭 시 정보 창 열기
             naver.maps.Event.addListener(marker, 'click', () => {
