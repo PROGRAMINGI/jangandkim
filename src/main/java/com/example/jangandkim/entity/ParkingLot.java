@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 ///
 @Entity
 @JsonIgnoreProperties({"parkingSpaces"})  // JSON 직렬화 시 parkingSpaces 무시
@@ -23,6 +24,7 @@ public class ParkingLot {
     private String name;
 
     @OneToMany(mappedBy = "parkingLot", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<ParkingSpace> parkingSpaces;
     
     @OneToOne(mappedBy = "parkingLot", cascade = CascadeType.ALL) // Marker와의 1:1 연결
@@ -61,3 +63,5 @@ public class ParkingLot {
         this.marker = marker;
     }
 }
+
+

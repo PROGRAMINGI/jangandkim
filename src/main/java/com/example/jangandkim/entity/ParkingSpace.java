@@ -1,5 +1,7 @@
 package com.example.jangandkim.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -13,6 +15,7 @@ public class ParkingSpace {
 
     @ManyToOne
     @JoinColumn(name = "ParkingLotID", nullable = false)
+    @JsonBackReference
     private ParkingLot parkingLot;
 
     @Column(name = "SpaceLocation", length = 50, nullable = false)
