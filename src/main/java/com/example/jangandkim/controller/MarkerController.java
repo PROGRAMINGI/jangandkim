@@ -109,7 +109,7 @@ public ResponseEntity<MarkerDTO> saveMarker(@RequestBody Marker marker) {
     }
 }
 
-@DeleteMapping("/api/markers/{id}")
+@DeleteMapping("{id}")
 public ResponseEntity<?> deleteMarker(@PathVariable Long id) {
     markerService.deleteMarkerById(id); // 이 로직이 올바르게 작동하는지 확인 필요
     return ResponseEntity.noContent().build();
