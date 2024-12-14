@@ -157,31 +157,35 @@
 
 
         async function initializeDesigner() {
-            const inputId = prompt("주차장 ID를 입력하세요 (새 주차장은 빈칸):");
-            
-            if (inputId && inputId.trim() !== "") {
+            const inputID = prompt("주차장 ID를 입력하세요 (새 주차장은 빈칸):");
+            if (!isNaN(inputID) && inputID.trim() !== "") {
                 try {
-                    const response = await fetch(`/api/parking-lots/${inputId}`);
+                    
+                    // inputId가 숫자일 경우 fetch 요청 진행
+                    const numericID = Number(inputID);
+                    const response = await fetch(`/api/parking-lots/${numericID}`);
                     if (!response.ok) throw new Error("주차장을 찾을 수 없습니다.");
                     
                     const parkingLot = await response.json();
-                    parkingLotID = inputId;
+                    parkingLotID = numericID;
                     parkingLotName = parkingLot.name;
 
                     // 주차 공간 데이터 로드
-                    const spacesResponse = await fetch(`/api/parking-spaces/${inputId}`);
+                    const spacesResponse = await fetch(`/api/parking-spaces/${numericID}`);
                     if (!spacesResponse.ok) throw new Error("주차 공간 데이터를 불러올 수 없습니다.");
                     
                     const spaces = await spacesResponse.json();
                     loadSpaces(spaces);
-                } catch (error) {
+                }
+                catch (error) {
                     alert("데이터 로드 실패: " + error.message);
                     requestNewParkingLotName();
                 }
             } else {
-                requestNewParkingLotName();
-            }
-        }
+                        alert("유효한 숫자를 입력하세요.");
+                        requestNewParkingLotName();
+                        }
+                    }
 
         function requestNewParkingLotName() {
             parkingLotName = prompt("새 주차장 이름을 입력하세요:");
@@ -217,7 +221,7 @@
 
             const newNumber = document.getElementById("space-number").value.trim();
             if (newNumber) {
-                const text = selectedBlock.querySelector("text");
+                const text = selectedBlock.querySelector("text")
                 text.textContent = newNumber;
             }
         }
