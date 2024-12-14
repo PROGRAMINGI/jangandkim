@@ -157,35 +157,64 @@
 
 
         async function initializeDesigner() {
-            const inputID = prompt("주차장 ID를 입력하세요 (새 주차장은 빈칸):");
-            if (!isNaN(inputID) && inputID.trim() !== "") {
-                try {
-                    
-                    // inputId가 숫자일 경우 fetch 요청 진행
-                    const numericID = Number(inputID);
-                    const response = await fetch(`/api/parking-lots/${numericID}`);
-                    if (!response.ok) throw new Error("주차장을 찾을 수 없습니다.");
-                    
-                    const parkingLot = await response.json();
-                    parkingLotID = numericID;
-                    parkingLotName = parkingLot.name;
+    const inputID = prompt("주차장 ID를 입력하세요 (새로운 ID를 입력하면 새 주차장이 생성됩니다):");
+    
+    // 입력값이 유효한 숫자인지 확인
+    if (!isNaN(inputID) && inputID.trim() !== "") {
+        try {
+            const numericID = Number(inputID);
+            
+            // 해당 ID로 주차장 데이터 조회 시도
+            const response = await fetch(`/api/parking-lots/${numericID}`);
+            
+            if (response.ok) {
+                // 기존 주차장이 존재하는 경우
+                const parkingLot = await response.json();
+                parkingLotID = numericID;
+                parkingLotName = parkingLot.name;
 
-                    // 주차 공간 데이터 로드
-                    const spacesResponse = await fetch(`/api/parking-spaces/${numericID}`);
-                    if (!spacesResponse.ok) throw new Error("주차 공간 데이터를 불러올 수 없습니다.");
-                    
+                // 주차 공간 데이터 로드
+                const spacesResponse = await fetch(`/api/parking-spaces/${numericID}`);
+                if (spacesResponse.ok) {
                     const spaces = await spacesResponse.json();
                     loadSpaces(spaces);
-                }
-                catch (error) {
-                    alert("데이터 로드 실패: " + error.message);
-                    requestNewParkingLotName();
+                    alert(`ID ${numericID}의 기존 주차장 데이터를 불러왔습니다.`);
+                } else {
+                    alert("주차장은 존재하지만 주차 공간 데이터를 불러올 수 없습니다.");
                 }
             } else {
-                        alert("유효한 숫자를 입력하세요.");
-                        requestNewParkingLotName();
-                        }
-                    }
+                // 새로운 주차장 생성
+                parkingLotID = numericID;
+                parkingLotName = prompt("새로운 주차장의 이름을 입력하세요:");
+                if (!parkingLotName || parkingLotName.trim() === "") {
+                    parkingLotName = `주차장 ${numericID}`;
+                }
+                
+                // 새 주차장 정보 서버에 저장
+                const createResponse = await fetch("/api/parking-lots", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        parkingLotID: numericID,
+                        name: parkingLotName
+                    })
+                });
+
+                if (!createResponse.ok) {
+                    throw new Error("새 주차장 생성에 실패했습니다.");
+                }
+                
+                alert(`ID ${numericID}로 새 주차장이 생성되었습니다.`);
+            }
+        } catch (error) {
+            console.error("오류 발생:", error);
+            alert("오류가 발생했습니다: " + error.message);
+        }
+    } else {
+        alert("유효한 주차장 ID를 입력해주세요.");
+        await initializeDesigner(); // 다시 시도
+    }
+}
 
         function requestNewParkingLotName() {
             parkingLotName = prompt("새 주차장 이름을 입력하세요:");
