@@ -1,5 +1,8 @@
 package com.example.jangandkim.entity;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -18,7 +21,8 @@ public class Marker {
     private double lng;
 
     @OneToOne
-    @JoinColumn(name = "ParkingLotID", unique = true) // ParkingLotID 외래 키 추가
+    @JoinColumn(name = "ParkingLotID", unique = true)
+    @OnDelete(action = OnDeleteAction.SET_NULL)  // 또는 CASCADE
     private ParkingLot parkingLot;
 
     // Getters and Setters

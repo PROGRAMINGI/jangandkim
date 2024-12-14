@@ -4,7 +4,7 @@ import com.example.jangandkim.entity.Marker;
 import com.example.jangandkim.repository.MarkerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
@@ -36,10 +36,10 @@ public class MarkerService {
         return markerRepository.save(marker);
     }
 
+    @Transactional
     public void deleteMarkerById(Long id) {
-        if (!markerRepository.existsById(id)) {
-            throw new RuntimeException("ID " + id + "인 마커를 찾을 수 없습니다.");
-        }
-        markerRepository.deleteById(id);
-    }
+        Marker marker = markerRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("ID " + id + "인 마커를 찾을 수 없습니다."));
+        markerRepository.delete(marker);  // deleteById 대신 delete 사용
+}
 }
