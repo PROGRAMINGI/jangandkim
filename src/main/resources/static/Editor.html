@@ -164,7 +164,8 @@
     if (!inputName.trim()!== "") {
         try {
             // 해당 ID로 주차장 데이터 조회 시도
-            const response = await fetch(`/api/parking-lots/name/${inputName}`);
+            const encodedName = encodeURIComponent(inputName);
+            const response = await fetch(`/api/parking-lots/name/${encodedName}`);
             if (response.ok) {
                 // 기존 주차장이 존재하는 경우
                 const parkingLot = await response.json();
