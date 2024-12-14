@@ -37,9 +37,16 @@ public class MarkerService {
     }
 
     @Transactional
-    public void deleteMarkerById(Long id) {
-        Marker marker = markerRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("ID " + id + "인 마커를 찾을 수 없습니다."));
-        markerRepository.delete(marker);  // deleteById 대신 delete 사용
+public void deleteMarkerById(Long id) {
+    Marker marker = markerRepository.findById(id)
+        .orElseThrow(() -> new RuntimeException("ID " + id + "인 마커를 찾을 수 없습니다."));
+        
+    // ParkingLot 관계 해제
+    if (marker.getParkingLot() != null) {
+        marker.setParkingLot(null);
+    }
+    
+    markerRepository.delete(marker);
+    markerRepository.flush();  // 명시적으로 flush 호출
 }
 }
