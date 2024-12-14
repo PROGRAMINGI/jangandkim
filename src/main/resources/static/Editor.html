@@ -169,7 +169,7 @@
                     parkingLotName = parkingLot.name;
 
                     // 주차 공간 데이터 로드
-                    const spacesResponse = await fetch(`/api/parking-spaces/by-parkinglot/${inputId}`);
+                    const spacesResponse = await fetch(`/api/parking-spaces/${inputId}`);
                     if (!spacesResponse.ok) throw new Error("주차 공간 데이터를 불러올 수 없습니다.");
                     
                     const spaces = await spacesResponse.json();
@@ -217,7 +217,7 @@
 
             const newNumber = document.getElementById("space-number").value.trim();
             if (newNumber) {
-                const text = selectedBlock.querySelector("text");
+                const text = selectedBlock.querySelector("text
                 text.textContent = newNumber;
             }
         }
@@ -539,7 +539,7 @@ function rotateBlock(group) {
                 });
 
                 // 3. 주차 공간 정보 저장
-                const layoutResponse = await fetch(`/api/parking-spaces/bulk/${parkingLotID}`, {
+                const layoutResponse = await fetch(`/api/parking-spaces/${parkingLotID}`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(allElements),
