@@ -39,8 +39,7 @@ public class ParkingSpaceController {
 
 
 @GetMapping
-public ResponseEntity<List<ParkingSpace>> getAllParkingSpaces(
-    @RequestParam(required = true) Integer parkingLotID) {
+public ResponseEntity<List<ParkingSpace>> getAllParkingSpaces( @RequestParam(required = true) Integer parkingLotID) {
     try {
         List<ParkingSpace> spaces = parkingSpaceService.getParkingSpacesByParkingLotId(parkingLotID);
         return ResponseEntity.ok(spaces);

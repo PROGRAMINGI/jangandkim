@@ -184,18 +184,17 @@
                 }
             } else {
                 // 새로운 주차장 생성
-                parkingLotID = numericID;s
+                parkingLotID = numericID;
                 parkingLotName = prompt("새로운 주차장의 이름을 입력하세요:");
                 if (!parkingLotName || parkingLotName.trim() === "") {
                     parkingLotName = `주차장 ${numericID}`;
                 }
                 
                 // 새 주차장 정보 서버에 저장
-                const createResponse = await fetch("/api/parking-lots", {
+                const createResponse = await fetch("/api/parking-lots}", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
-                        parkingLotID: numericID,
                         name: parkingLotName
                     })
                 });
@@ -315,6 +314,7 @@
             if (type === "entrance" || type === "exit") {
                 rectWidth = entranceExitWidth;
                 rectHeight = entranceExitHeight;
+                label = "E" ; 
             } else {
                 rectWidth = blockWidth;
                 rectHeight = blockHeight;
@@ -556,13 +556,12 @@ function rotateBlock(group) {
                     const x = rect.getAttribute("x");
                     const y = rect.getAttribute("y");
                     const type = rect.getAttribute("class");
-                    
+
                     allElements.push({
                         parkingLot: {
                             parkingLotID: parkingLotID
                         },
-                        type: type,
-                        spaceNumber: text.textContent,
+                        spaceNumber: type === "parking-spot" ? text.textContent : type, // 여기 수정
                         spaceLocation: `${x},${y}`,
                         sensor: rect.dataset.sensorId ? {
                             sensorId: rect.dataset.sensorId
@@ -572,7 +571,7 @@ function rotateBlock(group) {
                 });
 
                 // 3. 주차 공간 정보 저장
-                const layoutResponse = await fetch(`/api/parking-lots/${parkingLotID}/parking-spaces`, {
+            const layoutResponse = await fetch(`/api/parking-lots/${parkingLotID}/parking-spaces`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(allElements),

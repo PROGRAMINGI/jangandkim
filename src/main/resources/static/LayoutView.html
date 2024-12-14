@@ -109,21 +109,37 @@
             const [x, y] = space.spaceLocation.split(',').map(coord => parseInt(coord));
             rect.setAttribute("x", x);
             rect.setAttribute("y", y);
-            rect.setAttribute("width", 40);
-            rect.setAttribute("height", 80);
 
-            rect.setAttribute("class", "parking-spot");
-            if (space.status) {
-                rect.classList.add(space.status.toLowerCase());
+            // spaceNumber로 타입 구분
+            const isEntrance = space.spaceNumber === "entrance";
+            const isExit = space.spaceNumber === "exit";
+            
+            if (isEntrance || isExit) {
+                rect.setAttribute("width", 120); // entranceExitWidth
+                rect.setAttribute("height", 120); // entranceExitHeight
+                rect.setAttribute("class", space.spaceNumber); // entrance 또는 exit 클래스 적용
+            } else {
+                rect.setAttribute("width", 40); // 일반 주차공간 width
+                rect.setAttribute("height", 80); // 일반 주차공간 height
+                rect.setAttribute("class", "parking-spot");
+                if (space.status) {
+                    rect.classList.add(space.status.toLowerCase());
+                }
             }
 
             group.appendChild(rect);
 
-            // 주차공간 번호 표시
+            // 텍스트 위치도 타입에 따라 조정
             const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-            text.setAttribute("x", x + 20);
-            text.setAttribute("y", y + 40);
-            text.textContent = space.spaceNumber;
+            if (isEntrance || isExit) {
+                text.setAttribute("x", x + 60); // entranceExitWidth/2
+                text.setAttribute("y", y + 60); // entranceExitHeight/2
+                text.textContent = isEntrance ? "입구" : "출구";
+            } else {
+                text.setAttribute("x", x + 20); // width/2
+                text.setAttribute("y", y + 40); // height/2
+                text.textContent = space.spaceNumber;
+            }
             group.appendChild(text);
 
             svg.appendChild(group);

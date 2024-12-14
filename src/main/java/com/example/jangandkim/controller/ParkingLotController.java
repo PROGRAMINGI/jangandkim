@@ -80,28 +80,27 @@ public class ParkingLotController {
     }
 
   // 주차 공간 저장에서 `ParkingLotID` 검증 추가
-@PostMapping("/api/parking-spaces")
-public ResponseEntity<?> saveParkingSpaces(@PathVariable int id, @RequestBody List<ParkingSpace> parkingSpaces) {
-    try {
-        ParkingLot parkingLot = parkingLotService.getParkingLotById(id);
-        if (parkingLot == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                 .body(Map.of("error", "주차장을 찾을 수 없습니다.", "id", id));
-        }
-
-        for (ParkingSpace space : parkingSpaces) {
-            space.setParkingLot(parkingLot); // 객체 연관 관계를 설정
-        }
-        
-
-        List<ParkingSpace> savedSpaces = parkingSpaceService.saveAllParkingSpaces(parkingSpaces);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedSpaces);
-    } catch (Exception e) {
-        e.printStackTrace();
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                             .body(Map.of("error", "주차 공간 저장 실패", "message", e.getMessage()));
-    }
-}
+  @PostMapping("{id}/parking-spaces")
+  public ResponseEntity<?> saveParkingSpaces(@PathVariable int id, @RequestBody List<ParkingSpace> parkingSpaces) {
+      try {
+          ParkingLot parkingLot = parkingLotService.getParkingLotById(id);
+          if (parkingLot == null) {
+              return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                   .body(Map.of("error", "주차장을 찾을 수 없습니다.", "id", id));
+          }
+  
+          for (ParkingSpace space : parkingSpaces) {
+              space.setParkingLot(parkingLot); // 객체 연관 관계를 설정
+          }
+  
+          List<ParkingSpace> savedSpaces = parkingSpaceService.saveAllParkingSpaces(parkingSpaces);
+          return ResponseEntity.status(HttpStatus.CREATED).body(savedSpaces);
+      } catch (Exception e) {
+          e.printStackTrace();
+          return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                               .body(Map.of("error", "주차 공간 저장 실패", "message", e.getMessage()));
+      }
+  }
 
 
     // 특정 주차장에 속한 모든 주차 공간 조회
