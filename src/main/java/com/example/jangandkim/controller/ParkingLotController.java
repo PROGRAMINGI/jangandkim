@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+import javax.print.DocFlavor.STRING;
+
 @RestController
 @RequestMapping("/api/parking-lots")
 public class ParkingLotController {
@@ -38,6 +40,16 @@ public class ParkingLotController {
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                              .body(Map.of("error", "주차장을 찾을 수 없습니다.", "id", id));
+    }
+
+    @GetMapping("/name/{name}")
+    public ResponseEntity<?> getParkingLotById(@PathVariable String name) {
+        ParkingLot parkingLot = parkingLotService.getParkingLotByName(name);
+        if (parkingLot != null) {
+            return ResponseEntity.ok(parkingLot);
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                             .body(Map.of("error", "주차장을 찾을 수 없습니다.", "이름:", name));
     }
 
     // 주차장 생성

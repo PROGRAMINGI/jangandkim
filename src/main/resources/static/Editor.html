@@ -157,40 +157,33 @@
 
 
     async function initializeDesigner() {
-        
-    const inputID = prompt("주차장 ID를 입력하세요 (새로운 ID를 입력하면 새 주차장이 생성됩니다):");
+
+    const inputName = prompt("확인하거나, 생성할 주차장 이름을 입력하세요");
     
-    // 입력값이 유효한 숫자인지 확인
-    if (!isNaN(inputID) && inputID.trim() !== "") {
+    // 입력값이 유효한 입력인지
+    if (!inputName.trim()!== "") {
         try {
-            const numericID = Number(inputID);
-            
             // 해당 ID로 주차장 데이터 조회 시도
-            const response = await fetch(`/api/parking-lots/${numericID}`);
-            
+            const response = await fetch(`/api/parking-lots/name/${inputName}`);
             if (response.ok) {
                 // 기존 주차장이 존재하는 경우
                 const parkingLot = await response.json();
-                parkingLotID = numericID;
+                parkingLotID = parkingLot.parkingLotID
                 parkingLotName = parkingLot.name;
 
                 // 주차 공간 데이터 로드
-                const spacesResponse = await fetch(`/api/parking-spaces?parkingLotID=${numericID}`);
+                const spacesResponse = await fetch(`/api/parking-spaces?parkingLotID=${parkingLotID}`);
                 if (spacesResponse.ok) {
                     const spaces = await spacesResponse.json();
                     loadSpaces(spaces);
-                    alert(`ID ${numericID}의 기존 주차장 데이터를 불러왔습니다.`);
+                    alert(` 이름:${inputName}의 기존 주차장 데이터를 불러왔습니다.`);
                 } else {
                     alert("주차장은 존재하지만 주차 공간 데이터를 불러올 수 없습니다.");
                 }
             } else {
-                // 새로운 주차장 생성
-                parkingLotID = numericID;
+                // 새로운 주차장 생성 ( save 가 아닌 create )
                 parkingLotName = prompt("새로운 주차장의 이름을 입력하세요:");
                 if (!parkingLotName || parkingLotName.trim() === "") {
-                    parkingLotName = `주차장 ${numericID}`;
-                }
-                
                 // 새 주차장 정보 서버에 저장
                 const createResponse = await fetch("/api/parking-lots}", {
                     method: "POST",
@@ -199,7 +192,7 @@
                         name: parkingLotName
                     })
                 });
-
+                }
                 if (!createResponse.ok) {
                     throw new Error("새 주차장 생성에 실패했습니다.");
                 }
@@ -211,7 +204,7 @@
             alert("오류가 발생했습니다: " + error.message);
         }
     } else {
-        alert("유효한 주차장 ID를 입력해주세요.");
+        alert("유효한 주차장 이름을 입력해주세요.");
         await initializeDesigner(); // 다시 시도
     }
 }
@@ -366,7 +359,7 @@
 
 
 
-// saveParkingLot 함수 수정
+// saveParkingLot 함수 수정 (새 주차장을 create가 아닌 save-> 저장)
 async function saveParkingLot() {
     try {
         const response = await fetch("/api/parking-lots", {
@@ -387,7 +380,7 @@ async function saveParkingLot() {
         else{
             parkingLotID = parkingLot.parkingLotID;
             alert(`주차장 ID: ${parkingLotID}`);
-        }               // 서버에서 받은 ID 저장
+        }              
        
         
     } catch (error) {
@@ -535,10 +528,9 @@ function rotateBlock(group) {
 
                 const method = parkingLotID ? "PUT" : "POST";
                 const url = parkingLotID ? 
-                    `/api/parking-lots/${parkingLotID}` : 
-                    "/api/parking-lots";
-
-                const parkingLotResponse = await fetch(url, {
+                    `/api/parking-lots/${parkingLotID}/` : 
+                    `api/parking-lots/${parkingLotID}/parking-spaces`;
+                const parkingLotResponse = await fetch(url, { // 주차장 생성이 아닌 저장 같음
                     method,
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(parkingLotData),

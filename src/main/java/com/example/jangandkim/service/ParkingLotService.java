@@ -24,6 +24,10 @@ public class ParkingLotService {
         return parkingLotRepository.findById(id).orElse(null);
     }
 
+    public ParkingLot getParkingLotByName(String name) {
+        return parkingLotRepository.findByName(name).orElse(null);
+    }
+
     public ParkingLot saveParkingLot(ParkingLot parkingLot) {
         if (parkingLotRepository.existsById(parkingLot.getParkingLotID())) {
             throw new RuntimeException("주차장 ID " + parkingLot.getParkingLotID() + "가 이미 존재합니다.");
@@ -33,6 +37,15 @@ public class ParkingLotService {
 
     public ParkingLot updateParkingLot(int id, ParkingLot parkingLot) {
         ParkingLot existing = getParkingLotById(id);
+        if (existing != null) {
+            existing.setName(parkingLot.getName());
+            return parkingLotRepository.save(existing);
+        }
+        return null;
+    }
+
+    public ParkingLot updateParkingLotByName(String name, ParkingLot parkingLot) {
+        ParkingLot existing = getParkingLotByName(name);
         if (existing != null) {
             existing.setName(parkingLot.getName());
             return parkingLotRepository.save(existing);
