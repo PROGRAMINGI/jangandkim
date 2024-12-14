@@ -70,7 +70,7 @@ function addMarker(position, parkingLotID = null, id = null) {
             anchor: new naver.maps.Point(11, 30),
         }
     });
-
+    marker.markerId = id;  
     currentMarkers.push(marker);
     marker.parkingLotID = numericParkingLotID;
 
@@ -108,17 +108,21 @@ function addMarker(position, parkingLotID = null, id = null) {
     const closeButton = this.getWrapElement().querySelector('.btn_clear');
     closeButton.addEventListener('click', async function () {
         try {
-            if (id) {
-                await deleteMarkerFromServer(id);
-                marker.setMap(null);
-                infoWindow.close();
-                // 현재 마커 배열에서도 제거
-                const index = currentMarkers.indexOf(marker);
-                if (index > -1) {
-                    currentMarkers.splice(index, 1);
-                }
+            if (marker.markerId) {  // 마커의 ID 확인
+                console.log('마커 삭제 시도:', marker.markerId);
+                await deleteMarkerFromServer(marker.markerId);
+                console.log('마커 삭제 성공');
+            }
+            marker.setMap(null);  // 지도에서 마커 제거
+            infoWindow.close();
+            
+            // 현재 마커 배열에서도 제거
+            const index = currentMarkers.indexOf(marker);
+            if (index > -1) {
+                currentMarkers.splice(index, 1);
             }
         } catch (error) {
+            console.error('마커 삭제 중 오류:', error);
             alert('마커 삭제에 실패했습니다.');
         }
     });
@@ -216,18 +220,24 @@ naver.maps.Event.addListener(map, 'rightclick', function (e) {
     }
 }
 
-        async function deleteMarkerFromServer(markerId) {
-            try {
-                const response = await fetch(`/api/markers/${markerId}`, {
-                    method: 'DELETE',
-                });
-                if (!response.ok) {
-                    throw new Error('마커 삭제 실패');
-                }
-            } catch (error) {
-                console.error('마커 데이터를 삭제하는 중 오류 발생:', error);
+async function deleteMarkerFromServer(markerId) {
+    try {
+        console.log('서버에 삭제 요청:', markerId);
+        const response = await fetch(`/api/markers/${markerId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
             }
+        });
+        if (!response.ok) {
+            throw new Error('마커 삭제 실패');
         }
+        console.log('서버 응답:', response.status);
+    } catch (error) {
+        console.error('마커 데이터를 삭제하는 중 오류 발생:', error);
+        throw error;  // 에러를 상위로 전파
+    }
+}
 
        
     // 검색 버튼 클릭 이벤트
