@@ -182,15 +182,18 @@ naver.maps.Event.addListener(map, 'rightclick', function (e) {
         const url = query ? `/api/markers/search?query=${encodeURIComponent(query)}` : '/api/markers';
         const response = await fetch(url);
         if (!response.ok) throw new Error('서버에서 마커 데이터를 가져오는 데 실패했습니다.');
-        const data = await response.json();
+        
+        const apiResponse = await response.json();
+        // apiResponse.data에서 마커 데이터 배열을 가져옴
+        const markers = apiResponse.data || [];
         
         // 데이터 구조 변환
-        return data.map(marker => ({
+        return markers.map(marker => ({
             id: marker.id,
             lat: marker.lat,
             lng: marker.lng,
             parkingLot: {
-                parkingLotID: marker.parkingLotId // 외부에 있는 parkingLotId를 parkingLot 객체 안으로 이동
+                parkingLotID: marker.parkingLotId
             }
         }));
     } catch (error) {
