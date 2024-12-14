@@ -196,16 +196,16 @@ async function updateMenu() {
         emptyMessage.style.textAlign = "center";
         menu.appendChild(emptyMessage);
     } else {
-        favorites.forEach(favorite => {
+        
             const button = document.createElement('button');
-            button.textContent = `주차장 ${favorite.parkingLotID}`;
+            button.textContent = `주차장 ${favorites.parkingLotID}`;
             button.onclick = () => {
-                navigateToLayoutView(favorite.parkingLotID);
+                navigateToLayoutView(favorites.parkingLotID);
             };
             menu.appendChild(button);
-        });
+        };
     }
-}
+
 
 function navigateToLayoutView(parkingLotID) {
     const iframe = document.getElementById('iframe');
