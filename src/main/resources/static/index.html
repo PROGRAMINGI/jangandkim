@@ -196,16 +196,16 @@ async function updateMenu() {
         emptyMessage.style.textAlign = "center";
         menu.appendChild(emptyMessage);
     } else {
-        
+        favorites.forEach(favorite => {
             const button = document.createElement('button');
-            button.textContent = `주차장 ${favorites.parkingLotID}`;
+            button.textContent = `주차장 ${favorite.parkingLotID}`;
             button.onclick = () => {
-                navigateToLayoutView(favorites.parkingLotID);
+                navigateToLayoutView(favorite.parkingLotID);
             };
             menu.appendChild(button);
-        };
+        });
     }
-
+}
 
 function navigateToLayoutView(parkingLotID) {
     const iframe = document.getElementById('iframe');
@@ -221,7 +221,6 @@ function navigateToLayoutView(parkingLotID) {
     menu.classList.toggle('open');
     updateMenu(); // 메뉴를 열 때마다 즐겨찾기 목록 업데이트
 });
-
   </script>
 </body>
 </html>

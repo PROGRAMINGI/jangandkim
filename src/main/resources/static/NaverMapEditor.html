@@ -158,7 +158,6 @@ function addToFavorites(parkingLotID) {
     if (!favorites.some(fav => fav.parkingLotID === numericParkingLotID)) {
         favorites.push({
             parkingLotID: numericParkingLotID,
-            title: `주차장 ${numericParkingLotID}`  // 표시용 제목 추가
         });
         localStorage.setItem('favorites', JSON.stringify(favorites));
         alert('즐겨찾기에 추가되었습니다!');
