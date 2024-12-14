@@ -184,9 +184,11 @@ naver.maps.Event.addListener(map, 'rightclick', function (e) {
         
         // 데이터 구조 변환
         return data.map(marker => ({
-            ...marker,
+            id: marker.id,
+            lat: marker.lat,
+            lng: marker.lng,
             parkingLot: {
-                parkingLotID: marker.parkingLotID // 두 가지 가능한 필드명 체크
+                parkingLotID: marker.parkingLotId // 외부에 있는 parkingLotId를 parkingLot 객체 안으로 이동
             }
         }));
     } catch (error) {
