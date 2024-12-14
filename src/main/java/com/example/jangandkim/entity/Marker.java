@@ -20,9 +20,8 @@ public class Marker {
     @Column(name = "lng", nullable = false)
     private double lng;
 
-    @OneToOne
-    @JoinColumn(name = "ParkingLotID", unique = true)
-    @OnDelete(action = OnDeleteAction.SET_NULL)  // 또는 CASCADE
+    @ManyToOne(fetch = FetchType.LAZY)  // @OneToOne 대신 @ManyToOne 사용
+    @JoinColumn(name = "parking_lotid") // 대소문자 구분 주의
     private ParkingLot parkingLot;
 
     // Getters and Setters
