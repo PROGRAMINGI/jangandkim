@@ -176,16 +176,24 @@ naver.maps.Event.addListener(map, 'rightclick', function (e) {
 
         // 서버와 통신 함수들
         async function fetchMarkers(query = '') {
-            try {
-                const url = query ? `/api/markers/search?query=${encodeURIComponent(query)}` : '/api/markers';
-                const response = await fetch(url);
-                if (!response.ok) throw new Error('서버에서 마커 데이터를 가져오는 데 실패했습니다.');
-                return await response.json();
-            } catch (error) {
-                console.error('마커 데이터를 가져오는 중 오류 발생:', error);
-                return [];
+    try {
+        const url = query ? `/api/markers/search?query=${encodeURIComponent(query)}` : '/api/markers';
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('서버에서 마커 데이터를 가져오는 데 실패했습니다.');
+        const data = await response.json();
+        
+        // 데이터 구조 변환
+        return data.map(marker => ({
+            ...marker,
+            parkingLot: {
+                parkingLotID: marker.parkingLotID // 두 가지 가능한 필드명 체크
             }
-        }
+        }));
+    } catch (error) {
+        console.error('마커 데이터를 가져오는 중 오류 발생:', error);
+        return [];
+    }
+}
 
         async function saveMarkerToServer(markerData) {
     try {
@@ -273,13 +281,18 @@ let markers = []; // 전역 변수로 추가
 async function initialize() {
     try {
         const fetchedMarkers = await fetchMarkers();
-        clearMarkers(); // 기존 마커 제거
-        markers = fetchedMarkers; // 마커 데이터 저장
+        console.log('서버에서 받은 마커 데이터:', fetchedMarkers); // 디버깅용 로그 추가
+        clearMarkers();
+        markers = fetchedMarkers;
         
         markers.forEach(markerData => {
             const position = new naver.maps.LatLng(markerData.lat, markerData.lng);
-            const parkingLotID = markerData.parkingLot ? markerData.parkingLot.parkingLotID : null;
-            console.log('마커 생성:', markerData); // 디버깅용
+            const parkingLotID = markerData.parkingLot?.parkingLotID;
+            console.log('처리중인 마커 데이터:', {
+                position,
+                parkingLotID,
+                originalData: markerData
+            });
             addMarker(position, parkingLotID, markerData.id);
         });
     } catch (error) {
