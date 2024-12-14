@@ -58,9 +58,9 @@
        
 // 마커 추가 함수 수정
 function addMarker(position, parkingLotID = null, id = null) {
-    // parkingLotID가 문자열일 경우 숫자로 변환
-    const numericParkingLotID = parkingLotID ? parseInt(parkingLotID) : null;
-
+    const numericParkingLotID = parkingLotID ? parseInt(parkingLotID, 10) : null;
+    console.log('변환된 parkingLotID:', numericParkingLotID)
+    
     const marker = new naver.maps.Marker({
         position,
         map,
@@ -124,15 +124,17 @@ function addMarker(position, parkingLotID = null, id = null) {
     });
 };
 
-    if (!id) {
-        saveMarkerToServer({
-            lat: position.lat(),
-            lng: position.lng(),
-            parkingLot: {
-                parkingLotID: parkingLotID
-            }
-        });
-    }
+if (!id) {
+    const markerData = {
+        lat: position.lat(),
+        lng: position.lng(),
+        parkingLot: {
+            parkingLotID: numericParkingLotID  // parkingLotID 대신 numericParkingLotID 사용
+        }
+    };
+    console.log('저장할 마커 데이터:', markerData);  // 데이터 확인용 로그
+    saveMarkerToServer(markerData);
+}
 }
 
 // 즐겨찾기 추가 함수
