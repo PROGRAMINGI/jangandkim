@@ -182,8 +182,8 @@
                 }
             } else {
                 // 새로운 주차장 생성 ( save 가 아닌 create )
-                parkingLotName = prompt("새로운 주차장의 이름을 입력하세요:");
-                if (!parkingLotName || parkingLotName.trim() === "") {
+                parkingLotName = inputName;
+                if (parkingLotName && inputName !== "") {
                 // 새 주차장 정보 서버에 저장
                 const createResponse = await fetch("/api/parking-lots}", {
                     method: "POST",
@@ -528,7 +528,7 @@ function rotateBlock(group) {
 
                 const method = parkingLotID ? "PUT" : "POST";
                 const url = parkingLotID ? 
-                    `/api/parking-lots/${parkingLotID}/` : 
+                    `/api/parking-lots/${parkingLotID}` : 
                     `api/parking-lots/${parkingLotID}/parking-spaces`;
                 const parkingLotResponse = await fetch(url, { // 주차장 생성이 아닌 저장 같음
                     method,
