@@ -174,7 +174,7 @@
                 parkingLotName = parkingLot.name;
 
                 // 주차 공간 데이터 로드
-                const spacesResponse = await fetch(`/api/parking-spaces/${numericID}`);
+                const spacesResponse = await fetch(`/api/parking-spaces?parkingLotID=${numericID}`);
                 if (spacesResponse.ok) {
                     const spaces = await spacesResponse.json();
                     loadSpaces(spaces);
@@ -184,7 +184,7 @@
                 }
             } else {
                 // 새로운 주차장 생성
-                parkingLotID = numericID;
+                parkingLotID = numericID;s
                 parkingLotName = prompt("새로운 주차장의 이름을 입력하세요:");
                 if (!parkingLotName || parkingLotName.trim() === "") {
                     parkingLotName = `주차장 ${numericID}`;
