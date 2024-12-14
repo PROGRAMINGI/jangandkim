@@ -169,6 +169,21 @@
     return favorites;
 }
 
+
+function navigateTo(page) {
+    iframe.src = page;
+
+    // 하단 버튼들의 active 상태 업데이트
+    const buttons = document.querySelectorAll('.nav-button');
+    buttons.forEach(button => {
+        if (button.getAttribute('onclick').includes(page)) {
+            button.classList.add('active');
+        } else {
+            button.classList.remove('active');
+        }
+    });
+}
+
 async function updateMenu() {
     const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
     menu.innerHTML = '';
