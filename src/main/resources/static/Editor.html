@@ -135,7 +135,12 @@
         <input type="text" id="sensor-id" />
         <button onclick="assignSensor()">센서 할당</button>
     </div>
-
+    <!-- 이 부분이 추가되어야 함 -->
+    <div class="form-group">
+        <label for="space-number">공간 번호:</label>
+        <input type="text" id="space-number" />
+        <button onclick="assignSpaceNumber()">번호 할당</button>
+    </div>
     
     <script>
        const svg = document.getElementById("parking-lot");
@@ -147,17 +152,90 @@
         const entranceExitWidth = 120;
         const entranceExitHeight = 120;
         const gridSize = 20;
+        let parkingLotID = null; // 이 선언이 필요함
 
 
-         // 블록 추가
 
-        // 주차장 이름과 위치 먼저 입력 받기
-        let parkingLotName = prompt("주차장 이름을 입력하세요:");
-        if (!parkingLotName || parkingLotName.trim() === "") {
-            alert("주차장 이름은 필수입니다.");
-            parkingLotName = "기본 이름";
+        async function initializeDesigner() {
+            const inputId = prompt("주차장 ID를 입력하세요 (새 주차장은 빈칸):");
+            
+            if (inputId && inputId.trim() !== "") {
+                try {
+                    const response = await fetch(`/api/parking-lots/${inputId}`);
+                    if (!response.ok) throw new Error("주차장을 찾을 수 없습니다.");
+                    
+                    const parkingLot = await response.json();
+                    parkingLotID = inputId;
+                    parkingLotName = parkingLot.name;
+
+                    // 주차 공간 데이터 로드
+                    const spacesResponse = await fetch(`/api/parking-spaces/by-parkinglot/${inputId}`);
+                    if (!spacesResponse.ok) throw new Error("주차 공간 데이터를 불러올 수 없습니다.");
+                    
+                    const spaces = await spacesResponse.json();
+                    loadSpaces(spaces);
+                } catch (error) {
+                    alert("데이터 로드 실패: " + error.message);
+                    requestNewParkingLotName();
+                }
+            } else {
+                requestNewParkingLotName();
+            }
         }
 
+        function requestNewParkingLotName() {
+            parkingLotName = prompt("새 주차장 이름을 입력하세요:");
+            if (!parkingLotName || parkingLotName.trim() === "") {
+                parkingLotName = "기본 이름";
+            }
+        }
+
+        // 공간 데이터 로드
+        function loadSpaces(spaces) {
+            svg.querySelectorAll("g").forEach(g => g.remove());
+            spaces.forEach(space => {
+                const [x, y] = space.spaceLocation.split(',');
+                const group = createBlock(
+                    space.type || "parking-spot", 
+                    parseFloat(x), 
+                    parseFloat(y), 
+                    space.spaceNumber
+                );
+                if (space.sensor) {
+                    group.querySelector("rect").dataset.sensorId = space.sensor.sensorId;
+                }
+                svg.appendChild(group);
+            });
+        }
+
+        // 공간 번호 할당
+        function assignSpaceNumber() {
+            if (!selectedBlock) {
+                alert("먼저 공간을 선택해주세요.");
+                return;
+            }
+
+            const newNumber = document.getElementById("space-number").value.trim();
+            if (newNumber) {
+                const text = selectedBlock.querySelector("text");
+                text.textContent = newNumber;
+            }
+        }
+
+        // 센서 할당
+        function assignSensor() {
+            if (!selectedBlock) {
+                alert("먼저 공간을 선택해주세요.");
+                return;
+            }
+
+            const sensorId = document.getElementById("sensor-id").value.trim();
+            if (sensorId) {
+                const rect = selectedBlock.querySelector("rect");
+                rect.dataset.sensorId = sensorId;
+            }
+        }
+      
 
 
         // 회전 모드 토글ddddd
@@ -384,8 +462,10 @@ function addBlockListeners(group) {
 
 }
 
-
-
+// 이 부분이 없음
+window.onload = async function() {
+    await initializeDesigner();
+};
 
 function rotateBlock(group) {
     const rect = group.querySelector("rect");
@@ -413,75 +493,67 @@ function rotateBlock(group) {
         }
 
         document.getElementById("save-button").addEventListener("click", async () => {
-    try {
-        // 1. 먼저 주차장을 생성하고 ID를 받아옴
-        const parkingLotResponse = await fetch("/api/parking-lots", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                name: parkingLotName
-            }),
-        });
+            try {
+                // 1. 주차장 저장/업데이트
+                const parkingLotData = {
+                    name: parkingLotName
+                };
 
-        if (!parkingLotResponse.ok) {
-            const errorDetails = await parkingLotResponse.json();
-            console.error("서버 응답 오류:", errorDetails);
-            throw new Error("주차장 정보를 저장하는 중 오류가 발생했습니다.");
-        }
+                const method = parkingLotID ? "PUT" : "POST";
+                const url = parkingLotID ? 
+                    `/api/parking-lots/${parkingLotID}` : 
+                    "/api/parking-lots";
 
-            const parkingLot = await parkingLotResponse.json();
-         
-            const parkingLotID = parkingLot.parkingLotID; 
+                const parkingLotResponse = await fetch(url, {
+                    method,
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(parkingLotData),
+                });
 
-            // 디버깅을 위한 로그 추가
-            console.log('서버 응답:', parkingLot);
-
-        if (!parkingLotID) {
-            console.error('주차장 응답 데이터:', parkingLot);
-            throw new Error("주차장 ID를 받아오지 못했습니다. 서버 응답:", JSON.stringify(parkingLot));
-        }
-
-        // 2. SVG에서 주차 공간 정보를 수집하여 배열로 만듦
-        const parkingSpaces = [];
-        svg.querySelectorAll("g").forEach((group) => {
-            const rect = group.querySelector("rect");
-            if (rect.getAttribute("class") === "parking-spot") { // 주차 공간만 처리
-                const x = rect.getAttribute("x");
-                const y = rect.getAttribute("y");
-                const spaceNumber = group.querySelector("text")?.textContent?.trim();
+                if (!parkingLotResponse.ok) throw new Error("주차장 정보 저장 실패");
                 
-                parkingSpaces.push({
-                parkingLot: {
-                    parkingLotID: parkingLotID  // ParkingLot 객체 형태로 전달
-                },
-                spaceNumber: spaceNumber,
-                spaceLocation: `${x},${y}`,
-                sensor:null,
-                status: "UNKNOWN"   
-            });
+                const parkingLot = await parkingLotResponse.json();
+                parkingLotID = parkingLot.parkingLotID;
+
+                // 2. 모든 요소 정보 수집
+                const allElements = [];
+                svg.querySelectorAll("g").forEach((group) => {
+                    const rect = group.querySelector("rect");
+                    const text = group.querySelector("text");
+                    const x = rect.getAttribute("x");
+                    const y = rect.getAttribute("y");
+                    const type = rect.getAttribute("class");
+                    
+                    allElements.push({
+                        parkingLot: {
+                            parkingLotID: parkingLotID
+                        },
+                        type: type,
+                        spaceNumber: text.textContent,
+                        spaceLocation: `${x},${y}`,
+                        sensor: rect.dataset.sensorId ? {
+                            sensorId: rect.dataset.sensorId
+                        } : null,
+                        status: type === "parking-spot" ? "UNKNOWN" : null
+                    });
+                });
+
+                // 3. 주차 공간 정보 저장
+                const layoutResponse = await fetch(`/api/parking-spaces/bulk/${parkingLotID}`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(allElements),
+                });
+
+                if (!layoutResponse.ok) throw new Error("주차 공간 저장 실패");
+
+                alert("모든 데이터가 성공적으로 저장되었습니다.");
+                
+            } catch (error) {
+                console.error("저장 중 오류 발생:", error);
+                alert(error.message || "저장에 실패했습니다.");
             }
         });
-
-        // 3. 수집된 주차 공간 정보를 서버에 전송
-        const layoutResponse = await fetch("/api/parking-spaces", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(parkingSpaces),
-        });
-
-        if (!layoutResponse.ok) {
-            const errorData = await layoutResponse.text();
-            console.error("서버 응답:", errorData);
-            throw new Error("주차 공간 저장에 실패했습니다.");
-        }
-
-        alert("주차장과 주차 공간이 성공적으로 저장되었습니다.");
-        
-    } catch (error) {
-        console.error("저장 중 오류 발생:", error);
-        alert(error.message || "저장에 실패했습니다.");
-    }
-});
 
 
 
