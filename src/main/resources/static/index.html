@@ -184,6 +184,7 @@ function navigateTo(page) {
     });
 }
 
+
 async function updateMenu() {
     const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
     menu.innerHTML = '';
@@ -214,6 +215,13 @@ function navigateToLayoutView(parkingLotID) {
     document.addEventListener('DOMContentLoaded', () => {
         navigateTo('LayoutView.html');
     });
+
+
+    toggleMenu.addEventListener('click', () => {
+    menu.classList.toggle('open');
+    updateMenu(); // 메뉴를 열 때마다 즐겨찾기 목록 업데이트
+});
+
   </script>
 </body>
 </html>
