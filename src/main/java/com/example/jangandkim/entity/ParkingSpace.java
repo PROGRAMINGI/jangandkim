@@ -13,9 +13,9 @@ public class ParkingSpace {
     @Column(name = "SpaceID")
     private int spaceID;
 
+    @JsonBackReference
     @ManyToOne
     @JoinColumn(name = "ParkingLotID", nullable = false)
-    @JsonBackReference
     private ParkingLot parkingLot;
 
     @Column(name = "SpaceLocation", length = 50, nullable = false)

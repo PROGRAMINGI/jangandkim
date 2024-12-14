@@ -3,6 +3,8 @@ package com.example.jangandkim.entity;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -20,6 +22,9 @@ public class Marker {
     @Column(name = "lng", nullable = false)
     private double lng;
 
+
+
+    @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)  // @OneToOne 대신 @ManyToOne 사용
     @JoinColumn(name = "parking_lotid") // 대소문자 구분 주의
     private ParkingLot parkingLot;

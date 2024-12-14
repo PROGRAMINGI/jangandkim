@@ -27,6 +27,7 @@ public class ParkingLot {
     @JsonManagedReference
     private List<ParkingSpace> parkingSpaces;
     
+    @JsonManagedReference
     @OneToOne(mappedBy = "parkingLot", cascade = CascadeType.ALL) // Marker와의 1:1 연결
     private Marker marker;
 
