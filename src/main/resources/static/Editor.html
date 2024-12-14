@@ -572,7 +572,7 @@ function rotateBlock(group) {
                 });
 
                 // 3. 주차 공간 정보 저장
-                const layoutResponse = await fetch(`/api/parking-spaces/${parkingLotID}`, {
+                const layoutResponse = await fetch(`/api/parking-spaces`, {  // ID 제거
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(allElements),
