@@ -185,7 +185,7 @@
                 parkingLotName = inputName;
                 if (parkingLotName && inputName !== "") {
                 // 새 주차장 정보 서버에 저장
-                const createResponse = await fetch("/api/parking-lots}", {
+                const createResponse = await fetch("/api/parking-lots", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -209,12 +209,7 @@
     }
 }
 
-        function requestNewParkingLotName() {
-            parkingLotName = prompt("새 주차장 이름을 입력하세요:");
-            if (!parkingLotName || parkingLotName.trim() === "") {
-                parkingLotName = "기본 이름";
-            }
-        }
+    
 
         // 공간 데이터 로드
         function loadSpaces(spaces) {
