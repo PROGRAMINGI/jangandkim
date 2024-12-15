@@ -176,17 +176,7 @@ async function getParkingLotIdByName(name) {
             const parkingLot = await response.json();
             return parkingLot.parkingLotID;
         } else if (response.status === 404) {
-            // 주차장이 없으면 새로 생성
-            const createResponse = await fetch("/api/parking-lots", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ name: name })
-            });
-            
-            if (createResponse.ok) {
-                const newParkingLot = await createResponse.json();
-                return newParkingLot.parkingLotID;
-            }
+            return null;
         }
         throw new Error('주차장 정보를 가져오거나 생성하는데 실패했습니다.');
     } catch (error) {
@@ -205,6 +195,9 @@ naver.maps.Event.addListener(map, 'rightclick', async function(e) {
             const parkingLotID = await getParkingLotIdByName(parkingLotName);
             if (parkingLotID) {
                 addMarker(position, parkingLotID);
+            }
+            else{
+                alert('해당 주차장이 존재하지 않습니다.');
             }
         } catch (error) {
             alert('주차장 정보 처리 중 오류가 발생했습니다: ' + error.message);
