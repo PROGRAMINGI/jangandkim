@@ -1,7 +1,10 @@
 package com.example.jangandkim.controller;
 
 import com.example.jangandkim.entity.Marker;
+import com.example.jangandkim.entity.ParkingLot;
 import com.example.jangandkim.service.MarkerService;
+import com.example.jangandkim.service.ParkingLotService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -70,7 +73,10 @@ public class MarkerController {
 
     private final MarkerService markerService;
 
+    
     @Autowired
+    private ParkingLotService parkingLotService;
+
     public MarkerController(MarkerService markerService) {
         this.markerService = markerService;
     }
@@ -138,25 +144,43 @@ public ResponseEntity<ApiResponse> searchByParkingLotId(@PathVariable Integer pa
         }
     }
 
-    @PostMapping
-    public ResponseEntity<ApiResponse> saveMarker(@RequestBody Marker marker) {
-        try {
-            Marker savedMarker = markerService.saveMarker(marker);
-            return ResponseEntity.ok(new ApiResponse(true, "마커 저장 성공", convertToDTO(savedMarker)));
-        } catch (DataIntegrityViolationException e) {
-            return ResponseEntity
-                .status(HttpStatus.CONFLICT)
-                .body(new ApiResponse(false, "중복된 주차장 ID가 존재합니다."));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(new ApiResponse(false, e.getMessage()));
-        } catch (Exception e) {
-            return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ApiResponse(false, "서버 오류가 발생했습니다."));
+ @PostMapping
+public ResponseEntity<ApiResponse> saveMarker(@RequestBody MarkerDTO markerDTO) {
+    try {
+        // parkingLotID가 없거나 유효하지 않을 경우 예외 처리
+        if (markerDTO.getParkingLotId() == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse(false, "parkingLotID가 필요합니다."));
         }
+
+        // service를 통해 parkingLotID로 ParkingLot 조회
+        // ParkingLotService가 있다고 가정
+        ParkingLot lot = parkingLotService.getParkingLotById(markerDTO.getParkingLotId());
+        if (lot == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ApiResponse(false, "해당 주차장이 존재하지 않습니다."));
+        }
+
+        // DTO를 Marker 엔티티로 변환
+        Marker marker = new Marker();
+        marker.setLat(markerDTO.getLat());
+        marker.setLng(markerDTO.getLng());
+        marker.setParkingLot(lot);
+
+        Marker savedMarker = markerService.saveMarker(marker);
+        return ResponseEntity.ok(new ApiResponse(true, "마커 저장 성공", convertToDTO(savedMarker)));
+    } catch (DataIntegrityViolationException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new ApiResponse(false, "중복된 주차장 ID가 존재합니다."));
+    } catch (IllegalArgumentException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ApiResponse(false, e.getMessage()));
+    } catch (Exception e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ApiResponse(false, "서버 오류가 발생했습니다."));
     }
+}
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse> deleteMarker(@PathVariable Long id) {

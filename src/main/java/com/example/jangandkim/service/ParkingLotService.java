@@ -9,8 +9,8 @@ import java.util.List;
 
 @Service
 public class ParkingLotService {
-
-    private final ParkingLotRepository parkingLotRepository;
+    @Autowired
+    private ParkingLotRepository parkingLotRepository;
 
     public ParkingLotService(ParkingLotRepository parkingLotRepository) {
         this.parkingLotRepository = parkingLotRepository;

@@ -72,13 +72,17 @@
     marker.parkingLotID = parkingLotID;
     currentMarkers.push(marker);
 
+    // id가 없다는 것은 새로 추가하는 마커이므로 저장 로직 호출
     if (!id) {
         const markerData = {
             lat: position.lat(),
             lng: position.lng(),
-            parkingLotID // 중첩 구조 제거
+            parkingLotID: parkingLotID
         };
-        saveMarkerToServer(markerData);
+        // DTO 형태에 맞게 전송 (lat, lng, parkingLotID)
+        saveMarkerToServer(markerData).then(() => {
+            restoreMarkers();
+        });
     }
 
     // InfoWindow 내용에도 동일한 ID 사용
@@ -242,9 +246,8 @@ naver.maps.Event.addListener(map, 'rightclick', async function(e) {
 async function saveMarkerToServer(markerData) {
     try {
         const markers = await fetchMarkers();
-        const existingMarker = markers.find(marker => 
-            marker.parkingLotID === markerData.parkingLot?.parkingLotID
-        );
+        // markerData에는 parkingLotID 필드가 직접 포함되어 있으므로 다음과 같이 접근
+        const existingMarker = markers.find(marker => marker.parkingLotID === markerData.parkingLotID);
 
         if (existingMarker) {
             alert('이미 존재하는 주차장 ID입니다.');
@@ -269,6 +272,7 @@ async function saveMarkerToServer(markerData) {
         alert('마커 저장 중 오류 발생: ' + error.message);
     }
 }
+
 async function deleteMarkerFromServer(markerId) {
     try {
         console.log('삭제 요청할 마커 ID:', markerId);
@@ -373,26 +377,26 @@ window.onload = initialize;
 
     
     // 마커 초기화 함수 수정
-async function restoreMarkers() {
-    try {
-        const markers = await fetchMarkers();
-        markers.forEach(markerData => {
-            const position = new naver.maps.LatLng(markerData.lat, markerData.lng);
-            const parkingLotID = markerData.parkingLot && markerData.parkingLot.parkingLotID;
-            
-            console.log('마커 데이터:', markerData); // 디버깅용
-            console.log('파싱된 parkingLotID:', parkingLotID); // 디버깅용
-            
-            if (parkingLotID) {
-                addMarker(position, parkingLotID, markerData.id);
-            } else {
-                console.warn('주차장 ID가 없는 마커:', markerData);
+        async function restoreMarkers() {
+            try {
+                const markers = await fetchMarkers();
+                markers.forEach(markerData => {
+                    const position = new naver.maps.LatLng(markerData.lat, markerData.lng);
+                    const parkingLotID = markerData.parkingLot && markerData.parkingLot.parkingLotID;
+                    
+                    console.log('마커 데이터:', markerData); // 디버깅용
+                    console.log('파싱된 parkingLotID:', parkingLotID); // 디버깅용
+                    
+                    if (parkingLotID) {
+                        addMarker(position, parkingLotID, markerData.id);
+                    } else {
+                        console.warn('주차장 ID가 없는 마커:', markerData);
+                    }
+                });
+            } catch (error) {
+                console.error('마커 복원 중 오류 발생:', error);
             }
-        });
-    } catch (error) {
-        console.error('마커 복원 중 오류 발생:', error);
-    }
-}
+        }
 
 
     </script>
