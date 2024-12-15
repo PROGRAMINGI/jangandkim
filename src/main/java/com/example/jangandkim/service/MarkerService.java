@@ -16,7 +16,10 @@ public class MarkerService {
         this.markerRepository = markerRepository;
     }
 
-
+    public List<Marker> findAllByParkingLotId(Integer parkingLotID) {
+        return markerRepository.findAllByParkingLotId(parkingLotID);
+    }
+    
     //ID 기반 찾기
     public Marker findByParkingLotId(Integer parkingLotId) {
         return markerRepository.findByParkingLotParkingLotID(parkingLotId);

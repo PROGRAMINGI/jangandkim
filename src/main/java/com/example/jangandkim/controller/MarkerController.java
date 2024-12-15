@@ -85,13 +85,17 @@ public class MarkerController {
         );
     }
 
+    //마커 여러개
 
     @GetMapping("/search/{parkingLotID}")
-public ResponseEntity<ApiResponse> searchByParkingLotId(@RequestParam Integer parkingLotID) {
+public ResponseEntity<ApiResponse> searchByParkingLotId(@PathVariable Integer parkingLotID) {
     try {
-        Marker marker = markerService.findByParkingLotId(parkingLotID);
-        if (marker != null) {
-            return ResponseEntity.ok(new ApiResponse(true, "마커 검색 성공", convertToDTO(marker)));
+        List<Marker> markers = markerService.findAllByParkingLotId(parkingLotID);
+        if (!markers.isEmpty()) {
+            List<MarkerDTO> markerDTOs = markers.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+            return ResponseEntity.ok(new ApiResponse(true, "마커 검색 성공", markerDTOs));
         }
         return ResponseEntity.notFound().build();
     } catch (Exception e) {
@@ -99,6 +103,9 @@ public ResponseEntity<ApiResponse> searchByParkingLotId(@RequestParam Integer pa
             .body(new ApiResponse(false, "서버 오류가 발생했습니다."));
     }
 }
+
+
+
 
 
     @GetMapping("/search")
