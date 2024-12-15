@@ -177,16 +177,27 @@ function addToFavorites(parkingLotID) {
 // 마커 추가 시 주차장 이름으로 ID를 조회하는 함수 추가
 async function getParkingLotIdByName(name) {
     try {
-        // encodeURIComponent를 한 번만 사용하고, 한글 처리를 위한 추가 작업
-        const encodedName = encodeURIComponent(name).replace(/%/g, '%25');
+        // 한글 인코딩 처리 수정
+        const encodedName = encodeURIComponent(name)
+            .replace(/[!'()]/g, escape)
+            .replace(/\*/g, "%2A");
+            
+        console.log('인코딩된 이름:', encodedName); // 디버깅용
+        
         const response = await fetch(`/api/parking-lots/name/${encodedName}`);
+        console.log('서버 응답 상태:', response.status); // 디버깅용
+        
         if (response.ok) {
             const parkingLot = await response.json();
+            console.log('받은 주차장 데이터:', parkingLot); // 디버깅용
             return parkingLot.parkingLotID;
         } else if (response.status === 404) {
             return null;
         }
-        throw new Error('주차장 정보를 가져오거나 생성하는데 실패했습니다.');
+        
+        const errorText = await response.text();
+        console.error('서버 응답:', errorText); // 디버깅용
+        throw new Error('주차장 정보를 가져오는데 실패했습니다.');
     } catch (error) {
         console.error('주차장 ID 조회 중 오류:', error);
         throw error;
@@ -223,10 +234,11 @@ naver.maps.Event.addListener(map, 'rightclick', async function(e) {
         const response = await fetch(url);
         if (!response.ok) throw new Error('서버에서 마커 데이터를 가져오는 데 실패했습니다.');
         
-        const markers = await response.json();  // data 필드 제거
-        console.log('서버 응답:', markers);  // 디버깅용
+        const responseData = await response.json();
+        // Array.isArray로 확인하고 처리
+        const markersData = Array.isArray(responseData) ? responseData : responseData.data || [];
         
-        return markers.map(marker => ({
+        return markersData.map(marker => ({
             id: marker.id,
             lat: marker.lat,
             lng: marker.lng,
