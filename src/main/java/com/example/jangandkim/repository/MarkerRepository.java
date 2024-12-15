@@ -16,7 +16,7 @@ public interface MarkerRepository extends JpaRepository<Marker, Long> {
                                   @Param("minLng") double minLng, @Param("maxLng") double maxLng);
 
 
-    Marker findByParkingLotParkingLotID(Integer parkingLotId);
+
     List<Marker> findAllByParkingLotId(Integer parkingLotID);
 
 }
