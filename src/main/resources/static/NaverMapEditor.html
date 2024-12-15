@@ -266,7 +266,7 @@ naver.maps.Event.addListener(map, 'rightclick', async function(e) {
     }
 }
 
-async function deleteMarkerFromServer(markeriD) {
+async function deleteMarkerFromServer(markerID) {
     try {
         console.log('삭제 요청할 마커 ID:', markerID);
         const response = await fetch(`/api/markers/${markerID}`, {
