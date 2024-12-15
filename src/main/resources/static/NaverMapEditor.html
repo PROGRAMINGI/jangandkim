@@ -136,10 +136,10 @@ if (!id) {
         lat: position.lat(),
         lng: position.lng(),
         parkingLot: {
-            parkingLotID: numericParkingLotID  // parkingLotID 대신 numericParkingLotID 사용
+            parkingLotID: numericParkingLotID
         }
     };
-    console.log('저장할 마커 데이터:', markerData);  // 데이터 확인용 로그
+    console.log('저장할 마커 데이터:', markerData);
     saveMarkerToServer(markerData);
 }
 }
@@ -215,17 +215,14 @@ naver.maps.Event.addListener(map, 'rightclick', async function(e) {
         if (!response.ok) throw new Error('서버에서 마커 데이터를 가져오는 데 실패했습니다.');
         
         const apiResponse = await response.json();
-        // apiResponse.data에서 마커 데이터 배열을 가져옴
         const markers = apiResponse.data || [];
         
-        // 데이터 구조 변환
+        // parkingLot 객체 구조 유지
         return markers.map(marker => ({
             id: marker.id,
             lat: marker.lat,
             lng: marker.lng,
-            parkingLot: {
-                parkingLotID: marker.parkingLot.parkingLotID
-            }
+            parkingLot: marker.parkingLot  // 전체 parkingLot 객체 유지
         }));
     } catch (error) {
         console.error('마커 데이터를 가져오는 중 오류 발생:', error);
@@ -329,15 +326,15 @@ async function initialize() {
         markers = fetchedMarkers;
         
         markers.forEach(markerData => {
-            const position = new naver.maps.LatLng(markerData.lat, markerData.lng);
-            const parkingLotID = markerData.parkingLot?.parkingLotID;
-            console.log('처리중인 마커 데이터:', {
-                position,
-                parkingLotID,
-                originalData: markerData
-            });
-            addMarker(position, parkingLotID, markerData.id);
+        const position = new naver.maps.LatLng(markerData.lat, markerData.lng);
+        const parkingLotID = markerData.parkingLot ? markerData.parkingLot.parkingLotID : null;
+        console.log('처리중인 마커 데이터:', {
+            position,
+            parkingLotID,
+            originalData: markerData
         });
+        addMarker(position, parkingLotID, markerData.id);
+    });
     } catch (error) {
         console.error('초기화 중 오류 발생:', error);
     }
