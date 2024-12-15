@@ -41,7 +41,7 @@ public class MarkerController {
         public void setLat(double lat) { this.lat = lat; }
         public double getLng() { return lng; }
         public void setLng(double lng) { this.lng = lng; }
-        public Integer getParkingLotID() { return parkingLotID; }
+        public Integer getParkingLotId() { return parkingLotID; }
         public void setParkingLotId(Integer parkingLotId) { this.parkingLotID = parkingLotID; }
     }
 
@@ -148,14 +148,14 @@ public ResponseEntity<ApiResponse> searchByParkingLotId(@PathVariable Integer pa
 public ResponseEntity<ApiResponse> saveMarker(@RequestBody MarkerDTO markerDTO) {
     try {
         // parkingLotID가 없거나 유효하지 않을 경우 예외 처리
-        if (markerDTO.getParkingLotID() == null) {
+        if (markerDTO.getParkingLotId() == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ApiResponse(false, "parkingLotID가 필요합니다."));
         }
 
         // service를 통해 parkingLotID로 ParkingLot 조회
         // ParkingLotService가 있다고 가정
-        ParkingLot lot = parkingLotService.getParkingLotByID(markerDTO.getParkingLotID());
+        ParkingLot lot = parkingLotService.getParkingLotById(markerDTO.getParkingLotId());
         if (lot == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new ApiResponse(false, "해당 주차장이 존재하지 않습니다."));

@@ -20,7 +20,7 @@ public class ParkingLotService {
         return parkingLotRepository.findAll();
     }
 
-    public ParkingLot getParkingLotByID(int id) {
+    public ParkingLot getParkingLotById(int id) {
         return parkingLotRepository.findById(id).orElse(null);
     }
 
@@ -36,7 +36,7 @@ public class ParkingLotService {
     }
 
     public ParkingLot updateParkingLot(int id, ParkingLot parkingLot) {
-        ParkingLot existing = getParkingLotByID(id);
+        ParkingLot existing = getParkingLotById(id);
         if (existing != null) {
             existing.setName(parkingLot.getName());
             return parkingLotRepository.save(existing);
