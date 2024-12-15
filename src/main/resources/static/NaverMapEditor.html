@@ -382,7 +382,7 @@ window.onload = initialize;
                 const markers = await fetchMarkers();
                 markers.forEach(markerData => {
                     const position = new naver.maps.LatLng(markerData.lat, markerData.lng);
-                    const parkingLotID = markerData.parkingLot && markerData.parkingLot.parkingLotID;
+                    const parkingLotID = markerData.parkingLotID ;
                     
                     console.log('마커 데이터:', markerData); // 디버깅용
                     console.log('파싱된 parkingLotID:', parkingLotID); // 디버깅용
