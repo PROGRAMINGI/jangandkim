@@ -345,7 +345,9 @@ async function initialize() {
         markers.forEach(markerData => {
             const position = new naver.maps.LatLng(markerData.lat, markerData.lng);
             addMarker(position, markerData.parkingLotID, markerData.id);
+            console.log('주차장 아이디:', markerData.parkingLotID);
         });
+        
     } catch (error) {
         console.error('초기화 중 오류 발생:', error);
         alert('마커 초기화 중 오류가 발생했습니다.');
@@ -355,25 +357,25 @@ async function initialize() {
 // 초기화 실행을 initialize 함수로 변경
 window.onload = initialize;
 
-        // 뒤로가기 버튼 클릭 이벤트
-        document.getElementById('back-btn').addEventListener('click', () => {
-            if (deletedMarkers.length > 0) {
-                restoreDeletedMarkers();
-                alert('이전 마커들이 복구되었습니다.');
-            } else {
-                alert('복구할 마커가 없습니다.');
-            }
-        });
+// 뒤로가기 버튼 클릭 이벤트
+document.getElementById('back-btn').addEventListener('click', () => {
+    if (deletedMarkers.length > 0) {
+        restoreDeletedMarkers();
+        alert('이전 마커들이 복구되었습니다.');
+    } else {
+        alert('복구할 마커가 없습니다.');
+    }
+});
 
 
-        // 지도 클릭 및 이동 시 정보 창 닫기
-        naver.maps.Event.addListener(map, 'click', () => {
-            if (activeInfoWindow) activeInfoWindow.close();
-        });
+// 지도 클릭 및 이동 시 정보 창 닫기
+naver.maps.Event.addListener(map, 'click', () => {
+    if (activeInfoWindow) activeInfoWindow.close();
+});
 
-        naver.maps.Event.addListener(map, 'dragstart', () => {
-            if (activeInfoWindow) activeInfoWindow.close();
-        });
+naver.maps.Event.addListener(map, 'dragstart', () => {
+    if (activeInfoWindow) activeInfoWindow.close();
+});
 
     
     // 마커 초기화 함수 수정
