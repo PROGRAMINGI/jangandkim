@@ -38,8 +38,8 @@
                 deletedMarkers.push({
                     lat: marker.getPosition().lat(),
                     lng: marker.getPosition().lng(),
-                    title: marker.getTitle(),
-                    spaceId: marker.spaceId,
+                    markerId: marker.markerId,
+                    parkingLotID: marker.parkingLotID
                 });
                 marker.setMap(null);
             });
@@ -48,31 +48,31 @@
 
         // 삭제된 마커 복구
         function restoreDeletedMarkers() {
-            deletedMarkers.forEach(markerData => {
-                const position = new naver.maps.LatLng(markerData.lat, markerData.lng);
-                addMarker(position, markerData.title, markerData.spaceId);
-            });
-            deletedMarkers = [];
-        }
+    deletedMarkers.forEach(markerData => {
+        const position = new naver.maps.LatLng(markerData.lat, markerData.lng);
+        addMarker(position, markerData.parkingLotId, markerData.markerId);
+    });
+    deletedMarkers = [];
+}
 
        
-// 마커 추가 함수 수정
-function addMarker(position, parkingLotID = null, id = null) {
-    const numericParkingLotID = parkingLotID ? parseInt(parkingLotID, 10) : null;
-    console.log('변환된 parkingLotID:', numericParkingLotID)
-    
-    const marker = new naver.maps.Marker({
-        position,
-        map,
-        icon: {
-            url: 'https://ssl.pstatic.net/static/maps/img/icons/pin_s_1.png',
-            size: new naver.maps.Size(22, 30),
-            anchor: new naver.maps.Point(11, 30),
-        }
-    });
-    marker.markerId = id;  
-    currentMarkers.push(marker);
-    marker.parkingLotID = numericParkingLotID;
+        // 마커 추가 함수 수정
+        function addMarker(position, parkingLotID = null, id = null) {
+            const numericParkingLotID = parkingLotID ? parseInt(parkingLotID, 10) : null;
+            console.log('변환된 parkingLotID:', numericParkingLotID)
+            
+            const marker = new naver.maps.Marker({
+                position,
+                map,
+                icon: {
+                    url: 'https://ssl.pstatic.net/static/maps/img/icons/pin_s_1.png',
+                    size: new naver.maps.Size(22, 30),
+                    anchor: new naver.maps.Point(11, 30),
+                }
+            });
+            marker.markerId = id;  
+            currentMarkers.push(marker);
+            marker.parkingLotId = numericParkingLotID;
 
 
     const iwContent = `

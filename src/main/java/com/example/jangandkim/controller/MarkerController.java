@@ -22,13 +22,13 @@ public class MarkerController {
         private Long id;
         private double lat;
         private double lng;
-        private Integer parkingLotId;
+        private Integer parkingLotID;
 
-        public MarkerDTO(Long id, double lat, double lng, Integer parkingLotId) {
+        public MarkerDTO(Long id, double lat, double lng, Integer parkingLotID) {
             this.id = id;
             this.lat = lat;
             this.lng = lng;
-            this.parkingLotId = parkingLotId;
+            this.parkingLotID = parkingLotID;
         }
 
         // getter/setter
@@ -38,8 +38,8 @@ public class MarkerController {
         public void setLat(double lat) { this.lat = lat; }
         public double getLng() { return lng; }
         public void setLng(double lng) { this.lng = lng; }
-        public Integer getParkingLotId() { return parkingLotId; }
-        public void setParkingLotId(Integer parkingLotId) { this.parkingLotId = parkingLotId; }
+        public Integer getParkingLotId() { return parkingLotID; }
+        public void setParkingLotId(Integer parkingLotId) { this.parkingLotID = parkingLotID; }
     }
 
     // API 응답을 위한 DTO
