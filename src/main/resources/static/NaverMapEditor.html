@@ -224,7 +224,7 @@ naver.maps.Event.addListener(map, 'rightclick', async function(e) {
             lat: marker.lat,
             lng: marker.lng,
             parkingLot: {
-                parkingLotID: marker.parkingLotID
+                parkingLotID: marker.parkingLot.parkingLotID
             }
         }));
     } catch (error) {
