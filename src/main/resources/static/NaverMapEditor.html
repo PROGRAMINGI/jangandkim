@@ -50,7 +50,7 @@
         function restoreDeletedMarkers() {
     deletedMarkers.forEach(markerData => {
         const position = new naver.maps.LatLng(markerData.lat, markerData.lng);
-        addMarker(position, markerData.parkingLotId, markerData.markerId);
+        addMarker(position, markerData.parkingLotID, markerData.markerId);
     });
     deletedMarkers = [];
 }
