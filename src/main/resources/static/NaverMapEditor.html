@@ -252,15 +252,12 @@ naver.maps.Event.addListener(map, 'rightclick', async function(e) {
         // 먼저 해당 parkingLotID를 가진 마커가 있는지 확인
         const markers = await fetchMarkers();
         const existingMarker = markers.find(marker => 
-            marker.parkingLot && 
-            marker.parkingLot.parkingLotID === markerData.parkingLot.parkingLotID
+        marker.parkingLotID === markerData.parkingLotID
         );
-
         if (existingMarker) {
             alert('이미 존재하는 주차장 ID입니다.');
             return;
         }
-
         console.log("저장할 마커 데이터:", markerData);
         const response = await fetch('/api/markers', {
             method: 'POST',
@@ -344,7 +341,7 @@ async function initialize() {
         
         markers.forEach(markerData => {
     const position = new naver.maps.LatLng(markerData.lat, markerData.lng);
-    const parkingLotID = markerData.parkingLot?.parkingLotID;  // 옵셔널 체이닝 사용
+    const parkingLotID = markerData.parkingLotID;  // 옵셔널 체이닝 사용
     console.log('처리중인 마커 데이터:', {
         position,
         parkingLotID,
