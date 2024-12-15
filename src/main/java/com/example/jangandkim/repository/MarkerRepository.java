@@ -17,6 +17,7 @@ public interface MarkerRepository extends JpaRepository<Marker, Long> {
 
 
 
-    List<Marker> findAllByParkingLotId(Integer parkingLotID);
+      List<Marker> findAllByParkingLotParkingLotID(Integer parkingLotID);
+
 
 }
