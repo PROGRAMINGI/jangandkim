@@ -170,6 +170,9 @@ function addToFavorites(parkingLotID) {
     }
 }
 
+
+
+
 // 우클릭으로 마커 추가
 // 마커 추가 시 주차장 이름으로 ID를 조회하는 함수 추가
 async function getParkingLotIdByName(name) {
@@ -193,10 +196,10 @@ async function getParkingLotIdByName(name) {
 naver.maps.Event.addListener(map, 'rightclick', async function(e) {
     const position = e.coord;
     const parkingLotName = prompt('주차장 이름을 입력하세요:', '');
-    
+    const encodedName = encodeURIComponent(name);
     if (parkingLotName) {
         try {
-            const parkingLotID = await getParkingLotIdByName(parkingLotName);
+            const parkingLotID = await getParkingLotIdByName(encodedName);
             if (parkingLotID) {
                 addMarker(position, parkingLotID);
             }
