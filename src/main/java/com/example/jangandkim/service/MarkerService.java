@@ -20,10 +20,7 @@ public class MarkerService {
         return markerRepository.findAllByParkingLotId(parkingLotID);
     }
     
-    //ID 기반 찾기
-    public Marker findByParkingLotId(Integer parkingLotId) {
-        return markerRepository.findByParkingLotParkingLotID(parkingLotId);
-    }
+   
 
 
     // searchMarkers 메서드 삭제 또는 다른 검색 로직으로 변경

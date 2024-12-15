@@ -106,8 +106,6 @@ public ResponseEntity<ApiResponse> searchByParkingLotId(@PathVariable Integer pa
 
 
 
-
-
     @GetMapping("/search")
     public ResponseEntity<ApiResponse> searchMarkersByArea(
             @RequestParam double minLat,
