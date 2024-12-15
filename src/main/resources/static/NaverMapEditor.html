@@ -58,23 +58,39 @@
        
         // 마커 추가 함수 수정
         function addMarker(position, parkingLotID = null, id = null) {
-            const numericParkingLotID = parkingLotID ? parseInt(parkingLotID, 10) : null;
-            console.log('변환된 parkingLotID:', numericParkingLotID)
-            
-            const marker = new naver.maps.Marker({
-                position,
-                map,
-                icon: {
-                    url: 'https://ssl.pstatic.net/static/maps/img/icons/pin_s_1.png',
-                    size: new naver.maps.Size(22, 30),
-                    anchor: new naver.maps.Point(11, 30),
-                }
-            });
-            marker.markerId = id;  
-            currentMarkers.push(marker);
-            marker.parkingLotID = numericParkingLotID;
+    console.log('입력받은 parkingLotID:', parkingLotID); // 디버깅용
+    
+    const numericParkingLotID = parkingLotID ? parseInt(parkingLotID, 10) : null;
+    console.log('변환된 numericParkingLotID:', numericParkingLotID); // 디버깅용
+    
+    const marker = new naver.maps.Marker({
+        position,
+        map,
+        icon: {
+            url: 'https://ssl.pstatic.net/static/maps/img/icons/pin_s_1.png',
+            size: new naver.maps.Size(22, 30),
+            anchor: new naver.maps.Point(11, 30),
+        }
+    });
 
+    // 속성 설정
+    marker.markerId = id;
+    marker.parkingLotID = numericParkingLotID; // 대문자 ID로 통일
+    currentMarkers.push(marker);
 
+    if (!id) {
+        const markerData = {
+            lat: position.lat(),
+            lng: position.lng(),
+            parkingLot: {
+                parkingLotID: numericParkingLotID
+            }
+        };
+        console.log('저장할 마커 데이터:', markerData); // 디버깅용
+        saveMarkerToServer(markerData);
+    }
+
+    // InfoWindow 내용에도 동일한 ID 사용
     const iwContent = `
     <div>
         <div style="margin:0;padding:0;">
@@ -90,8 +106,7 @@
                        </div>`
             }
         </div>
-    </div>
-`;
+    </div>`;
 
     const infoWindow = new naver.maps.InfoWindow({
         content: iwContent
@@ -326,15 +341,15 @@ async function initialize() {
         markers = fetchedMarkers;
         
         markers.forEach(markerData => {
-        const position = new naver.maps.LatLng(markerData.lat, markerData.lng);
-        const parkingLotID = markerData.parkingLot ? markerData.parkingLot.parkingLotID : null;
-        console.log('처리중인 마커 데이터:', {
-            position,
-            parkingLotID,
-            originalData: markerData
-        });
-        addMarker(position, parkingLotID, markerData.id);
+    const position = new naver.maps.LatLng(markerData.lat, markerData.lng);
+    const parkingLotID = markerData.parkingLot?.parkingLotID;  // 옵셔널 체이닝 사용
+    console.log('처리중인 마커 데이터:', {
+        position,
+        parkingLotID,
+        originalData: markerData
     });
+    addMarker(position, parkingLotID, markerData.id);
+});
     } catch (error) {
         console.error('초기화 중 오류 발생:', error);
     }
