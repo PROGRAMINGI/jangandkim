@@ -60,7 +60,7 @@
         function addMarker(position, parkingLotID = null, id = null) {
     console.log('입력받은 parkingLotID:', parkingLotID); // 디버깅용
     
-    const numericParkingLotID = parkingLotID ? parseInt(parkingLotID, 10) : null;
+    const numericParkingLotID = parkingLotID ? parkingLotID : null;
     console.log('변환된 numericParkingLotID:', numericParkingLotID); // 디버깅용
     
     const marker = new naver.maps.Marker({
@@ -178,13 +178,8 @@ function addToFavorites(parkingLotID) {
 async function getParkingLotIdByName(name) {
     try {
         // 한글 인코딩 처리 수정
-        const encodedName = encodeURIComponent(name)
-            .replace(/[!'()]/g, escape)
-            .replace(/\*/g, "%2A");
-            
-        console.log('인코딩된 이름:', encodedName); // 디버깅용
         
-        const response = await fetch(`/api/parking-lots/name/${encodedName}`);
+        const response = await fetch(`/api/parking-lots/name/${name}`);
         console.log('서버 응답 상태:', response.status); // 디버깅용
         
         if (response.ok) {
@@ -243,7 +238,7 @@ naver.maps.Event.addListener(map, 'rightclick', async function(e) {
             lat: marker.lat,
             lng: marker.lng,
             parkingLot: {
-                parkingLotID: marker.parkingLot?.parkingLotID
+                parkingLotID: marker.parkingLotID
             }
         }));
     } catch (error) {

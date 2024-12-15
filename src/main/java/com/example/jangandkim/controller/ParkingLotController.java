@@ -43,7 +43,7 @@ public class ParkingLotController {
     }
 
     @GetMapping("/name/{name}")
-    public ResponseEntity<?> getParkingLotByName(@PathVariable String name) {
+    public ResponseEntity<?> getParkingLotByName(@PathVariable("name") String name) {
         ParkingLot parkingLot = parkingLotService.getParkingLotByName(name);
         if (parkingLot != null) {
             return ResponseEntity.ok(parkingLot);
