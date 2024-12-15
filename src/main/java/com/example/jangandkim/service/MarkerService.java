@@ -16,6 +16,13 @@ public class MarkerService {
         this.markerRepository = markerRepository;
     }
 
+
+    //ID 기반 찾기
+    public Marker findByParkingLotId(Integer parkingLotId) {
+        return markerRepository.findByParkingLotParkingLotID(parkingLotId);
+    }
+
+
     // searchMarkers 메서드 삭제 또는 다른 검색 로직으로 변경
     // 예: 영역 기반 검색으로 변경
     public List<Marker> searchMarkersByArea(double minLat, double maxLat, double minLng, double maxLng) {

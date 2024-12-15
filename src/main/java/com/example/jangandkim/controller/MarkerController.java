@@ -85,6 +85,22 @@ public class MarkerController {
         );
     }
 
+
+    @GetMapping("/search/{parkingLotID}")
+public ResponseEntity<ApiResponse> searchByParkingLotId(@RequestParam Integer parkingLotID) {
+    try {
+        Marker marker = markerService.findByParkingLotId(parkingLotID);
+        if (marker != null) {
+            return ResponseEntity.ok(new ApiResponse(true, "마커 검색 성공", convertToDTO(marker)));
+        }
+        return ResponseEntity.notFound().build();
+    } catch (Exception e) {
+        return ResponseEntity.internalServerError()
+            .body(new ApiResponse(false, "서버 오류가 발생했습니다."));
+    }
+}
+
+
     @GetMapping("/search")
     public ResponseEntity<ApiResponse> searchMarkersByArea(
             @RequestParam double minLat,

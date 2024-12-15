@@ -223,9 +223,9 @@ naver.maps.Event.addListener(map, 'rightclick', async function(e) {
 
 
         // 서버와 통신 함수들
-        async function fetchMarkers(query = '') {
+        async function fetchMarkers(parkingLotID) {
     try {
-        const url = query ? `/api/markers/search?query=${encodeURIComponent(query)}` : '/api/markers';
+        const url = `/api/markers/search/parkinglot/${parkingLotID}`;
         const response = await fetch(url);
         if (!response.ok) throw new Error('서버에서 마커 데이터를 가져오는 데 실패했습니다.');
         

@@ -14,4 +14,7 @@ public interface MarkerRepository extends JpaRepository<Marker, Long> {
     @Query("SELECT m FROM Marker m WHERE m.lat BETWEEN :minLat AND :maxLat AND m.lng BETWEEN :minLng AND :maxLng")
     List<Marker> findMarkersInArea(@Param("minLat") double minLat, @Param("maxLat") double maxLat,
                                   @Param("minLng") double minLng, @Param("maxLng") double maxLng);
+
+
+    Marker findByParkingLotParkingLotID(Integer parkingLotId);
 }
