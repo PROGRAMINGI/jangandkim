@@ -146,17 +146,6 @@
     });
 };
 
-if (!id) {
-    const markerData = {
-        lat: position.lat(),
-        lng: position.lng(),
-        parkingLot: {
-            parkingLotID: numericParkingLotID
-        }
-    };
-    console.log('저장할 마커 데이터:', markerData);
-    saveMarkerToServer(markerData);
-}
 }
 
 // 즐겨찾기 추가 함수
@@ -229,15 +218,16 @@ naver.maps.Event.addListener(map, 'rightclick', async function(e) {
         const response = await fetch(url);
         if (!response.ok) throw new Error('서버에서 마커 데이터를 가져오는 데 실패했습니다.');
         
-        const apiResponse = await response.json();
-        const markers = apiResponse.data || [];
+        const markers = await response.json();  // data 필드 제거
+        console.log('서버 응답:', markers);  // 디버깅용
         
-        // parkingLot 객체 구조 유지
         return markers.map(marker => ({
             id: marker.id,
             lat: marker.lat,
             lng: marker.lng,
-            parkingLot: marker.parkingLot  // 전체 parkingLot 객체 유지
+            parkingLot: {
+                parkingLotID: marker.parkingLot?.parkingLotID
+            }
         }));
     } catch (error) {
         console.error('마커 데이터를 가져오는 중 오류 발생:', error);
