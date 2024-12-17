@@ -15,21 +15,21 @@ public class ParkingSpace {
 
     @JsonBackReference
     @ManyToOne
-    @JoinColumn(name = "ParkingLotID", nullable = false)
+    @JoinColumn(name = "parkingLotID", nullable = false)
     private ParkingLot parkingLot;
 
-    @Column(name = "SpaceLocation", length = 50, nullable = false)
+    @Column(name = "spaceLocation", length = 50, nullable = false)
     private String spaceLocation;
 
-    @Column(name = "SpaceNumber", length = 50, nullable = false)
+    @Column(name = "spaceNumber", length = 50, nullable = false)
     private String spaceNumber;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "Status", nullable = false)
+    @Column(name = "status", nullable = false)
     private ParkingStatus status;
 
     @OneToOne
-    @JoinColumn(name = "SensorID", unique = true)
+    @JoinColumn(name = "sensorID", unique = true)
     private Sensor sensor;
 
     // Getters and Setters
