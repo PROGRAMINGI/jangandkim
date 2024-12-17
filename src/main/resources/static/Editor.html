@@ -528,26 +528,19 @@ function rotateBlock(group) {
     
             if (!rect) return;
     
-            const parkingSpace = {
-                parkingLotID: parkingLotID,  // 모든 공간이 같은 parkingLotID를 공유
-                sensorID: rect.dataset.sensorId || null,
-                spaceLocation: `${rect.getAttribute("x")},${rect.getAttribute("y")}`,
-                spaceNumber: text ? text.textContent : "",
-                status: rect.classList.contains("entrance") ? "UNKNOWN" : 
-                        rect.classList.contains("exit") ? "UNKNOWN" : "AVAILABLE"
-            };
+            
 
             allElements.push(parkingSpace);
         });
 
-
-        const layoutResponse = await fetch(`/api/parking-spaces`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(allElements)
-        });
-
-        if (!layoutResponse.ok) throw new Error("주차 공간 저장 실패");
+                for (const element of allElements) {
+            const response = await fetch('/api/parking-spaces', {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(element)
+            });
+            if (!response.ok) throw new Error(`주차 공간 저장 실패: ${element.spaceNumber}`);
+        }
 
         alert("모든 데이터가 성공적으로 저장되었습니다.");
         
