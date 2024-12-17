@@ -371,14 +371,11 @@ async function saveParkingLot() {
         }
 
         const parkingLot = await response.json();
-        if(!parkingLot.parkingLotID){
-        parkingLotID = 10000;
-        alert(`주차장 ID: 주차장 ID가 없어 기본값으로 지정됐습니다.`);
-        }
-        else{
+       
+      
             parkingLotID = parkingLot.parkingLotID;
             alert(`주차장 ID: ${parkingLotID}`);
-        }              
+        
        
         
     } catch (error) {
@@ -389,7 +386,6 @@ async function saveParkingLot() {
 }
 
 
-// 초기 상태에서 저장 버튼 비활성화
 
 
 
@@ -536,9 +532,30 @@ function rotateBlock(group) {
 
         // 2. 주차 공간 정보 저장
         const allElements = [];
-        svg.querySelectorAll("g").forEach((group) => {
-            // ... allElements 수집 코드 ...
-        });
+svg.querySelectorAll("g").forEach((group) => {
+    const rect = group.querySelector("rect");
+    const text = group.querySelector("text");
+    
+    if (!rect) return; // rect가 없으면 무시
+    
+    const element = {
+        spaceLocation: `${rect.getAttribute("x")},${rect.getAttribute("y")}`,
+        spaceNumber: text ? text.textContent : "",
+        sensorID: rect.dataset.sensorId || null,
+        status: "UNKNOWN", // 기본값 설정
+        parkingLotID: parkingLotID
+    };
+
+    // 공간 타입에 따라 spaceNumber 조정
+    if (rect.classList.contains("entrance")) {
+        element.spaceNumber = "entrance";
+    } else if (rect.classList.contains("exit")) {
+        element.spaceNumber = "exit";
+    }
+
+    allElements.push(element);
+});
+
 
         const layoutResponse = await fetch(`/api/parking-lots/${parkingLotID}/parking-spaces`, {
             method: "POST",
