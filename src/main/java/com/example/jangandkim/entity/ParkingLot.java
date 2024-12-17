@@ -15,7 +15,7 @@ public class ParkingLot {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ParkingLotID")
+    @Column(name = "parkingLotID")
     private int parkingLotID;
 
     @Column(name = "name", length = 100, nullable = false)
