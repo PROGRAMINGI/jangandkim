@@ -540,14 +540,12 @@ function rotateBlock(group) {
             allElements.push(parkingSpace);
         });
 
-                for (const element of allElements) {
-            const response = await fetch('/api/parking-spaces', {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(element)
-            });
-            if (!response.ok) throw new Error(`주차 공간 저장 실패: ${element.spaceNumber}`);
-        }
+                const response = await fetch('/api/parking-spaces', {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(allElements)  // allElements가 이미 배열이어야 함
+        });
+        if (!response.ok) throw new Error("주차 공간 저장 실패");
 
 
         alert("모든 데이터가 성공적으로 저장되었습니다.");
