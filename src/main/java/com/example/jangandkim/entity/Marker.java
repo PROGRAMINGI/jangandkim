@@ -26,7 +26,7 @@ public class Marker {
 
     @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)  // @OneToOne 대신 @ManyToOne 사용
-    @JoinColumn(name = "parking_lotid") // 대소문자 구분 주의
+    @JoinColumn(name = "parkingLotID") // 대소문자 구분 주의
     private ParkingLot parkingLot;
 
     // Getters and Setters

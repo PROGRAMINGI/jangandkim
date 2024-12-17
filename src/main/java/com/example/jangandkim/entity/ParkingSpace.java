@@ -10,7 +10,7 @@ public class ParkingSpace {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "SpaceID")
+    @Column(name = "spaceID")
     private int spaceID;
 
     @JsonBackReference

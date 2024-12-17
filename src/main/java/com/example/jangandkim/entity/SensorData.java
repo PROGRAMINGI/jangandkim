@@ -9,17 +9,17 @@ public class SensorData {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "DataID")
+    @Column(name = "dataID")
     private int dataID;
 
     @ManyToOne
-    @JoinColumn(name = "SensorID", nullable = false)
+    @JoinColumn(name = "sensorID", nullable = false)
     private Sensor sensor;
 
-    @Column(name = "Distance", nullable = false)
+    @Column(name = "distance", nullable = false)
     private float distance;
 
-    @Column(name = "Timestamp", nullable = false)
+    @Column(name = "timestamp", nullable = false)
     private LocalDateTime timestamp;
 
     @PrePersist

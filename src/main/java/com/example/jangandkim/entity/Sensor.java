@@ -10,10 +10,10 @@ public class Sensor {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "SensorID")
+    @Column(name = "sensorID")
     private int sensorID;
 
-    @Column(name = "SensorName", length = 50, nullable = false)
+    @Column(name = "sensorName", length = 50, nullable = false)
     private String sensorName;
 
     @OneToOne(mappedBy = "sensor", cascade = CascadeType.ALL)
