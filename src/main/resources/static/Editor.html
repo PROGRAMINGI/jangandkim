@@ -527,8 +527,15 @@ function rotateBlock(group) {
                 const text = group.querySelector("text");
     
             if (!rect) return;
-    
-            
+                
+                const parkingSpace = {
+            parkingLotID: parkingLotID,  // 모든 공간이 같은 parkingLotID를 공유
+            sensorID: rect.dataset.sensorId || null,
+            spaceLocation: `${rect.getAttribute("x")},${rect.getAttribute("y")}`,
+            spaceNumber: text ? text.textContent : "",
+            status: rect.classList.contains("entrance") ? "UNKNOWN" : 
+                    rect.classList.contains("exit") ? "UNKNOWN" : "AVAILABLE"
+        };
 
             allElements.push(parkingSpace);
         });
