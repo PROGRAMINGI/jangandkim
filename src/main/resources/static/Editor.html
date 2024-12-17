@@ -552,7 +552,7 @@ svg.querySelectorAll("g").forEach((group) => {
 });
 
 
-        const layoutResponse = await fetch(`/api/parking-lots/${parkingLotID}/parking-spaces`, {
+        const layoutResponse = await fetch(`/api/parking-spaces`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(allElements)
