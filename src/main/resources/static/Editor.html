@@ -532,28 +532,23 @@ function rotateBlock(group) {
 
         // 2. 주차 공간 정보 저장
         const allElements = [];
+
 svg.querySelectorAll("g").forEach((group) => {
     const rect = group.querySelector("rect");
     const text = group.querySelector("text");
     
-    if (!rect) return; // rect가 없으면 무시
+    if (!rect) return;
     
-    const element = {
+    const parkingSpace = {
+        parkingLotID: parkingLotID,  // 모든 공간이 같은 parkingLotID를 공유
+        sensorID: rect.dataset.sensorId || null,
         spaceLocation: `${rect.getAttribute("x")},${rect.getAttribute("y")}`,
         spaceNumber: text ? text.textContent : "",
-        sensorID: rect.dataset.sensorId || null,
-        status: "UNKNOWN", // 기본값 설정
-        parkingLotID: parkingLotID
+        status: rect.classList.contains("entrance") ? "ENTRANCE" : 
+                rect.classList.contains("exit") ? "EXIT" : "AVAILABLE"
     };
 
-    // 공간 타입에 따라 spaceNumber 조정
-    if (rect.classList.contains("entrance")) {
-        element.spaceNumber = "entrance";
-    } else if (rect.classList.contains("exit")) {
-        element.spaceNumber = "exit";
-    }
-
-    allElements.push(element);
+    allElements.push(parkingSpace);
 });
 
 
