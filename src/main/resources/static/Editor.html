@@ -161,7 +161,7 @@
     const inputName = prompt("확인하거나, 생성할 주차장 이름을 입력하세요");
     
     // 입력값이 유효한 입력인지
-    if (!inputName.trim()!== "") {
+    if ( inputName && inputName.trim()!== "") {
         try {
             // 해당 ID로 주차장 데이터 조회 시도
             const encodedName = encodeURIComponent(inputName);
@@ -185,7 +185,6 @@
                 // 새로운 주차장 생성 ( save 가 아닌 create )
                 parkingLotName = inputName;
                 if (parkingLotName && inputName !== "") {
-                // 새 주차장 정보 서버에 저장
                 const createResponse = await fetch("/api/parking-lots", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -540,7 +539,7 @@ function rotateBlock(group) {
             allElements.push(parkingSpace);
         });
 
-                const response = await fetch('/api/parking-spaces', {
+     const response = await fetch('/api/parking-spaces', {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(allElements)  // allElements가 이미 배열이어야 함
