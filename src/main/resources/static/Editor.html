@@ -519,37 +519,26 @@ function rotateBlock(group) {
             throw new Error("저장할 주차장 정보가 없습니다.");
         }
 
-        // 1. 주차장 정보 업데이트
-        const parkingLotResponse = await fetch(`/api/parking-lots/${parkingLotID}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                name: parkingLotName
-            })
-        });
-
-        if (!parkingLotResponse.ok) throw new Error("주차장 정보 업데이트 실패");
-
         // 2. 주차 공간 정보 저장
         const allElements = [];
 
-svg.querySelectorAll("g").forEach((group) => {
-    const rect = group.querySelector("rect");
-    const text = group.querySelector("text");
+            svg.querySelectorAll("g").forEach((group) => {
+                const rect = group.querySelector("rect");
+                const text = group.querySelector("text");
     
-    if (!rect) return;
+            if (!rect) return;
     
-    const parkingSpace = {
-        parkingLotID: parkingLotID,  // 모든 공간이 같은 parkingLotID를 공유
-        sensorID: rect.dataset.sensorId || null,
-        spaceLocation: `${rect.getAttribute("x")},${rect.getAttribute("y")}`,
-        spaceNumber: text ? text.textContent : "",
-        status: rect.classList.contains("entrance") ? "ENTRANCE" : 
-                rect.classList.contains("exit") ? "EXIT" : "AVAILABLE"
-    };
+            const parkingSpace = {
+                parkingLotID: parkingLotID,  // 모든 공간이 같은 parkingLotID를 공유
+                sensorID: rect.dataset.sensorId || null,
+                spaceLocation: `${rect.getAttribute("x")},${rect.getAttribute("y")}`,
+                spaceNumber: text ? text.textContent : "",
+                status: rect.classList.contains("entrance") ? "UNKNOWN" : 
+                        rect.classList.contains("exit") ? "UNKNOWN" : "AVAILABLE"
+            };
 
-    allElements.push(parkingSpace);
-});
+            allElements.push(parkingSpace);
+        });
 
 
         const layoutResponse = await fetch(`/api/parking-spaces`, {
