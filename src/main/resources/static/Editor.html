@@ -359,7 +359,7 @@
 // saveParkingLot 함수 수정 (새 주차장을 create가 아닌 save-> 저장)
 async function saveParkingLot() {
     try {
-        const response = await fetch("/api/parking-lots", {
+        const response = await fetch(`/api/parking-lots/${parkingLotID}/parking-spaces`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({name: parkingLotName}),
