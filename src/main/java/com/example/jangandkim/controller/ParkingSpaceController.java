@@ -38,7 +38,7 @@ public class ParkingSpaceController {
     
 
 
-@GetMapping
+@GetMapping("/{id}")
 public ResponseEntity<List<ParkingSpace>> getAllParkingSpaces( @RequestParam(required = true) Integer parkingLotID) {
     try {
         List<ParkingSpace> spaces = parkingSpaceService.getParkingSpacesByParkingLotId(parkingLotID);
@@ -47,15 +47,6 @@ public ResponseEntity<List<ParkingSpace>> getAllParkingSpaces( @RequestParam(req
         return ResponseEntity.internalServerError().build();
     }
 }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<ParkingSpace> getParkingSpaceById(@PathVariable int id) {
-        ParkingSpace parkingSpace = parkingSpaceService.getParkingSpaceById(id);
-        if (parkingSpace != null) {
-            return ResponseEntity.ok(parkingSpace);
-        }
-        return ResponseEntity.notFound().build();
-    }
 
     @PutMapping("/{id}")
     public ResponseEntity<ParkingSpace> updateParkingSpace(@PathVariable int id, @RequestBody ParkingSpace parkingSpace) {
