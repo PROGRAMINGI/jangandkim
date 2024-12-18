@@ -48,15 +48,6 @@ public ResponseEntity<List<ParkingSpace>> getAllParkingSpaces( @RequestParam(req
     }
 }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<ParkingSpace> updateParkingSpace(@PathVariable int id, @RequestBody ParkingSpace parkingSpace) {
-        ParkingSpace updated = parkingSpaceService.updateParkingSpace(id, parkingSpace);
-        if (updated != null) {
-            return ResponseEntity.ok(updated);
-        }
-        return ResponseEntity.notFound().build();
-    }
-
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteParkingSpace(@PathVariable int id) {
         parkingSpaceService.deleteParkingSpace(id);
