@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-
+import java.util.Optional;
 import javax.print.DocFlavor.STRING;
 
 @RestController
@@ -139,9 +139,15 @@ public class ParkingLotController {
             for (ParkingSpace space : parkingSpaces) {
                 // Sensor 연결 로직 수정
                 if (space.getSensor() != null) {
-                    Sensor sensor = sensorRepository.findBysensorID(space.getSensor().getSensorID())
-                        .orElseThrow(() -> new EntityNotFoundException("Sensor not found with ID: " + space.getSensor().getSensorID()));
-                    space.setSensor(sensor);
+                    Optional<Sensor> sensorOptional = sensorRepository.findBysensorID(space.getSensor().getSensorID());
+                    if (sensorOptional.isEmpty()) {
+                        // 센서가 없는 경우 센서를 null로 설정하고 경고 메시지 추가
+                        space.setSensor(null);
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                               .body(Map.of("warning", "존재하지 않는 센서ID입니다. 센서 정보가 저장되지 않았습니다."));
+                    } else {
+                        space.setSensor(sensorOptional.get());
+                    }
                 }
     
                 ParkingSpace existingSpace = parkingSpaceService.getParkingSpacesByParkingLotId(id)
