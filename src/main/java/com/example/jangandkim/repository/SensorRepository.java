@@ -9,11 +9,9 @@ import java.util.List;
 
 @Repository
 public interface SensorRepository extends JpaRepository<Sensor, Integer> {
-    // 기본적인 CRUD 작업만 필요
     Optional<Sensor> findBysensorID(int sensorID);
     
     boolean existsBysensorID(int sensorID);
     
-    // status 검색도 유지
-    List<Sensor> findBystatus(String status);
+    // status 관련 메서드는 제거 (Sensor 엔티티에 해당 필드가 없음)
 }
