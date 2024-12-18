@@ -5,16 +5,15 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.Optional;
 import java.util.List;
-import java.util.Timer;
-@Repository
 
+
+@Repository
 public interface SensorRepository extends JpaRepository<Sensor, Integer> {
-    // 특정 주차장의 모든 센서 찾기 dsfsd
-    List<Sensor> findByparkingspace_parkinglot_parkingLotID(int parkingLotId);
+    // 기본적인 CRUD 작업만 필요
+    Optional<Sensor> findBysensorID(int sensorID);
     
-    Optional<Sensor> findBysensorID(int sensorId);
+    boolean existsBysensorID(int sensorID);
     
+    // status 검색도 유지
     List<Sensor> findBystatus(String status);
-    
-    boolean existsBysensorID(int sensorId);
 }
