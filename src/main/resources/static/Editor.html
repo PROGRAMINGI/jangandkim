@@ -549,7 +549,7 @@ function rotateBlock(group) {
 
         console.log("주차장 ID:", parkingLotID);
 
-        // 1. 기존 주차 공간 데이터를 서버에서 불러오기
+        // 1. 서버에서 기존 주차 공간 데이터 불러오기
         const existingSpacesResponse = await fetch(`/api/parking-spaces?parkingLotID=${parkingLotID}`);
         if (!existingSpacesResponse.ok) {
             throw new Error("기존 주차 공간 데이터를 불러오는 데 실패했습니다.");
@@ -557,7 +557,7 @@ function rotateBlock(group) {
         const existingSpaces = await existingSpacesResponse.json();
         const existingSpaceMap = new Map(existingSpaces.map(space => [space.spaceNumber, space]));
 
-        // 2. 현재 UI의 모든 주차 공간 데이터 수집
+        // 2. 현재 UI의 주차 공간 데이터 수집
         const newSpaces = [];
         const updatedSpaces = [];
 
@@ -566,6 +566,7 @@ function rotateBlock(group) {
             const text = group.querySelector("text");
 
             if (!rect) return;
+
             const parkingSpace = {
                 parkingLotID: parkingLotID,
                 sensor: rect.dataset.sensorID ? {
@@ -577,19 +578,19 @@ function rotateBlock(group) {
                         rect.classList.contains("exit") ? "UNKNOWN" : "AVAILABLE"
             };
 
-            // 기존 공간인지 확인
+            // 기존 블록과 비교
             if (existingSpaceMap.has(parkingSpace.spaceNumber)) {
-                // 기존 공간 정보 업데이트
+                // 기존 블록: 업데이트 목록에 추가
                 const existingSpace = existingSpaceMap.get(parkingSpace.spaceNumber);
                 parkingSpace.spaceID = existingSpace.spaceID; // 기존 ID 유지
                 updatedSpaces.push(parkingSpace);
             } else {
-                // 새로운 공간 추가
+                // 새로운 블록: 생성 목록에 추가
                 newSpaces.push(parkingSpace);
             }
         });
 
-        // 3. 새로운 공간 추가 및 기존 공간 업데이트
+        // 3. 새로운 블록 POST 요청
         if (newSpaces.length > 0) {
             const createResponse = await fetch(`/api/parking-lots/${parkingLotID}/parking-spaces`, {
                 method: "POST",
@@ -602,6 +603,7 @@ function rotateBlock(group) {
             }
         }
 
+        // 4. 기존 블록 PUT 요청
         if (updatedSpaces.length > 0) {
             const updateResponse = await fetch(`/api/parking-lots/${parkingLotID}/parking-spaces`, {
                 method: "PUT",
@@ -620,6 +622,7 @@ function rotateBlock(group) {
         alert(error.message || "저장에 실패했습니다.");
     }
 });
+
 
 
 
