@@ -3,6 +3,7 @@ package com.example.jangandkim.entity;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
@@ -23,6 +24,8 @@ public class Sensor {
     @OneToOne(mappedBy = "sensor", cascade = CascadeType.ALL)
     private ParkingSpace parkingSpace;
 
+
+    @JsonIgnore
     @OneToMany(mappedBy = "sensor", cascade = CascadeType.ALL)
     private List<SensorData> sensorDataList = new ArrayList<>();
 
