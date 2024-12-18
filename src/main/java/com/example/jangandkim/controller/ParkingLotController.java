@@ -113,7 +113,7 @@ public ResponseEntity<?> saveParkingSpaces(@PathVariable int id, @RequestBody Li
             
             // Sensor 연결 로직 추가
             if (space.getSensor() != null && space.getSensor() != null) {
-                Sensor sensor = sensorRepository.findBySensorId(space.getSensor().getSensorID())
+                Sensor sensor = sensorRepository.findBysensorID(space.getSensor().getSensorID())
                     .orElseThrow(() -> new EntityNotFoundException("Sensor not found: " + space.getSensor().getSensorID()));
                 space.setSensor(sensor);
             }
@@ -140,7 +140,7 @@ public ResponseEntity<?> updateParkingSpacesByParkingLotID(@PathVariable int id,
         for (ParkingSpace space : parkingSpaces) {
             // Sensor 연결 로직 추가d
             if (space.getSensor() != null && space.getSensor() != null) {
-                Sensor sensor = sensorRepository.findBySensorId(space.getSensor().getSensorID())
+                Sensor sensor = sensorRepository.findBysensorID(space.getSensor().getSensorID())
                     .orElseThrow(() -> new EntityNotFoundException("Sensor not found: " + space.getSensor().getSensorID()));
                 space.setSensor(sensor);
             }
