@@ -79,25 +79,8 @@
 
     <script>
         const svg = document.getElementById("parking-lot");
-        
-        async function initializeFavorites() {
-        const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
-        const container = document.getElementById('favorites-container'); // 즐겨찾기 표시할 DOM
 
-        container.innerHTML = ''; // 초기화
 
-        if (favorites.length === 0) {
-            container.innerHTML = '<p>등록된 즐겨찾기가 없습니다.</p>';
-        } else {
-            favorites.forEach(fav => {
-                const item = document.createElement('div');
-                item.textContent = `주차장 ID: ${fav.parkingLotID}`;
-                container.appendChild(item);
-            });
-        }
-    }
-
-    window.onload = initializeFavorites; // onload 시 초기화
         // 서버에서 데이터를 가져와 레이아웃을 생성
         async function fetchAndRenderLayout(parkingLotID) {
     try {
@@ -169,14 +152,27 @@
 }
 
 // URL 파라미터 처리
-document.addEventListener("DOMContentLoaded", () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const parkingLotID = urlParams.get('parkingLotID');
-    
-    if (parkingLotID) {
-        fetchAndRenderLayout(parkingLotID);
-    } 
-});
+ async function loadInitialParkingLot() {
+            const favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
+            if (favorites.length > 0) {
+                const firstParkingLotID = favorites[0].parkingLotID;
+                await fetchAndRenderLayout(firstParkingLotID);
+            } else {
+                alert("즐겨찾기 주차장이 없습니다.");
+            }
+        }
+
+        // URL 파라미터가 있으면 해당 주차장 표시, 없으면 즐겨찾기 로드
+        document.addEventListener("DOMContentLoaded", async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const parkingLotID = urlParams.get("parkingLotID");
+
+            if (parkingLotID) {
+                await fetchAndRenderLayout(parkingLotID);
+            } else {
+                await loadInitialParkingLot();
+            }
+        });
     </script>
 </body>
 </html>
