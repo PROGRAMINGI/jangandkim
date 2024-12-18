@@ -170,103 +170,101 @@
     const noContentMessage = document.querySelector('.no-content-message');
 
     async function fetchFavoritesFromServer() {
-    const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
-    return favorites;
-}
-
-
-function navigateTo(page) {
-    iframe.src = page;
-
-    // 하단 버튼들의 active 상태 업데이트
-    const buttons = document.querySelectorAll('.nav-button');
-    buttons.forEach(button => {
-        if (button.getAttribute('onclick').includes(page)) {
-            button.classList.add('active');
-        } else {
-            button.classList.remove('active');
-        }
-    });
-}
-
-
-async function updateMenu() {
-    const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
-    menu.innerHTML = '';
-
-    if (favorites.length === 0) {
-        const emptyMessage = document.createElement('p');
-        emptyMessage.textContent = "즐겨찾기가 현재 없습니다.";
-        emptyMessage.style.color = "#fff";
-        emptyMessage.style.textAlign = "center";
-        menu.appendChild(emptyMessage);
-    } else {
-        favorites.forEach(favorite => {
-            // 컨테이너 div 생성
-            const container = document.createElement('div');
-            container.style.display = 'flex';
-            container.style.gap = '5px';
-            container.style.alignItems = 'center';
-
-            // 주차장 버튼
-            const button = document.createElement('button');
-            button.textContent = `주차장 ${favorite.parkingLotID}`;
-            button.onclick = () => {
-                navigateToLayoutView(favorite.parkingLotID);
-            };
-            button.style.flex = '1';
-
-            // 삭제 버튼
-            const deleteButton = document.createElement('button');
-            deleteButton.innerHTML = '<i class="fas fa-times"></i>';
-            deleteButton.style.backgroundColor = '#ff4444';
-            deleteButton.style.padding = '8px';
-            deleteButton.style.borderRadius = '5px';
-            deleteButton.style.border = 'none';
-            deleteButton.style.color = 'white';
-            deleteButton.style.cursor = 'pointer';
-            
-            // 삭제 버튼 호버 효과
-            deleteButton.onmouseover = () => {
-                deleteButton.style.backgroundColor = '#ff0000';
-            };
-            deleteButton.onmouseout = () => {
-                deleteButton.style.backgroundColor = '#ff4444';
-            };
-
-            // 삭제 기능
-            deleteButton.onclick = (e) => {
-                e.stopPropagation(); // 상위 버튼 클릭 방지
-                const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
-                const newFavorites = favorites.filter(fav => 
-                    fav.parkingLotID !== favorite.parkingLotID
-                );
-                localStorage.setItem('favorites', JSON.stringify(newFavorites));
-                updateMenu(); // 메뉴 갱신
-            };
-
-            // 컨테이너에 버튼들 추가
-            container.appendChild(button);
-            container.appendChild(deleteButton);
-            menu.appendChild(container);
-        });
+        const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+        return favorites;
     }
-}
 
-function navigateToLayoutView(parkingLotID) {
-    const iframe = document.getElementById('iframe');
-    iframe.src = `LayoutView.html?parkingLotID=${parkingLotID}`;
-}
+    function navigateTo(page) {
+        iframe.src = page;
 
-    document.addEventListener('DOMContentLoaded', () => {
+        // 하단 버튼들의 active 상태 업데이트
+        const buttons = document.querySelectorAll('.nav-button');
+        buttons.forEach(button => {
+            if (button.getAttribute('onclick').includes(page)) {
+                button.classList.add('active');
+            } else {
+                button.classList.remove('active');
+            }
+        });
+
+        // 메인 화면일 때만 토글 버튼 보이도록 처리
+        toggleMenu.style.display = page === "LayoutView.html" ? "block" : "none";
+    }
+
+    async function updateMenu() {
+        const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+        menu.innerHTML = '';
+
+        if (favorites.length === 0) {
+            const emptyMessage = document.createElement('p');
+            emptyMessage.textContent = "즐겨찾기가 현재 없습니다.";
+            emptyMessage.style.color = "#fff";
+            emptyMessage.style.textAlign = "center";
+            menu.appendChild(emptyMessage);
+        } else {
+            favorites.forEach(favorite => {
+                const container = document.createElement('div');
+                container.style.display = 'flex';
+                container.style.gap = '5px';
+                container.style.alignItems = 'center';
+
+                const button = document.createElement('button');
+                button.textContent = `주차장 ${favorite.parkingLotID}`;
+                button.onclick = () => {
+                    navigateToLayoutView(favorite.parkingLotID);
+                };
+                button.style.flex = '1';
+
+                const deleteButton = document.createElement('button');
+                deleteButton.innerHTML = '<i class="fas fa-times"></i>';
+                deleteButton.style.backgroundColor = '#ff4444';
+                deleteButton.style.padding = '8px';
+                deleteButton.style.borderRadius = '5px';
+                deleteButton.style.border = 'none';
+                deleteButton.style.color = 'white';
+                deleteButton.style.cursor = 'pointer';
+
+                deleteButton.onmouseover = () => deleteButton.style.backgroundColor = '#ff0000';
+                deleteButton.onmouseout = () => deleteButton.style.backgroundColor = '#ff4444';
+
+                deleteButton.onclick = (e) => {
+                    e.stopPropagation();
+                    const newFavorites = favorites.filter(fav => fav.parkingLotID !== favorite.parkingLotID);
+                    localStorage.setItem('favorites', JSON.stringify(newFavorites));
+                    updateMenu();
+                };
+
+                container.appendChild(button);
+                container.appendChild(deleteButton);
+                menu.appendChild(container);
+            });
+        }
+    }
+
+    function navigateToLayoutView(parkingLotID) {
+        iframe.src = `LayoutView.html?parkingLotID=${parkingLotID}`;
+    }
+
+    async function navigateToFirstFavorite() {
+        const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+        if (favorites.length > 0) {
+            navigateToLayoutView(favorites[0].parkingLotID);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        // 메인 화면 로드
         navigateTo('LayoutView.html');
+        
+        // 첫 번째 즐겨찾기 링크로 이동
+        await navigateToFirstFavorite();
     });
-
 
     toggleMenu.addEventListener('click', () => {
-    menu.classList.toggle('open');
-    updateMenu(); // 메뉴를 열 때마다 즐겨찾기 목록 업데이트
-});
-  </script>
+        menu.classList.toggle('open');
+        updateMenu();
+    });
+</script>
+
 </body>
 </html>

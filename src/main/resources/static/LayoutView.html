@@ -79,7 +79,9 @@
 
     <script>
         const svg = document.getElementById("parking-lot");
-
+        window.onload = async function() {
+    await initializeDesigner();
+};
         // 서버에서 데이터를 가져와 레이아웃을 생성
         async function fetchAndRenderLayout(parkingLotID) {
     try {
@@ -157,9 +159,7 @@ document.addEventListener("DOMContentLoaded", () => {
     
     if (parkingLotID) {
         fetchAndRenderLayout(parkingLotID);
-    } else {
-        alert("주차장 ID가 필요합니다.");
-    }
+    } 
 });
     </script>
 </body>
