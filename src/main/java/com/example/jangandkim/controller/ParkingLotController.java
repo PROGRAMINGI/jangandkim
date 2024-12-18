@@ -139,7 +139,7 @@ public class ParkingLotController {
                 existingSpace.setSpaceNumber(space.getSpaceNumber());
                 
                 // Sensor null 확인 후 설정
-                if (space.getSensor() != null && space.getSensor().getSensorID() != null) {
+                if (space.getSensor() != null) {
                     existingSpace.setSensor(space.getSensor());
                 } else {
                     existingSpace.setSensor(null); // 센서가 없을 경우 null로 설정
