@@ -41,10 +41,13 @@ public class Sensor {
     public String getSensorName() {
         return sensorName;
     }
-
+    
     public void setSensorName(String sensorName) {
-        this.sensorName = sensorName;
+        this.sensorName = (sensorName == null || sensorName.isEmpty()) ? "Default Sensor" : sensorName;
     }
+
+    
+
 
     public ParkingSpace getParkingSpace() {
         return parkingSpace;
