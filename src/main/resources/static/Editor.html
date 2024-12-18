@@ -432,7 +432,7 @@ function addBlockListeners(group) {
             selectedBlock = block;
             if (selectedBlock) {
                 selectedBlock.classList.add("selected");
-                const sensorIdInput = document.getElementById("sensor-id");
+                const sensorIdInput = document.getElementById("sensorID");
                 sensorIdInput.value = selectedBlock.querySelector("rect").dataset.sensorId || null;
             }
         }
@@ -579,18 +579,12 @@ function rotateBlock(group) {
         }
 
         // 3. 새로운 주차 공간 데이터를 서버로 전송
-        if(isUpdate === false){
+        const method = isUpdate ? "PUT" : "POST";
         const response = await fetch(`/api/parking-lots/${parkingLotID}/parking-spaces`, {
-            method: "POST",
+            method,
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(allElements) // 새로 추가된 데이터만 전송
-        });}
-        else{
-        const  response = await fetch(`/api/parking-lots/${parkingLotID}/parking-spaces`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(allElements) // 새로 추가된 데이터만 전송
-        });}
+            body: JSON.stringify(allElements)
+        });
 
 
         if (!response.ok) {
