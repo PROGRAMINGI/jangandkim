@@ -10,11 +10,11 @@ import java.util.Timer;
 
 public interface SensorRepository extends JpaRepository<Sensor, Integer> {
     // 특정 주차장의 모든 센서 찾기 dsfsd
-    List<Sensor> findByParkingSpace_ParkingLot_ParkingLotId(int parkingLotId);
+    List<Sensor> findByparkingspace_parkinglot_parkingLotID(int parkingLotId);
     
-    Optional<Sensor> findBySensorId(int sensorId);
+    Optional<Sensor> findBysensorID(int sensorId);
     
-    List<Sensor> findByStatus(String status);
+    List<Sensor> findBystatus(String status);
     
-    boolean existsBySensorId(int sensorId);
+    boolean existsBysensorID(int sensorId);
 }
