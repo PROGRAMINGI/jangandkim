@@ -212,24 +212,43 @@
 }
 
     
-
+window.addEventListener("keydown", (e) => {
+    if (e.key === "Backspace" && selectedBlock) {
+        e.preventDefault(); // 기본 동작 방지 (페이지 뒤로 가기 방지)
+        selectedBlock.remove();
+        selectedBlock = null; // 선택 해제
+    }
+});
         // 공간 데이터 로드
         function loadSpaces(spaces) {
-            svg.querySelectorAll("g").forEach(g => g.remove());
-            spaces.forEach(space => {
-                const [x, y] = space.spaceLocation.split(',');
-                const group = createBlock(
-                    space.type || "parking-spot", 
-                    parseFloat(x), 
-                    parseFloat(y), 
-                    space.spaceNumber
-                );
-                if (space.sensor) {
-                    group.querySelector("rect").dataset.sensorId = space.sensor.sensorId;
-                }
-                svg.appendChild(group);
-            });
+    svg.querySelectorAll("g").forEach(g => g.remove()); // 기존 블록 제거
+    spaces.forEach(space => {
+        const [x, y] = space.spaceLocation.split(','); // 좌표 파싱
+        let width = blockWidth;
+        let height = blockHeight;
+
+        // Entrance/Exit 여부 확인
+        if (space.spaceNumber.toUpperCase() === "ENTRANCE" || space.spaceNumber.toUpperCase() === "EXIT") {
+            width = entranceExitWidth;
+            height = entranceExitHeight;
         }
+
+        const group = createBlock(
+            space.spaceNumber.toUpperCase() === "ENTRANCE" ? "entrance" : 
+            space.spaceNumber.toUpperCase() === "EXIT" ? "exit" : "parking-spot",
+            parseFloat(x),
+            parseFloat(y),
+            space.spaceNumber
+        );
+
+        // 센서 ID 추가
+        if (space.sensorID) {
+            group.querySelector("rect").dataset.sensorId = space.sensorID;
+        }
+
+        svg.appendChild(group);
+    });
+}
 
         // 공간 번호 할당
         function assignSpaceNumber() {
@@ -293,7 +312,8 @@
 
 
          // 블록 생성 공통 함수
-         function createBlock(type, x, y, label = "") {
+         function 
+            createBlock(type, x, y, label = "") {
             const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
 
             const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
@@ -302,11 +322,15 @@
             // 입구와 출구는 더 큰 크기로 설정
             let rectWidth, rectHeight;
 
-            if (type === "entrance" || type === "exit") {
+            if (type === "entrance" ) {
                 rectWidth = entranceExitWidth;
                 rectHeight = entranceExitHeight;
-                label = "E" ; 
-            } else {
+                label = "ENTRANCE" ;}
+           if (type === "exit") {
+                rectWidth = entranceExitWidth;
+                rectHeight = entranceExitHeight;
+                label = "EXIT" ; }
+            else{
                 rectWidth = blockWidth;
                 rectHeight = blockHeight;
                 label = "P"
