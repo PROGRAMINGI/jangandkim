@@ -573,11 +573,6 @@ function rotateBlock(group) {
             }
         });
 
-        if (allElements.length === 0) {
-            alert("새로 추가된 주차 공간이 없습니다.");
-            return;
-        }
-
         // 3. 새로운 주차 공간 데이터를 서버로 전송
         const method = isUpdate ? "PUT" : "POST";
         const response = await fetch(`/api/parking-lots/${parkingLotID}/parking-spaces`, {
