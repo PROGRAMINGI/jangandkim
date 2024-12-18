@@ -10,7 +10,7 @@ import java.util.List;
 @Repository
 public interface SensorRepository extends JpaRepository<Sensor, Integer> {
     Optional<Sensor> findBysensorID(int sensorID);
-    Optional<Sensor> findeBysensorName(String sensorID);
+    Optional<Sensor> findBysensorName(String sensorID);
     
     boolean existsBysensorID(int sensorID);
     
