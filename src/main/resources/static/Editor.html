@@ -242,14 +242,17 @@ window.addEventListener("keydown", (e) => {
             space.spaceNumber
         );
 
-        // 센서 ID 추가
-        if (space.sensorID) {
-            group.querySelector("rect").dataset.sensorID = space.sensorID;
+        // 센서 ID 추가 및 검증
+        if (space.sensor && space.sensor.sensorID) {
+            group.querySelector("rect").dataset.sensorID = space.sensor.sensorID; // 정확한 sensorID 불러오기
+        } else {
+            group.querySelector("rect").dataset.sensorID = ""; // 센서가 없으면 빈 값
         }
 
         svg.appendChild(group);
     });
 }
+
 
         // 공간 번호 할당
         function assignSpaceNumber() {
@@ -426,16 +429,20 @@ function addBlockListeners(group) {
 
         // 선택된 블록 관리d
         function selectBlock(block) {
-            if (selectedBlock) {
-                selectedBlock.classList.remove("selected");
-            }
-            selectedBlock = block;
-            if (selectedBlock) {
-                selectedBlock.classList.add("selected");
-                const sensorIDInput = document.getElementById("sensorID");
-                sensorIDInput.value = selectedBlock.querySelector("rect").dataset.sensorID || null;
-            }
-        }
+    if (selectedBlock) {
+        selectedBlock.classList.remove("selected");
+    }
+    selectedBlock = block;
+
+    if (selectedBlock) {
+        selectedBlock.classList.add("selected");
+        
+        // 센서 ID 입력창에 값 설정
+        const sensorIDInput = document.getElementById("sensorID");
+        const sensorID = selectedBlock.querySelector("rect").dataset.sensorID;
+        sensorIDInput.value = sensorID || ""; // 센서 ID가 없으면 빈 값
+    }
+}
 
 
 
@@ -559,7 +566,6 @@ function rotateBlock(group) {
             const text = group.querySelector("text");
 
             if (!rect) return;
-
             const parkingSpace = {
                 parkingLotID: parkingLotID,
                 sensor: rect.dataset.sensorID ? {
