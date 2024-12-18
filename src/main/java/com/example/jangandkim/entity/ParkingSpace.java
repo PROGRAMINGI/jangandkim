@@ -31,8 +31,8 @@ public class ParkingSpace {
 
     
     @JsonManagedReference
-    @OneToOne(cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "sensorID", unique = true)
+    @OneToOne
+    @JoinColumn(name = "sensorID", unique = true, nullable = true)
     private Sensor sensor;
 
     // Getters and Setters

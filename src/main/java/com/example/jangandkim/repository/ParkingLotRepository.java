@@ -7,9 +7,5 @@ import java.util.Optional;
 
 @Repository
 public interface ParkingLotRepository extends JpaRepository<ParkingLot, Integer> {
-
-
     Optional<ParkingLot> findByName(String name);
-    
-    
 }

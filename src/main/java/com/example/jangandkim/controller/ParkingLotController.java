@@ -14,8 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -93,70 +91,103 @@ public class ParkingLotController {
     @PostMapping("{id}/parking-spaces")
     public ResponseEntity<?> saveParkingSpaces(@PathVariable int id, @RequestBody List<ParkingSpace> parkingSpaces) {
         try {
+            // 주차장 존재 확인
             ParkingLot parkingLot = parkingLotService.getParkingLotById(id);
             if (parkingLot == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                   .body(Map.of("error", "주차장을 찾을 수 없습니다.", "id", id));
+                                     .body(Map.of("error", "주차장을 찾을 수 없습니다.", "id", id));
             }
     
+            // ParkingSpace 리스트 처리
             for (ParkingSpace space : parkingSpaces) {
-                space.setParkingLot(parkingLot);
+                space.setParkingLot(parkingLot); // 주차장 설정
                 
-                // Sensor 연결 로직 수정
+                // Sensor 검증 및 설정
                 if (space.getSensor() != null) {
-                    Sensor sensor = sensorRepository.findBysensorID(space.getSensor().getSensorID())
-                        .orElseThrow(() -> new EntityNotFoundException("Sensor not found with ID: " + space.getSensor().getSensorID()));
-                    space.setSensor(sensor);
+                    Integer sensorID = space.getSensor().getSensorID(); // 입력된 sensorID
+                    Optional<Sensor> sensorOptional = sensorRepository.findById(sensorID);
+    
+                    if (sensorOptional.isPresent()) {
+                        space.setSensor(sensorOptional.get()); // 존재하는 센서 설정
+                    } else {
+                        space.setSensor(null); // 센서가 없으면 null로 설정
+                    }
+                } else {
+                    space.setSensor(null); // 센서가 아예 입력되지 않은 경우
                 }
             }
     
+            // ParkingSpaces 저장
             List<ParkingSpace> savedSpaces = parkingSpaceService.saveAllParkingSpaces(parkingSpaces);
+    
             return ResponseEntity.status(HttpStatus.CREATED).body(savedSpaces);
+    
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                               .body(Map.of("error", "주차 공간 저장 실패", "message", e.getMessage()));
+                                 .body(Map.of("error", "주차 공간 저장 실패", "message", e.getMessage()));
         }
     }
     
     @PutMapping("/{id}/parking-spaces")
     public ResponseEntity<?> updateParkingSpacesByParkingLotID(@PathVariable int id, @RequestBody List<ParkingSpace> parkingSpaces) {
-        ParkingLot parkingLot = parkingLotService.getParkingLotById(id);
-        if (parkingLot == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                 .body(Map.of("error", "주차장을 찾을 수 없습니다.", "id", id));
-        }
-    
-        for (ParkingSpace space : parkingSpaces) {
-            ParkingSpace existingSpace = parkingSpaceService.getParkingSpacesByParkingLotId(id)
-                                                            .stream()
-                                                            .filter(s -> s.getSpaceLocation().equals(space.getSpaceLocation()))
-                                                            .findFirst()
-                                                            .orElse(null);
-            if (existingSpace != null) {
-                existingSpace.setSpaceLocation(space.getSpaceLocation());
-                existingSpace.setStatus(space.getStatus());
-                existingSpace.setSpaceNumber(space.getSpaceNumber());
-                
-                // Sensor null 확인 후 설정
-                if (space.getSensor() != null) {
-                    existingSpace.setSensor(space.getSensor());
-                } else {
-                    existingSpace.setSensor(null); // 센서가 없을 경우 null로 설정
-                }
-                parkingSpaceService.saveParkingSpace(existingSpace);
-            } else {
-                space.setParkingLot(parkingLot);
-                parkingSpaceService.saveParkingSpace(space);
+        try {
+            // 주차장 ID로 주차장 조회
+            ParkingLot parkingLot = parkingLotService.getParkingLotById(id);
+            if (parkingLot == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                     .body(Map.of("error", "주차장을 찾을 수 없습니다.", "id", id));
             }
+    
+            // 주차 공간 업데이트 로직
+            for (ParkingSpace space : parkingSpaces) {
+                // Sensor 검증 및 처리
+                if (space.getSensor() != null) {
+                    // SensorID 검증
+                    if (space.getSensor() == null) {
+                        // SensorID가 null인 경우, Sensor 정보를 제거
+                        space.setSensor(null);
+                    } else {
+                        // Sensor 테이블에서 검색
+                        Optional<Sensor> sensorOptional = sensorRepository.findById(space.getSensor().getSensorID());
+                        if (sensorOptional.isEmpty()) {
+                            // Sensor가 존재하지 않을 경우, null로 설정
+                            space.setSensor(null);
+                        } else {
+                            // Sensor가 존재하면 연결
+                            space.setSensor(sensorOptional.get());
+                        }
+                    }
+                }
+    
+                // 기존 ParkingSpace 검색
+                ParkingSpace existingSpace = parkingSpaceService.getParkingSpacesByParkingLotId(id)
+                                                                 .stream()
+                                                                 .filter(s -> s.getSpaceLocation().equals(space.getSpaceLocation()))
+                                                                 .findFirst()
+                                                                 .orElse(null);
+    
+                if (existingSpace != null) {
+                    // 기존 공간 업데이트
+                    existingSpace.setSensor(space.getSensor());
+                    existingSpace.setStatus(space.getStatus());
+                    parkingSpaceService.saveParkingSpace(existingSpace);
+                } else {
+                    // 새로운 공간 추가
+                    space.setParkingLot(parkingLot);
+                    parkingSpaceService.saveParkingSpace(space);
+                }
+            }
+    
+            return ResponseEntity.ok("주차 공간 데이터가 성공적으로 업데이트되었습니다.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                 .body(Map.of("error", "주차 공간 업데이트 실패", "message", e.getMessage()));
         }
-    
-        return ResponseEntity.ok("주차 공간 데이터가 성공적으로 업데이트되었습니다.");
     }
+
     
-
-
-
     // 특정 주차장에 속한 모든 주차 공간 조회
     @GetMapping("/{id}/parking-spaces")
     public ResponseEntity<?> getParkingSpacesByParkingLotId(@PathVariable int id) {

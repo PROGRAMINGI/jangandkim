@@ -22,22 +22,19 @@ public class ParkingSpaceController {
         this.parkingSpaceService = parkingSpaceService;
     }
     
-    /*   @PostMapping
-    public ResponseEntity<?> createParkingSpaces(@RequestBody List<ParkingSpace> parkingSpaces) {
-        try {
-            // 주차 공간 데이터 저장
-            List<ParkingSpace> savedSpaces = parkingSpaceService.saveAllParkingSpaces(parkingSpaces);
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedSpaces);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                 .body(Map.of("error", "주차 공간 저장 실패", "message", e.getMessage()));
-        }
+    @PostMapping
+    public ResponseEntity<ParkingSpace> createParkingSpace(@RequestBody ParkingSpace parkingSpace) {
+        ParkingSpace savedSpace = parkingSpaceService.saveParkingSpace(parkingSpace);
+        return ResponseEntity.ok(savedSpace);
     }
 
-    */
 
-
+    @PutMapping
+    public ResponseEntity<ParkingSpace> updateParkingSpace(@RequestBody ParkingSpace parkingSpace) {
+        ParkingSpace updatedSpace = parkingSpaceService.saveParkingSpace(parkingSpace);
+        return ResponseEntity.ok(updatedSpace);
+    }
+    
 @GetMapping
 public ResponseEntity<List<ParkingSpace>> getAllParkingSpaces( @RequestParam(required = true) Integer parkingLotID) {
     try {

@@ -29,12 +29,6 @@ public class Sensor {
     @OneToMany(mappedBy = "sensor", cascade = CascadeType.ALL)
     private List<SensorData> sensorDataList = new ArrayList<>();
 
-    @PrePersist
-    public void prePersist() {
-        if (this.sensorName == null || this.sensorName.trim().isEmpty()) {
-            this.sensorName = "Default Sensor";
-        }
-    }
 
     // Getters and Setters
     public int getSensorID() {
