@@ -174,21 +174,28 @@
     }
 
     function navigateTo(page) {
-        iframe.src = page;
+    const iframe = document.getElementById("iframe");
+    iframe.src = page; // iframe src를 변경
+    
+    // iframe에 페이지가 새로 로드될 때마다 리로드
+    iframe.onload = () => {
+        iframe.contentWindow.location.reload();
+    };
 
-        // 하단 버튼들의 active 상태 업데이트
-        const buttons = document.querySelectorAll('.nav-button');
-        buttons.forEach(button => {
-            if (button.getAttribute('onclick').includes(page)) {
-                button.classList.add('active');
-            } else {
-                button.classList.remove('active');
-            }
-        });
+    // 하단 버튼들의 active 상태 업데이트
+    const buttons = document.querySelectorAll('.nav-button');
+    buttons.forEach(button => {
+        if (button.getAttribute('onclick').includes(page)) {
+            button.classList.add('active');
+        } else {
+            button.classList.remove('active');
+        }
+    });
 
-        // 메인 화면일 때만 토글 버튼 보이도록 처리
-        toggleMenu.style.display = page === "LayoutView.html" ? "block" : "none";
-    }
+    // 메인 화면일 때만 토글 버튼 보이도록 처리
+    toggleMenu.style.display = page === "LayoutView.html" ? "block" : "none";
+}
+
 
     async function updateMenu() {
         const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
