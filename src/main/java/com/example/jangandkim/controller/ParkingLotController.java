@@ -115,6 +115,33 @@ public class ParkingLotController {
   }
 
 
+  @PutMapping("/{id}/parking-spaces")
+  public ResponseEntity<?> updateParkingSpacesByParkingLotID(@PathVariable int id, @RequestBody List<ParkingSpace> parkingSpaces) {
+      ParkingLot parkingLot = parkingLotService.getParkingLotById(id);
+      if (parkingLot == null) {
+          return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                               .body(Map.of("error", "주차장을 찾을 수 없습니다.", "id", id));
+      }
+
+      for (ParkingSpace space : parkingSpaces) {
+          ParkingSpace existingSpace = parkingSpaceService.getParkingSpacesByParkingLotId(id)
+                                                           .stream()
+                                                           .filter(s -> s.getSpaceLocation().equals(space.getSpaceLocation()))
+                                                           .findFirst()
+                                                           .orElse(null);
+          if (existingSpace != null) {
+              existingSpace.setSensor(space.getSensor());
+              existingSpace.setStatus(space.getStatus());
+              parkingSpaceService.saveParkingSpace(existingSpace);
+          } else {
+              space.setParkingLot(parkingLot);
+              parkingSpaceService.saveParkingSpace(space);
+          }
+      }
+
+      return ResponseEntity.ok("주차 공간 데이터가 성공적으로 업데이트되었습니다.");
+  }
+
     // 특정 주차장에 속한 모든 주차 공간 조회
     @GetMapping("/{id}/parking-spaces")
     public ResponseEntity<?> getParkingSpacesByParkingLotId(@PathVariable int id) {

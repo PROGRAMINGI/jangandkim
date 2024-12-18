@@ -131,8 +131,8 @@
 
      <!-- 센서 할당 폼 -->
      <div id="sensor-form">
-        <label for="sensor-id">센서 ID:</label>
-        <input type="text" id="sensor-id" />
+        <label for="sensorID">센서 ID:</label>
+        <input type="text" id="sensorID" />
         <button onclick="assignSensor()">센서 할당</button>
     </div>
     <!-- 이 부분이 추가되어야 함 -->
@@ -153,7 +153,7 @@
         const entranceExitHeight = 120;
         const gridSize = 20;
         let parkingLotID = 0; // 이 선언이 필요함
-
+        let isUpdate = false;
 
 //ㅇㅇㅇ
     async function initializeDesigner() {
@@ -167,6 +167,7 @@
             const encodedName = encodeURIComponent(inputName);
             const response = await fetch(`/api/parking-lots/name/${encodedName}`);
             if (response.ok) {
+                isUpdate = true
                 // 기존 주차장이 존재하는 경우
                 const parkingLot = await response.json();
                 parkingLotID = parkingLot.parkingLotID
@@ -183,6 +184,7 @@
                 }
             } else {
                 // 새로운 주차장 생성 ( save 가 아닌 create )
+                isUpdate = false;
                 parkingLotName = inputName;
                 if (parkingLotName && inputName !== "") {
                 const createResponse = await fetch("/api/parking-lots", {
@@ -270,7 +272,7 @@ window.addEventListener("keydown", (e) => {
                 return;
             }
 
-            const sensorId = document.getElementById("sensor-id").value.trim();
+            const sensorId = document.getElementById("sensorID").value.trim();
             if (sensorId) {
                 const rect = selectedBlock.querySelector("rect");
                 rect.dataset.sensorId = sensorId;
@@ -538,44 +540,64 @@ function rotateBlock(group) {
             throw new Error("저장할 주차장 정보가 없습니다.");
         }
 
+        console.log("주차장 ID:", parkingLotID);
 
+        // 1. 기존 주차 공간 데이터를 서버에서 불러오기
+        const existingSpacesResponse = await fetch(`/api/parking-spaces?parkingLotID=${parkingLotID}`);
+        if (!existingSpacesResponse.ok) {
+            throw new Error("기존 주차 공간 데이터를 불러오는 데 실패했습니다.");
+        }
+        const existingSpaces = await existingSpacesResponse.json();
+        const existingSpaceIds = new Set(existingSpaces.map(space => space.spaceNumber));
 
-
-
-        console.log(parkingLotID);
-
-        // 2. 주차 공간 정보 저장
+        // 2. 현재 UI에 있는 모든 주차 공간 데이터 수집
         const allElements = [];
+        svg.querySelectorAll("g").forEach((group) => {
+            const rect = group.querySelector("rect");
+            const text = group.querySelector("text");
 
-            svg.querySelectorAll("g").forEach((group) => {
-                const rect = group.querySelector("rect");
-                const text = group.querySelector("text");
-    
             if (!rect) return;
-                
-                const parkingSpace = {
-            parkingLotID: parkingLotID,  // 모든 공간이 같은 parkingLotID를 공유
-            sensorID: rect.dataset.sensorId || null,
-            spaceLocation: `${rect.getAttribute("x")},${rect.getAttribute("y")}`,
-            spaceNumber: text ? text.textContent : "",
-            status: rect.classList.contains("entrance") ? "UNKNOWN" : 
-                    rect.classList.contains("exit") ? "UNKNOWN" : "AVAILABLE"
-        };
 
-            allElements.push(parkingSpace);
+            const parkingSpace = {
+                parkingLotID: parkingLotID, // 같은 parkingLotID 공유
+                sensorID: rect.dataset.sensorId || null,
+                spaceLocation: `${rect.getAttribute("x")},${rect.getAttribute("y")}`,
+                spaceNumber: text ? text.textContent : "",
+                status: rect.classList.contains("entrance") ? "UNKNOWN" : 
+                        rect.classList.contains("exit") ? "UNKNOWN" : "AVAILABLE"
+            };
+
+            // 기존에 없는 데이터만 추가
+            if (!existingSpaceIds.has(parkingSpace.spaceNumber)) {
+                allElements.push(parkingSpace);
+            }
         });
 
-     const response = await fetch(`/api/parking-lots/${parkingLotID}/parking-spaces`, {
+        if (allElements.length === 0) {
+            alert("새로 추가된 주차 공간이 없습니다.");
+            return;
+        }
+
+        // 3. 새로운 주차 공간 데이터를 서버로 전송
+        if(isUpdate === false){
+        const response = await fetch(`/api/parking-lots/${parkingLotID}/parking-spaces`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(allElements)  // allElements가 이미 배열이어야 함
-        });
-        if (!response.ok) throw new Error("주차 공간 저장 실패");
-        console.log(parkingLotID);
-        alert("모든 데이터가 성공적으로 저장되었습니다.");
+            body: JSON.stringify(allElements) // 새로 추가된 데이터만 전송
+        });}
+        else{
+        const  response = await fetch(`/api/parking-lots/${parkingLotID}/parking-spaces`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(allElements) // 새로 추가된 데이터만 전송
+        });}
 
-  
-        
+
+        if (!response.ok) {
+            throw new Error("새로운 주차 공간 데이터를 저장하는 데 실패했습니다.");
+        }
+
+        alert("새로운 주차 공간이 성공적으로 저장되었습니다.");
     } catch (error) {
         console.error("저장 중 오류 발생:", error);
         alert(error.message || "저장에 실패했습니다.");
