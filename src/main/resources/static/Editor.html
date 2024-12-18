@@ -244,7 +244,7 @@ window.addEventListener("keydown", (e) => {
 
         // 센서 ID 추가
         if (space.sensorID) {
-            group.querySelector("rect").dataset.sensorId = space.sensorID;
+            group.querySelector("rect").dataset.sensorID = space.sensorID;
         }
 
         svg.appendChild(group);
@@ -272,10 +272,10 @@ window.addEventListener("keydown", (e) => {
                 return;
             }
 
-            const sensorId = document.getElementById("sensorID").value.trim();
-            if (sensorId) {
+            const sensorID = document.getElementById("sensorID").value.trim();
+            if (sensorID) {
                 const rect = selectedBlock.querySelector("rect");
-                rect.dataset.sensorId = sensorId;
+                rect.dataset.sensorID = sensorID;
             }
         }
       
@@ -354,7 +354,7 @@ window.addEventListener("keydown", (e) => {
 
                 rect.setAttribute("width", rectWidth);
                 rect.setAttribute("height", rectHeight);
-                rect.dataset.sensorId = null;
+                rect.dataset.sensorID = null;
 
                 group.appendChild(rect);
 
@@ -432,8 +432,8 @@ function addBlockListeners(group) {
             selectedBlock = block;
             if (selectedBlock) {
                 selectedBlock.classList.add("selected");
-                const sensorIdInput = document.getElementById("sensorID");
-                sensorIdInput.value = selectedBlock.querySelector("rect").dataset.sensorId || null;
+                const sensorIDInput = document.getElementById("sensorID");
+                sensorIDInput.value = selectedBlock.querySelector("rect").dataset.sensorID || null;
             }
         }
 
@@ -548,7 +548,7 @@ function rotateBlock(group) {
             throw new Error("기존 주차 공간 데이터를 불러오는 데 실패했습니다.");
         }
         const existingSpaces = await existingSpacesResponse.json();
-        const existingSpaceIds = new Set(existingSpaces.map(space => space.spaceNumber));
+        const existingSpaceIDs = new Set(existingSpaces.map(space => space.spaceNumber));
 
         // 2. 현재 UI에 있는 모든 주차 공간 데이터 수집
         const allElements = [];
@@ -560,7 +560,7 @@ function rotateBlock(group) {
 
             const parkingSpace = {
                 parkingLotID: parkingLotID, // 같은 parkingLotID 공유
-                sensorID: rect.dataset.sensorId || null,
+                sensorID: rect.dataset.sensorID || null,
                 spaceLocation: `${rect.getAttribute("x")},${rect.getAttribute("y")}`,
                 spaceNumber: text ? text.textContent : "",
                 status: rect.classList.contains("entrance") ? "UNKNOWN" : 
@@ -568,7 +568,7 @@ function rotateBlock(group) {
             };
 
             // 기존에 없는 데이터만 추가
-            if (!existingSpaceIds.has(parkingSpace.spaceNumber)) {
+            if (!existingSpaceIDs.has(parkingSpace.spaceNumber)) {
                 allElements.push(parkingSpace);
             }
         });
