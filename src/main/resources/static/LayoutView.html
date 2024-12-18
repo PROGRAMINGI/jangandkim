@@ -111,8 +111,8 @@
             rect.setAttribute("y", y);
 
             // spaceNumber로 타입 구분
-            const isEntrance = space.spaceNumber === "entrance";
-            const isExit = space.spaceNumber === "exit";
+            const isEntrance = space.spaceNumber === "ENTRANCE";
+            const isExit = space.spaceNumber === "EXIT";
             
             if (isEntrance || isExit) {
                 rect.setAttribute("width", 120); // entranceExitWidth
