@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 @Entity
 @Table(name = "sensor")
 public class Sensor {
@@ -16,6 +18,8 @@ public class Sensor {
     @Column(name = "sensorName", length = 50, nullable = false)
     private String sensorName;
 
+
+    @JsonBackReference
     @OneToOne(mappedBy = "sensor", cascade = CascadeType.ALL)
     private ParkingSpace parkingSpace;
 

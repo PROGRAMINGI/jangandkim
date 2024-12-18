@@ -1,6 +1,7 @@
 package com.example.jangandkim.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.*;
 
@@ -28,6 +29,7 @@ public class ParkingSpace {
     @Column(name = "status", nullable = false)
     private ParkingStatus status;
 
+    @JsonManagedReference
     @OneToOne
     @JoinColumn(name = "sensorID", unique = true)
     private Sensor sensor;
