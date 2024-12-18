@@ -119,59 +119,40 @@ public class ParkingLotController {
         }
     }
     
-  @PutMapping("/{id}/parking-spaces")
-public ResponseEntity<?> updateParkingSpacesByParkingLotID(@PathVariable int id, @RequestBody List<ParkingSpace> parkingSpaces) {
-    try {
+    @PutMapping("/{id}/parking-spaces")
+    public ResponseEntity<?> updateParkingSpacesByParkingLotID(@PathVariable int id, @RequestBody List<ParkingSpace> parkingSpaces) {
         ParkingLot parkingLot = parkingLotService.getParkingLotById(id);
         if (parkingLot == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                               .body(Map.of("error", "주차장을 찾을 수 없습니다.", "id", id));
+                                 .body(Map.of("error", "주차장을 찾을 수 없습니다.", "id", id));
         }
-
-        List<String> warnings = new ArrayList<>(); // 경고 메시지를 담을 리스트
-
+    
         for (ParkingSpace space : parkingSpaces) {
-            // Sensor 연결 로직 수정
-            if (space.getSensor() != null) {
-                Optional<Sensor> sensorOptional = sensorRepository.findBysensorID(space.getSensor().getSensorID());
-                if (sensorOptional.isEmpty()) {
-                    // 센서가 없는 경우 센서를 null로 설정하고 경고 메시지 추가
-                    space.setSensor(null);
-                    warnings.add(String.format("센서 ID %d는 존재하지 않습니다.", space.getSensor().getSensorID()));
-                } else {
-                    space.setSensor(sensorOptional.get());
-                }
-            }
-
             ParkingSpace existingSpace = parkingSpaceService.getParkingSpacesByParkingLotId(id)
-                                                           .stream()
-                                                           .filter(s -> s.getSpaceLocation().equals(space.getSpaceLocation()))
-                                                           .findFirst()
-                                                           .orElse(null);
+                                                            .stream()
+                                                            .filter(s -> s.getSpaceLocation().equals(space.getSpaceLocation()))
+                                                            .findFirst()
+                                                            .orElse(null);
             if (existingSpace != null) {
-                existingSpace.setSensor(space.getSensor());
+                existingSpace.setSpaceLocation(space.getSpaceLocation());
                 existingSpace.setStatus(space.getStatus());
+                existingSpace.setSpaceNumber(space.getSpaceNumber());
+                
+                // Sensor null 확인 후 설정
+                if (space.getSensor() != null && space.getSensor().getSensorID() != null) {
+                    existingSpace.setSensor(space.getSensor());
+                } else {
+                    existingSpace.setSensor(null); // 센서가 없을 경우 null로 설정
+                }
                 parkingSpaceService.saveParkingSpace(existingSpace);
             } else {
                 space.setParkingLot(parkingLot);
                 parkingSpaceService.saveParkingSpace(space);
             }
         }
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("message", "주차 공간 데이터가 업데이트되었습니다.");
-        if (!warnings.isEmpty()) {
-            response.put("warnings", warnings);
-        }
-
-        return ResponseEntity.ok(response);
-        
-    } catch (Exception e) {
-        e.printStackTrace();
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                           .body(Map.of("error", "주차 공간 업데이트 실패", "message", e.getMessage()));
+    
+        return ResponseEntity.ok("주차 공간 데이터가 성공적으로 업데이트되었습니다.");
     }
-}
     
 
 
