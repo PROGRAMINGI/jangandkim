@@ -31,7 +31,11 @@ public class SensorController {
 
     @PostMapping
     public ResponseEntity<Sensor> createSensor(@RequestBody Sensor sensor) {
-        return ResponseEntity.ok(sensorService.saveSensor(sensor));
+        if (sensor.getSensorName() == null || sensor.getSensorName().trim().isEmpty()) {
+            sensor.setSensorName("Default Sensor");
+        }
+        Sensor savedSensor = sensorService.saveSensor(sensor);
+        return ResponseEntity.ok(savedSensor);
     }
 
     @PutMapping("/{id}")

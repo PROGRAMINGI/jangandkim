@@ -22,9 +22,12 @@ public class SensorService {
     }
 
     public Sensor saveSensor(Sensor sensor) {
+        if (sensor.getSensorName() == null || sensor.getSensorName().trim().isEmpty()) {
+            sensor.setSensorName("Default Sensor");
+        }
         return sensorRepository.save(sensor);
     }
-
+    
     public Sensor updateSensor(int id, Sensor sensor) {
         Sensor existing = getSensorById(id);
         if (existing != null) {

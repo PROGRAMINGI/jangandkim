@@ -17,7 +17,7 @@ public class Sensor {
     private int sensorID;
 
     @Column(name = "sensorName", length = 50, nullable = false)
-    private String sensorName;
+    private String sensorName = "Default Sensor"; 
 
 
     @JsonBackReference
@@ -28,6 +28,13 @@ public class Sensor {
     @JsonIgnore
     @OneToMany(mappedBy = "sensor", cascade = CascadeType.ALL)
     private List<SensorData> sensorDataList = new ArrayList<>();
+
+    @PrePersist
+    public void prePersist() {
+        if (this.sensorName == null || this.sensorName.trim().isEmpty()) {
+            this.sensorName = "Default Sensor";
+        }
+    }
 
     // Getters and Setters
     public int getSensorID() {
@@ -41,7 +48,6 @@ public class Sensor {
     public String getSensorName() {
         return sensorName;
     }
-    
     public void setSensorName(String sensorName) {
         this.sensorName = (sensorName == null || sensorName.isEmpty()) ? "Default Sensor" : sensorName;
     }
