@@ -172,18 +172,25 @@
         const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
         return favorites;
     }
-    function navigateTo(page) {
-    const iframe = document.getElementById("iframe");
 
-    // 현재 src와 다른 경우에만 페이지를 새로 설정
-    if (iframe.src !== page) {
-        iframe.src = page;
-    } else {
-        // 이미 현재 페이지인 경우 새로고침
+    
+    function navigateTo(page) {
+    if (iframe.src.includes(page)) {
+        // 이미 현재 페이지라면 새로고침
         iframe.contentWindow.location.reload();
+    } else {
+        // 다른 페이지로 이동
+        iframe.src = page;
+
+        // LayoutView.html 이동 시 강제로 초기화 함수 호출
+        iframe.onload = () => {
+            if (page === 'LayoutView.html') {
+                iframe.contentWindow.initializeFavorites();
+            }
+        };
     }
 
-    // 하단 버튼들의 active 상태 업데이트
+    // 버튼 상태 업데이트
     const buttons = document.querySelectorAll('.nav-button');
     buttons.forEach(button => {
         if (button.getAttribute('onclick').includes(page)) {
@@ -193,7 +200,7 @@
         }
     });
 
-    // 메인 화면일 때만 토글 버튼 보이도록 처리
+    // 토글 메뉴 조건부 표시
     toggleMenu.style.display = page === "LayoutView.html" ? "block" : "none";
 }
 
