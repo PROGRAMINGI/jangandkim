@@ -514,7 +514,12 @@ function rotateBlock(group) {
         if (!parkingLotID) {
             throw new Error("저장할 주차장 정보가 없습니다.");
         }
-        console.log("주차장 정보:", parkingLotID);
+
+
+
+
+
+        console.log(parkingLotID);
 
         // 2. 주차 공간 정보 저장
         const allElements = [];
@@ -543,7 +548,7 @@ function rotateBlock(group) {
             body: JSON.stringify(allElements)  // allElements가 이미 배열이어야 함
         });
         if (!response.ok) throw new Error("주차 공간 저장 실패");
-
+        console.log(parkingLotID);
         alert("모든 데이터가 성공적으로 저장되었습니다.");
 
   
