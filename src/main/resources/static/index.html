@@ -173,7 +173,7 @@
         return favorites;
     }
 
-    
+
     function navigateTo(page) {
     if (iframe.src.includes(page)) {
         // 이미 현재 페이지라면 새로고침
@@ -181,7 +181,6 @@
     } else {
         // 다른 페이지로 이동
         iframe.src = page;
-
         // LayoutView.html 이동 시 강제로 초기화 함수 호출
         iframe.onload = () => {
             if (page === 'LayoutView.html') {

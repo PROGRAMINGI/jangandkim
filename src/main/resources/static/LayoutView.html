@@ -79,9 +79,25 @@
 
     <script>
         const svg = document.getElementById("parking-lot");
-        window.onload = async function() {
-    await initializeDesigner();
-};
+        
+        async function initializeFavorites() {
+        const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+        const container = document.getElementById('favorites-container'); // 즐겨찾기 표시할 DOM
+
+        container.innerHTML = ''; // 초기화
+
+        if (favorites.length === 0) {
+            container.innerHTML = '<p>등록된 즐겨찾기가 없습니다.</p>';
+        } else {
+            favorites.forEach(fav => {
+                const item = document.createElement('div');
+                item.textContent = `주차장 ID: ${fav.parkingLotID}`;
+                container.appendChild(item);
+            });
+        }
+    }
+
+    window.onload = initializeFavorites; // onload 시 초기화
         // 서버에서 데이터를 가져와 레이아웃을 생성
         async function fetchAndRenderLayout(parkingLotID) {
     try {
