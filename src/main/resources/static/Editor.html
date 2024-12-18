@@ -356,7 +356,7 @@
 
 
 
-// saveParkingLot 함수 수정 (새 주차장을 create가 아닌 save-> 저장)
+/* saveParkingLot 함수 수정 (새 주차장을 create가 아닌 save-> 저장)
 async function saveParkingLot() {
     try {
         const response = await fetch(`/api/parking-lots/${parkingLotID}/parking-spaces`, {
@@ -383,7 +383,7 @@ async function saveParkingLot() {
         document.getElementById("save-button").disabled = true; // 버튼 활성화 방지
     }
 }
-
+*/
 
 
 
@@ -539,15 +539,16 @@ function rotateBlock(group) {
             allElements.push(parkingSpace);
         });
 
-     const response = await fetch('/api/parking-spaces', {
+     const response = await fetch(`/api/parking-lots/${parkingLotID}/parking-spaces`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(allElements)  // allElements가 이미 배열이어야 함
         });
         if (!response.ok) throw new Error("주차 공간 저장 실패");
 
-
         alert("모든 데이터가 성공적으로 저장되었습니다.");
+
+  
         
     } catch (error) {
         console.error("저장 중 오류 발생:", error);

@@ -22,7 +22,7 @@ public class ParkingSpaceController {
         this.parkingSpaceService = parkingSpaceService;
     }
     
-    @PostMapping
+    /*   @PostMapping
     public ResponseEntity<?> createParkingSpaces(@RequestBody List<ParkingSpace> parkingSpaces) {
         try {
             // 주차 공간 데이터 저장
@@ -35,7 +35,7 @@ public class ParkingSpaceController {
         }
     }
 
-    
+    */
 
 
 @GetMapping
