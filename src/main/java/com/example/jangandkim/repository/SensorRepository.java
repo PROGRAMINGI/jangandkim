@@ -17,9 +17,6 @@ public interface SensorRepository extends JpaRepository<Sensor, Integer> {
     // 특정 상태의 센서들 찾기 (ACTIVE, INACTIVE 등)
     List<Sensor> findByStatus(String status);
     
-    // 특정 주차공간에 설치된 센서 찾기
-    Optional<Sensor> findByParkingSpace_SpaceId(int spaceId);
-
 
     
     // 특정 주차장의 활성화된 센서 수 계산
