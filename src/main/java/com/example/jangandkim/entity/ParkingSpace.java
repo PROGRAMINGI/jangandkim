@@ -29,8 +29,9 @@ public class ParkingSpace {
     @Column(name = "status", nullable = false)
     private ParkingStatus status;
 
+    
     @JsonManagedReference
-    @OneToOne
+    @OneToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "sensorID", unique = true)
     private Sensor sensor;
 
