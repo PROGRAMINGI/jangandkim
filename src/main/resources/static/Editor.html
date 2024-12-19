@@ -577,7 +577,9 @@ function rotateBlock(group) {
             const location = `${rect.getAttribute("x")},${rect.getAttribute("y")}`;
             
             const parkingSpace = {
-                parkingLotID: parkingLotID,
+                parkingLot: {
+                parkingLotID: parkingLotID
+                },
                 sensor: rect.dataset.sensorID ? {
                     sensorID: parseInt(rect.dataset.sensorID)
                 } : null,
