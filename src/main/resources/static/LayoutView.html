@@ -96,8 +96,11 @@ async function updateSensorStatuses() {
                     
                     // AVAILABLE일 때만 상태 변경을 허용하거나
                     // OCCUPIED이고 새로운 상태가 OCCUPIED일 때만 유지
-                    if (currentStatus === 'AVAILABLE' || status === 'OCCUPIED') {
-                        rect.classList.remove('available', 'occupied', 'no-sensor');
+                    if (currentStatus === 'AVAILABLE') {
+                        rect.classList.remove('available','no-sensor');
+                        rect.classList.add(status.toLowerCase());
+                    }else if(currentStatus == 'OCCUPIED'){
+                        rect.classList.remove('occupied','no-sensor');
                         rect.classList.add(status.toLowerCase());
                     }
                 }
