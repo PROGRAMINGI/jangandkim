@@ -1,8 +1,11 @@
 package com.example.jangandkim.service;
 
+import com.example.jangandkim.entity.ParkingSpace;
+import com.example.jangandkim.entity.ParkingStatus;
 import com.example.jangandkim.entity.Sensor;
 import com.example.jangandkim.entity.SensorData;
 import com.example.jangandkim.repository.SensorDataRepository;
+import com.example.jangandkim.repository.ParkingSpaceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,7 +20,8 @@ public class SensorDataService {
 
     @Autowired
     private SensorDataRepository sensorDataRepository;
-
+    @Autowired
+    private ParkingSpaceRepository parkingSpaceRepository;
     // 모든 센서 데이터 조회
     public List<SensorData> getAllSensorData() {
         return sensorDataRepository.findAll();
@@ -62,39 +66,49 @@ public class SensorDataService {
 
     // 센서 상태 확인 (최근 5개 데이터 기반)
     public String checkSensorStatus(Sensor sensor) {
-        List<SensorData> recentData = sensorDataRepository.findTop5BySensorOrderByTimestampDesc(sensor);
+    List<SensorData> recentData = sensorDataRepository.findTop5BySensorOrderByTimestampDesc(sensor);
+    
+    if (recentData.size() < 5) {
+        return "AVAILABLE";
+    }
+
+    float maxDistance = recentData.stream()
+        .map(SensorData::getDistance)
+        .max(Float::compareTo)
+        .orElse(0f);
+    
+    float minDistance = recentData.stream()
+        .map(SensorData::getDistance)
+        .min(Float::compareTo)
+        .orElse(0f);
+
+    float distanceChange = maxDistance - minDistance;
+
+    // ParkingSpace에서 현재 상태 가져오기
+    ParkingSpace space = parkingSpaceRepository.findBySensorSensorID(sensor.getSensorID());
+    if (space != null) {
+        String currentStatus = space.getStatus().toString();
         
-        if (recentData.size() < 5) {
+        // 현재 AVAILABLE이고 거리 변화가 크면 OCCUPIED로
+        if ("AVAILABLE".equals(currentStatus) && distanceChange >= 10) {
+            space.setStatus(ParkingStatus.OCCUPIED);
+            parkingSpaceRepository.save(space);
+            return "OCCUPIED";
+        }
+        
+        // 현재 OCCUPIED이고 거리 변화가 크면 AVAILABLE로
+        if ("OCCUPIED".equals(currentStatus) && distanceChange >= 10) {
+            space.setStatus(ParkingStatus.AVAILABLE);
+            parkingSpaceRepository.save(space);
             return "AVAILABLE";
         }
-    
-        // 최근 5개 데이터의 시간 간격 확인
-        LocalDateTime latestTime = recentData.get(0).getTimestamp();
-        LocalDateTime oldestTime = recentData.get(4).getTimestamp();
-        Duration duration = Duration.between(oldestTime, latestTime);
-    
-        // 5초 이내의 데이터만 사용
-        if (duration.getSeconds() <= 5) {
-            float maxDistance = recentData.stream()
-                .map(SensorData::getDistance)
-                .max(Float::compareTo)
-                .orElse(0f);
-            
-            float minDistance = recentData.stream()
-                .map(SensorData::getDistance)
-                .min(Float::compareTo)
-                .orElse(0f);
-    
-            float distanceChange = maxDistance - minDistance;
-    
-            if (distanceChange >= 10) {
-                return "OCCUPIED";
-            }
-        }
-    
-        // 기존 상태 유지
-        return "AVAILABLE";  // 또는 ParkingSpace의 현재 상태를 반환
+        
+        // 변화가 없으면 현재 상태 유지
+        return currentStatus;
     }
+
+    return "AVAILABLE";  // 기본값
+}
     // 오래된 데이터 정리
     @Transactional
     public void cleanupOldData(Sensor sensor) {

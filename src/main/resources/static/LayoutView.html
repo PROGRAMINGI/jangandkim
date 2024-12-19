@@ -92,17 +92,9 @@ async function updateSensorStatuses() {
                 const response = await fetch(`/api/sensor-data/status/${sensorID}`);
                 if (response.ok) {
                     const status = await response.text();
-                    const currentStatus = rect.classList.contains('occupied') ? 'OCCUPIED' : 'AVAILABLE';
-                    
-                    // AVAILABLE일 때만 상태 변경을 허용하거나
-                    // OCCUPIED이고 새로운 상태가 OCCUPIED일 때만 유지
-                    if (currentStatus === 'AVAILABLE') {
-                        rect.classList.remove('available','no-sensor');
-                        rect.classList.add(status.toLowerCase());
-                    }else if(currentStatus == 'OCCUPIED'){
-                        rect.classList.remove('occupied','no-sensor');
-                        rect.classList.add(status.toLowerCase());
-                    }
+                    // 모든 상태 클래스 제거 후 새로운 상태 추가
+                    rect.classList.remove('available', 'occupied', 'no-sensor');
+                    rect.classList.add(status.toLowerCase());
                 }
             } else {
                 rect.classList.remove('available', 'occupied');
@@ -113,6 +105,8 @@ async function updateSensorStatuses() {
         console.error("센서 상태 업데이트 중 오류:", error);
     }
 }
+
+
 // 주차장 레이아웃 렌더링
 async function fetchAndRenderLayout(parkingLotID) {
     try {
