@@ -86,10 +86,10 @@ async function updateSensorStatuses() {
         const spaces = svg.querySelectorAll(".parking-spot");
         for (const rect of spaces) {
             const group = rect.parentElement;
-            const sensorId = group.dataset.sensorId;
+            const sensorID = group.dataset.sensorID;
             
-            if (sensorId) {
-                const response = await fetch(`/api/sensor-data/status/${sensorId}`);
+            if (sensorID) {
+                const response = await fetch(`/api/sensor-data/status/${sensorID}`);
                 if (response.ok) {
                     const status = await response.text();
                     const currentStatus = rect.classList.contains('occupied') ? 'OCCUPIED' : 'AVAILABLE';
