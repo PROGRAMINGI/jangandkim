@@ -23,18 +23,18 @@ public class ParkingSpaceController {
     }
     
     @PostMapping
-    public ResponseEntity<ParkingSpace> createParkingSpace(@RequestBody ParkingSpace parkingSpace) {
-        ParkingSpace savedSpace = parkingSpaceService.saveParkingSpace(parkingSpace);
-        return ResponseEntity.ok(savedSpace);
-    }
+public ResponseEntity<List<ParkingSpace>> createParkingSpaces(@RequestBody List<ParkingSpace> parkingSpaces) {
+    List<ParkingSpace> savedSpaces = parkingSpaceService.saveAllParkingSpaces(parkingSpaces);
+    return ResponseEntity.ok(savedSpaces);
+}
 
 
-    @PutMapping
-    public ResponseEntity<ParkingSpace> updateParkingSpace(@RequestBody ParkingSpace parkingSpace) {
-        ParkingSpace updatedSpace = parkingSpaceService.saveParkingSpace(parkingSpace);
-        return ResponseEntity.ok(updatedSpace);
-    }
-    
+@PutMapping
+public ResponseEntity<List<ParkingSpace>> updateParkingSpaces(@RequestBody List<ParkingSpace> parkingSpaces) {
+    List<ParkingSpace> updatedSpaces = parkingSpaceService.saveAllParkingSpaces(parkingSpaces);
+    return ResponseEntity.ok(updatedSpaces);
+}
+
 @GetMapping
 public ResponseEntity<List<ParkingSpace>> getAllParkingSpaces( @RequestParam(required = true) Integer parkingLotID) {
     try {
