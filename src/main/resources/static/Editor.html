@@ -541,6 +541,9 @@ function rotateBlock(group) {
             return Math.round(value / size) * size;
         }
 
+
+
+
         document.getElementById("save-button").addEventListener("click", async () => {
     try {
         if (!parkingLotID) {
@@ -555,7 +558,11 @@ function rotateBlock(group) {
             throw new Error("기존 주차 공간 데이터를 불러오는 데 실패했습니다.");
         }
         const existingSpaces = await existingSpacesResponse.json();
-        const existingSpaceMap = new Map(existingSpaces.map(space => [space.spaceNumber, space]));
+        
+        // spaceLocation을 키로 사용하는 Map 생성
+        const existingSpaceMap = new Map(
+            existingSpaces.map(space => [space.spaceLocation, space])
+        );
 
         // 2. 현재 UI의 주차 공간 데이터 수집
         const newSpaces = [];
@@ -567,32 +574,39 @@ function rotateBlock(group) {
 
             if (!rect) return;
 
+            const location = `${rect.getAttribute("x")},${rect.getAttribute("y")}`;
+            
             const parkingSpace = {
                 parkingLotID: parkingLotID,
                 sensor: rect.dataset.sensorID ? {
                     sensorID: parseInt(rect.dataset.sensorID)
                 } : null,
-                spaceLocation: `${rect.getAttribute("x")},${rect.getAttribute("y")}`,
+                spaceLocation: location,
                 spaceNumber: text ? text.textContent : "",
                 status: rect.classList.contains("entrance") ? "UNKNOWN" : 
                         rect.classList.contains("exit") ? "UNKNOWN" : "AVAILABLE"
             };
 
-            // 기존 블록과 비교
-            if (existingSpaceMap.has(parkingSpace.spaceNumber)) {
-                // 기존 블록: 업데이트 목록에 추가
-                const existingSpace = existingSpaceMap.get(parkingSpace.spaceNumber);
-                parkingSpace.spaceID = existingSpace.spaceID; // 기존 ID 유지
+            // 위치 기반으로 기존 공간 여부 확인
+            if (existingSpaceMap.has(location)) {
+                // 기존 공간이면 spaceID를 유지하고 업데이트
+                const existingSpace = existingSpaceMap.get(location);
+                parkingSpace.spaceID = existingSpace.spaceID;
                 updatedSpaces.push(parkingSpace);
+                
+                console.log(`기존 공간 업데이트: 위치(${location}), ID(${parkingSpace.spaceID})`);
             } else {
-                // 새로운 블록: 생성 목록에 추가
+                // 새로운 위치의 공간이면 생성 목록에 추가
                 newSpaces.push(parkingSpace);
+                
+                console.log(`새로운 공간 생성: 위치(${location})`);
             }
         });
 
         // 3. 새로운 블록 POST 요청
         if (newSpaces.length > 0) {
-            const createResponse = await fetch(`/api/parking-lots/${parkingLotID}/parking-spaces`, {
+            console.log("새로 생성될 공간들:", newSpaces);
+            const createResponse = await fetch(`/api/parking-spaces`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(newSpaces)
@@ -605,7 +619,8 @@ function rotateBlock(group) {
 
         // 4. 기존 블록 PUT 요청
         if (updatedSpaces.length > 0) {
-            const updateResponse = await fetch(`/api/parking-lots/${parkingLotID}/parking-spaces`, {
+            console.log("업데이트될 공간들:", updatedSpaces);
+            const updateResponse = await fetch(`/api/parking-spaces`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(updatedSpaces)
@@ -622,7 +637,6 @@ function rotateBlock(group) {
         alert(error.message || "저장에 실패했습니다.");
     }
 });
-
 
 
 
