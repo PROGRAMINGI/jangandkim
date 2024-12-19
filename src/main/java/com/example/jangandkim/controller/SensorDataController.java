@@ -68,9 +68,9 @@ public class SensorDataController {
     }
 
     @GetMapping("/status/{sensorId}")
-    public ResponseEntity<String> getSensorStatus(@PathVariable int sensorId) {
+    public ResponseEntity<String> getSensorStatus(@PathVariable int sensorID) {
         Sensor sensor = new Sensor();
-        sensor.setSensorID(sensorId);
+        sensor.setSensorID(sensorID);
         
         boolean isOccupied = sensorDataService.checkSensorStatus(sensor);
         return ResponseEntity.ok(isOccupied ? "Occupied" : "Empty");
