@@ -72,7 +72,7 @@ public class SensorDataController {
         Sensor sensor = new Sensor();
         sensor.setSensorID(sensorId);
         
-        boolean isOccupied = sensorDataService.checkSensorStatus(sensor);
+        boolean isOccupied = (sensorDataService.checkSensorStatus(sensor)== "OCCUPIED")? true : false;
         return ResponseEntity.ok(isOccupied ? "Occupied" : "Empty");
     }
 }
