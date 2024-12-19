@@ -57,7 +57,7 @@
         }
 
         .exit {
-            fill: lightcoral;
+            fill:ghostwhite;
         }
 
         text {
@@ -86,10 +86,10 @@ async function updateSensorStatuses() {
         const spaces = svg.querySelectorAll(".parking-spot");
         for (const rect of spaces) {
             const group = rect.parentElement;
-            const sensorId = group.dataset.sensorId;
+            const sensorID = group.dataset.sensorID;
             
-            if (sensorId) {
-                const response = await fetch(`/api/sensor-data/status/${sensorId}`);
+            if (sensorID) {
+                const response = await fetch(`/api/sensor-data/status/${sensorID}`);
                 if (response.ok) {
                     const status = await response.text();
                     // 기존 상태 클래스 제거
@@ -135,7 +135,7 @@ async function fetchAndRenderLayout(parkingLotID) {
             
             // 센서 ID 저장
             if (space.sensor) {
-                group.dataset.sensorId = space.sensor.sensorID;
+                group.dataset.sensorID = space.sensor.sensorID;
             }
 
             const [x, y] = space.spaceLocation.split(',').map(coord => parseInt(coord));
