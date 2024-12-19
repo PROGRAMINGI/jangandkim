@@ -15,4 +15,7 @@ public interface ParkingSpaceRepository extends JpaRepository<ParkingSpace, Inte
     
     // Sensor가 NULL인 주차 공간 조회
     List<ParkingSpace> findBySensorIsNull();
+
+    ParkingSpace findBySensorSensorID(int sensorID);
+
 }

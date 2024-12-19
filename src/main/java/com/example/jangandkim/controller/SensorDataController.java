@@ -33,7 +33,6 @@ public class SensorDataController {
 
     @PostMapping
     public ResponseEntity<SensorData> createSensorData(@RequestBody SensorDataDTO sensorDataDTO) {
-        // DTO → 엔터티 변환
         Sensor sensor = new Sensor();
         sensor.setSensorID(sensorDataDTO.getSensorID());
 
@@ -42,13 +41,20 @@ public class SensorDataController {
         sensorData.setDistance(sensorDataDTO.getDistance());
         sensorData.setTimestamp(sensorDataDTO.getTimestamp());
 
-        // 저장
         return ResponseEntity.ok(sensorDataService.saveSensorData(sensorData));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<SensorData> updateSensorData(@PathVariable int id, @RequestBody SensorDataDTO sensorDataDTO) {
-        SensorData updated = sensorDataService.updateSensorData(id, new SensorData());
+        Sensor sensor = new Sensor();
+        sensor.setSensorID(sensorDataDTO.getSensorID());
+
+        SensorData sensorData = new SensorData();
+        sensorData.setSensor(sensor);
+        sensorData.setDistance(sensorDataDTO.getDistance());
+        sensorData.setTimestamp(sensorDataDTO.getTimestamp());
+
+        SensorData updated = sensorDataService.updateSensorData(id, sensorData);
         if (updated != null) {
             return ResponseEntity.ok(updated);
         }
@@ -64,13 +70,9 @@ public class SensorDataController {
     @GetMapping("/status/{sensorId}")
     public ResponseEntity<String> getSensorStatus(@PathVariable int sensorId) {
         Sensor sensor = new Sensor();
-        sensor.setSensorID(sensorId); // Sensor 엔터티에서 기본적으로 ID만 설정
-        SensorData latestData = sensorDataService.getLatestDataBySensor(sensor);
-
-        if (latestData != null) {
-            boolean isOccupied = latestData.getDistance() <= 10; // 기준 거리 10cm
-            return ResponseEntity.ok(isOccupied ? "Occupied" : "Empty");
-        }
-        return ResponseEntity.notFound().build();
+        sensor.setSensorID(sensorId);
+        
+        boolean isOccupied = sensorDataService.checkSensorStatus(sensor);
+        return ResponseEntity.ok(isOccupied ? "Occupied" : "Empty");
     }
 }
