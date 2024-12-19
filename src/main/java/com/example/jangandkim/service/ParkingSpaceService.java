@@ -1,7 +1,10 @@
 package com.example.jangandkim.service;
 
 import com.example.jangandkim.entity.ParkingSpace;
+import com.example.jangandkim.entity.Sensor;
 import com.example.jangandkim.repository.ParkingSpaceRepository;
+import com.example.jangandkim.repository.SensorRepository;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -10,13 +13,30 @@ import java.util.List;
 public class ParkingSpaceService {
 
     private final ParkingSpaceRepository parkingSpaceRepository;
+    private final SensorRepository sensorRepository;
 
-    public ParkingSpaceService(ParkingSpaceRepository parkingSpaceRepository) {
+    public ParkingSpaceService(ParkingSpaceRepository parkingSpaceRepository, SensorRepository sensorRepository) {
         this.parkingSpaceRepository = parkingSpaceRepository;
+        this.sensorRepository = sensorRepository;
     }
 
-    // 기존 메서드들 유지
+
     public List<ParkingSpace> saveAllParkingSpaces(List<ParkingSpace> parkingSpaces) {
+        // Sensor 유효성 검증 및 처리
+        parkingSpaces.forEach(space -> {
+            if (space.getSensor() != null) {
+                Integer sensorID = space.getSensor().getSensorID();
+                Sensor existingSensor = sensorRepository.findBysensorID(sensorID).orElse(null);
+                
+                if (existingSensor != null) {
+                    space.setSensor(existingSensor);
+                } else {
+                    System.out.println("Warning: 센서 ID " + sensorID + "가 존재하지 않습니다. null로 설정됩니다.");
+                    space.setSensor(null);
+                }
+            }
+        });
+        
         return parkingSpaceRepository.saveAll(parkingSpaces);
     }
 
