@@ -122,8 +122,8 @@ async function fetchAndRenderLayout(parkingLotID) {
         // SVG 초기화
         svg.innerHTML = `
             <defs>
-                <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                    <path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" stroke-width="1" />
+                <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                    <path d="M 20 0 L 0 0 0 20" fill="none" stroke="white" stroke-width="0.5" />
                 </pattern>
             </defs>
             <rect width="100%" height="100%" fill="url(#grid)" style="pointer-events: none;" />
@@ -146,12 +146,12 @@ async function fetchAndRenderLayout(parkingLotID) {
             const isExit = space.spaceNumber === "EXIT";
             
             if (isEntrance || isExit) {
-                rect.setAttribute("width", 120);
-                rect.setAttribute("height", 120);
+                rect.setAttribute("width", 60);
+                rect.setAttribute("height", 60);
                 rect.setAttribute("class", space.spaceNumber.toLowerCase());
             } else {
-                rect.setAttribute("width", 40);
-                rect.setAttribute("height", 80);
+                rect.setAttribute("width", 20);
+                rect.setAttribute("height", 40);
                 rect.setAttribute("class", "parking-spot");
                 // 초기 상태 설정
                 if (space.sensor) {
