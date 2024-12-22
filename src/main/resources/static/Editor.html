@@ -147,12 +147,12 @@
         let selectedBlock = null;
         let isDragging = false;
         let isRotateMode = false;
-        const blockWidth = 20;
-        const blockHeight = 40;
+        const blockWidth = 10;
+        const blockHeight = 20;
         const entranceExitWidth = 60;
         const entranceExitHeight = 60;
-        const gridSize = 40;
-        let parkingLotID = 0; // 이 선언이 필요함
+        const gridSize = 80;
+        let parkingLotID = 0; 
         let isUpdate = false;
 
 //ㅇㅇㅇ
@@ -287,8 +287,6 @@ window.addEventListener("keydown", (e) => {
         // 회전 모드 토글ddddd
         function toggleRotateMode() {
             isRotateMode = !isRotateMode;
-
-
             document.getElementById("rotate-button").classList.toggle("active", isRotateMode);
         }
 
