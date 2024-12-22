@@ -65,46 +65,31 @@ public class SensorDataService {
     }
 
     // 센서 상태 확인 (최근 5개 데이터 기반)
-    public String checkSensorStatus(Sensor sensor) {
+// 센서 상태 확인 (최근 5개 데이터 기반)
+public String checkSensorStatus(Sensor sensor) {
     List<SensorData> recentData = sensorDataRepository.findTop5BySensorOrderByTimestampDesc(sensor);
     
-    if (recentData.size() < 5) {
+    if (recentData.isEmpty()) {
         return "AVAILABLE";
     }
 
-    float maxDistance = recentData.stream()
-        .map(SensorData::getDistance)
-        .max(Float::compareTo)
-        .orElse(0f);
-    
-    float minDistance = recentData.stream()
-        .map(SensorData::getDistance)
-        .min(Float::compareTo)
-        .orElse(0f);
-
-    float distanceChange = maxDistance - minDistance;
+    // 모든 데이터가 50 이하인지 확인
+    boolean allDistancesUnder50 = recentData.stream()
+        .allMatch(data -> data.getDistance() <= 50);
 
     // ParkingSpace에서 현재 상태 가져오기
     ParkingSpace space = parkingSpaceRepository.findBySensorSensorID(sensor.getSensorID());
     if (space != null) {
-        String currentStatus = space.getStatus().toString();
+        // 모든 거리가 50 이하면 OCCUPIED, 아니면 AVAILABLE
+        ParkingStatus newStatus = allDistancesUnder50 ? ParkingStatus.OCCUPIED : ParkingStatus.AVAILABLE;
         
-        // 현재 AVAILABLE이고 거리 변화가 크면 OCCUPIED로
-        if ("AVAILABLE".equals(currentStatus) && distanceChange >= 10) {
-            space.setStatus(ParkingStatus.OCCUPIED);
+        // 상태가 변경되었을 경우에만 업데이트
+        if (space.getStatus() != newStatus) {
+            space.setStatus(newStatus);
             parkingSpaceRepository.save(space);
-            return "OCCUPIED";
         }
         
-        // 현재 OCCUPIED이고 거리 변화가 크면 AVAILABLE로
-        if ("OCCUPIED".equals(currentStatus) && distanceChange >= 10) {
-            space.setStatus(ParkingStatus.AVAILABLE);
-            parkingSpaceRepository.save(space);
-            return "AVAILABLE";
-        }
-        
-        // 변화가 없으면 현재 상태 유지
-        return currentStatus;
+        return newStatus.toString();
     }
 
     return "AVAILABLE";  // 기본값
