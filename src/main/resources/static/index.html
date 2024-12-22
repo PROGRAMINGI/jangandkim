@@ -174,26 +174,23 @@
         return favorites;
     }
 
-    function navigateTo(page) {
-    // 현재 iframe의 페이지 이름 추출
+    function updateToggleMenuVisibility() {
+    const currentPage = iframe.src.split('/').pop();
+    const isLayoutView = currentPage.includes('LayoutView.html');
+    toggleMenu.style.display = isLayoutView ? "block" : "none";
+    // 메뉴가 열려있고 LayoutView가 아니면 메뉴 닫기
+    if (!isLayoutView && menu.classList.contains('open')) {
+        menu.classList.remove('open');
+    }
+}
+
+function navigateTo(page) {
     const currentPage = iframe.src.split('/').pop();
     
     if (currentPage === page) {
-        // 정확히 같은 페이지일 때만 새로고침
         iframe.contentWindow.location.reload();
     } else {
-        // 다른 페이지로 이동
         iframe.src = page;
-        // LayoutView.html 이동 시 강제로 초기화 함수 호출
-        iframe.onload = () => {
-            if (page === 'LayoutView.html') {
-                try {
-                    iframe.contentWindow.initializeFavorites();
-                } catch (error) {
-                    console.log('초기화 함수 호출 실패:', error);
-                }
-            }
-        };
     }
 
     // 버튼 상태 업데이트
@@ -206,8 +203,8 @@
         }
     });
 
-    // 토글 메뉴 조건부 표시
-    toggleMenu.style.display = page === "LayoutView.html" ? "block" : "none";
+    // 토글 메뉴 visibility 업데이트
+    updateToggleMenuVisibility();
 }
 
     async function updateMenu() {
