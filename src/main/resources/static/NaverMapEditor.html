@@ -15,7 +15,7 @@
             height: 100%; 
             padding: 0; 
             margin: 0;
-          
+
         }
     </style>
 </head>
@@ -64,10 +64,25 @@
     deletedMarkers = [];
 }
 
+
+async function getParkingLotInfo(parkingLotID) {
+    try {
+        const response = await fetch(`/api/parking-lots/${parkingLotID}`);
+        if (!response.ok) {
+            throw new Error('주차장 정보를 가져오는데 실패했습니다.');
+        }
+        const parkingLot = await response.json();
+        return parkingLot.name;  // 주차장 이름 반환
+    } catch (error) {
+        console.error('주차장 정보 조회 중 오류:', error);
+        return `주차장 ${parkingLotID}`; // 기본값
+    }
+}
+
        
         // 마커 추가 함수 수정
-        function addMarker(position, parkingLotID = null, id = null) {
-            const marker = new naver.maps.Marker({
+        async function addMarker(position, parkingLotID = null, id = null) {
+    const marker = new naver.maps.Marker({
         position,
         map,
         icon: {
@@ -77,52 +92,33 @@
         }
     });
 
-    marker.markerId = id;
+    // ID 저장 추가
     marker.parkingLotID = parkingLotID;
-    currentMarkers.push(marker);
+    marker.markerId = id;
 
-    // id가 없다는 것은 새로 추가하는 마커이므로 저장 로직 호출
-    if (!id) {
-        const markerData = {
-            lat: position.lat(),
-            lng: position.lng(),
-            parkingLotID: parkingLotID
-        };
-        // DTO 형태에 맞게 전송 (lat, lng, parkingLotID)
-        saveMarkerToServer(markerData).then(() => {
-            restoreMarkers();
-        });
-    }
 
-    // InfoWindow 내용에도 동일한 ID 사용
+    // 주차장 이름 가져오기
+    const parkingLotName = parkingLotID ? await getParkingLotInfo(parkingLotID) : '새 주차장';
+
     const iwContent = `
-    <div>
-        <div style="margin:0;padding:0;">
-            <a href="#" class="spmc btn_clear">핀 삭제</a>
-            <div>주차장 ID: ${parkingLotID || 'N/A'}</div>
-            ${
-                parkingLotID
-                    ? `<button onclick="navigateToLayout(${parkingLotID})">주차장 보기</button>
-                       <button onclick="addToFavorites(${parkingLotID})">즐겨찾기 추가</button>`
-                    : `<div>
-                         <button onclick="alert('주차장 ID가 필요합니다!')">주차장 보기</button>
-                         <button onclick="alert('주차장 ID가 필요합니다!')">즐겨찾기 추가</button>
-                       </div>`
-            }
+        <div>
+            <div style="margin:0;padding:0;">
+                <a href="#" class="spmc btn_clear">핀 삭제</a>
+                <div>${parkingLotName}</div>
+                <button onclick="window.parent.postMessage({type: 'navigation', page: 'Map.html?parkingLotID=${parkingLotID}'}, '*')">주차장 보기</button>
+                <button onclick="addToFavorites(${parkingLotID})">즐겨찾기 추가</button>
+            </div>
         </div>
-    </div>`;
+    `;
 
 
-    const infoWindow = new naver.maps.InfoWindow({
-        content: iwContent
-    });
+    const infoWindow = new naver.maps.InfoWindow({ content: iwContent });
 
     naver.maps.Event.addListener(marker, 'click', () => {
-        if (activeInfoWindow) activeInfoWindow.close();
-        infoWindow.open(map, marker);
-        activeInfoWindow = infoWindow;
-    });
-
+    if (activeInfoWindow) activeInfoWindow.close();  // 기존 창 닫기
+    infoWindow.open(map, marker);
+    activeInfoWindow = infoWindow;  // 현재 창을 활성 창으로 설정
+});
     infoWindow.open = function(map, marker) {
     naver.maps.InfoWindow.prototype.open.call(this, map, marker);
     const closeButton = this.getWrapElement().querySelector('.btn_clear');
