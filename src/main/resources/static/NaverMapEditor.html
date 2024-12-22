@@ -174,7 +174,7 @@ function addToFavorites(parkingLotID) {
 
 
 
-// 우클릭으로 마커 추가
+
 // 마커 추가 시 주차장 이름으로 ID를 조회하는 함수 추가
 async function getParkingLotIdByName(name) {
     try {
@@ -200,7 +200,7 @@ async function getParkingLotIdByName(name) {
     }
 }
 
-// 우클릭 이벤트 핸들러 수정
+
 // 우클릭 이벤트 핸들러 수정
 naver.maps.Event.addListener(map, 'rightclick', async function(e) {
     const position = e.coord;
@@ -238,22 +238,26 @@ naver.maps.Event.addListener(map, 'rightclick', async function(e) {
         // 서버와 통신 함수들
         async function fetchMarkers(parkingLotID = null) {
     try {
-        const url = parkingLotID ? 
-            `/api/markers/search/parkinglot/${parkingLotID}` : 
-            '/api/markers';
+        let url = '/api/markers';
         
+        // 응답 데이터 구조가 다를 수 있으므로 일관된 형태로 변환
         const response = await fetch(url);
-        if (!response.ok) throw new Error('서버에서 마커 데이터를 가져오는 데 실패했습니다.');
+        if (!response.ok) {
+            console.error('마커 데이터를 가져오는데 실패했습니다:', response.status);
+            return [];
+        }
+
+        const data = await response.json();
+        // 필터링은 클라이언트에서 수행
+        let markers = Array.isArray(data) ? data : (data.data || []);
         
-        const responseData = await response.json();
-        const markersData = responseData.data || [];
+        // parkingLotID가 제공된 경우 해당 주차장의 마커만 필터링
+        if (parkingLotID) {
+            markers = markers.filter(marker => marker.parkingLotID === parkingLotID);
+        }
+
+        return markers;
         
-        return markersData.map(marker => ({
-            id: marker.id,
-            lat: marker.lat,
-            lng: marker.lng,
-            parkingLotID: marker.parkingLotID // 중첩 객체 구조 제거
-        }));
     } catch (error) {
         console.error('마커 데이터를 가져오는 중 오류 발생:', error);
         return [];
