@@ -314,9 +314,9 @@ async function deleteMarkerFromServer(markerId) {
     }
 }
 
-       
-    // 검색 버튼 클릭 이벤트 : 보수 필요요
-    document.getElementById('search-btn').addEventListener('click', async () => {
+
+  // 검색 버튼 클릭 이벤트 수정
+document.getElementById('search-btn').addEventListener('click', async () => {
     const query = document.getElementById('search-input').value.trim();
 
     if (!query) {
@@ -325,28 +325,44 @@ async function deleteMarkerFromServer(markerId) {
     }
 
     try {
-        // query로 주차장 ID 조회
+        // 1. 먼저 주차장 이름으로 검색
         const parkingLotID = await getParkingLotIdByName(query);
-        if (!parkingLotID) {
-            alert('해당하는 주차장을 찾을 수 없습니다.');
-            return;
+        if (parkingLotID) {
+            // 주차장이 존재하면 해당 마커 검색
+            const markers = await fetchMarkers(parkingLotID);
+            clearMarkers();
+
+            if (markers.length > 0) {
+                markers.forEach(markerData => {
+                    const position = new naver.maps.LatLng(markerData.lat, markerData.lng);
+                    addMarker(position, markerData.parkingLotID, markerData.id);
+                });
+                
+                // 첫 번째 마커 위치로 지도 이동
+                const firstMarker = markers[0];
+                map.setCenter(new naver.maps.LatLng(firstMarker.lat, firstMarker.lng));
+                alert('등록된 주차장을 찾았습니다.');
+                return;
+            }
         }
 
-        // 해당 주차장 ID의 마커 검색
-        const markers = await fetchMarkers(parkingLotID);
-        clearMarkers();
+        // 2. 주차장이 없으면 네이버 지도 API로 장소 검색
+        const geocoder = new naver.maps.Service.Geocoder();
+        geocoder.geocode({ query }, function(status, response) {
+            if (status === naver.maps.Service.Status.OK) {
+                const result = response.v2.addresses[0];
+                const position = new naver.maps.LatLng(result.y, result.x);
+                
+                // 지도 이동
+                map.setCenter(position);
+                alert(`"${query}" 위치로 이동했습니다. 주차장을 등록하려면 우클릭하세요.`);
+            } else {
+                alert('검색 결과를 찾을 수 없습니다.');
+            }
+        });
 
-        if (markers.length > 0) {
-            markers.forEach(markerData => {
-                const position = new naver.maps.LatLng(markerData.lat, markerData.lng);
-                addMarker(position, markerData.parkingLotID, markerData.id);
-            });
-            alert('검색된 마커를 표시합니다.');
-        } else {
-            alert('검색 결과가 없습니다.');
-        }
     } catch (error) {
-        console.error('마커 검색 중 오류 발생:', error);
+        console.error('검색 중 오류 발생:', error);
         alert('검색 중 오류가 발생했습니다.');
     }
 });
