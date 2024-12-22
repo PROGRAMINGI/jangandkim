@@ -63,21 +63,21 @@
     }
 
     #menu button {
-    background-color: #444;
-    border: none;
-    color: white;
-    padding: 10px 15px;
-    cursor: pointer;
-    border-radius: 5px;
-    font-size: 1rem;
-    text-align: left;
-    transition: background-color 0.3s;
-    margin: 0;  /* 마진 제거 */
-}
+      background-color: #444;
+      border: none;
+      color: white;
+      padding: 10px 15px;
+      cursor: pointer;
+      border-radius: 5px;
+      font-size: 1rem;
+      text-align: left;
+      transition: background-color 0.3s;
+      margin: 0;
+    }
 
-#menu > div {
-    margin-bottom: 5px;  /* 각 컨테이너 사이 간격 */
-}
+    #menu > div {
+      margin-bottom: 5px;
+    }
 
     #menu button:hover {
       background-color: #555;
@@ -149,6 +149,7 @@
     </div>
     <iframe id="iframe" src="" frameborder="0"></iframe>
   </div>
+
   <!-- Bottom Section -->
   <div class="bottom">
     <button class="nav-button active" onclick="navigateTo('LayoutView.html')">
@@ -173,37 +174,40 @@
         return favorites;
     }
 
-
     function navigateTo(page) {
-    if (iframe.src.includes(page)) {
-        // 이미 현재 페이지라면 새로고침
-        iframe.contentWindow.location.reload();
-    } else {
-        // 다른 페이지로 이동
-        iframe.src = page;
-        // LayoutView.html 이동 시 강제로 초기화 함수 호출
-        iframe.onload = () => {
-            if (page === 'LayoutView.html') {
-                iframe.contentWindow.initializeFavorites();
+        if (page) {
+            if (iframe.src.includes(page)) {
+                // 이미 현재 페이지라면 새로고침
+                iframe.contentWindow.location.reload();
+            } else {
+                // 다른 페이지로 이동
+                iframe.src = page;
+                // LayoutView.html 이동 시 강제로 초기화 함수 호출
+                iframe.onload = () => {
+                    if (page === 'LayoutView.html') {
+                        try {
+                            iframe.contentWindow.initializeFavorites();
+                        } catch (error) {
+                            console.log('초기화 함수 호출 실패:', error);
+                        }
+                    }
+                };
             }
-        };
-    }
 
-    // 버튼 상태 업데이트
-    const buttons = document.querySelectorAll('.nav-button');
-    buttons.forEach(button => {
-        if (button.getAttribute('onclick').includes(page)) {
-            button.classList.add('active');
-        } else {
-            button.classList.remove('active');
+            // 버튼 상태 업데이트
+            const buttons = document.querySelectorAll('.nav-button');
+            buttons.forEach(button => {
+                if (button.getAttribute('onclick').includes(page)) {
+                    button.classList.add('active');
+                } else {
+                    button.classList.remove('active');
+                }
+            });
+
+            // 토글 메뉴 조건부 표시
+            toggleMenu.style.display = page === "LayoutView.html" ? "block" : "none";
         }
-    });
-
-    // 토글 메뉴 조건부 표시
-    toggleMenu.style.display = page === "LayoutView.html" ? "block" : "none";
-}
-
-
+    }
 
     async function updateMenu() {
         const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
@@ -266,19 +270,29 @@
         }
     }
 
+    // 단일 메시지 이벤트 리스너
+    window.addEventListener('message', function(event) {
+        if (event.data.type === 'navigation') {
+            const page = event.data.page;
+            if (event.data.parkingLotID) {
+                navigateToLayoutView(event.data.parkingLotID);
+            } else {
+                navigateTo(page);
+            }
+        }
+    });
+
+    // 초기화 이벤트 리스너
     document.addEventListener('DOMContentLoaded', async () => {
-        // 메인 화면 로드
         navigateTo('LayoutView.html');
-        
-        // 첫 번째 즐겨찾기 링크로 이동
         await navigateToFirstFavorite();
     });
 
+    // 토글 메뉴 이벤트 리스너
     toggleMenu.addEventListener('click', () => {
         menu.classList.toggle('open');
         updateMenu();
     });
-</script>
-
+  </script>
 </body>
 </html>

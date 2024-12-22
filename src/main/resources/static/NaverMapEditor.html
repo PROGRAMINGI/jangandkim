@@ -8,10 +8,15 @@
     <style>
         #map {
             width: 100%;
-            height: 100%;
+            height: calc(100vh - 150px); /* 상단과 하단 네비게이션 바 공간 확보 */
         }
-        html, body { width: 100%; height: 100%; 
-            padding: 0; margin: 0; }
+        html, body { 
+            width: 100%; 
+            height: 100%; 
+            padding: 0; 
+            margin: 0;
+            overflow: hidden; /* 스크롤 방지 */
+        }
     </style>
 </head>
 <body>
@@ -46,6 +51,22 @@
             });
             currentMarkers = [];
         }
+
+
+        function navigateToLayout(parkingLotID) {
+    window.parent.postMessage({
+        type: 'navigation',
+        page: 'LayoutView.html',
+        parkingLotID: parkingLotID
+    }, '*');
+}
+
+function navigateToEditor() {
+    window.parent.postMessage({
+        type: 'navigation',
+        page: 'Editor.html'
+    }, '*');
+}
 
         // 삭제된 마커 복구
         function restoreDeletedMarkers() {
@@ -94,7 +115,7 @@
             <div>주차장 ID: ${parkingLotID || 'N/A'}</div>
             ${
                 parkingLotID
-                    ? `<button><a href="/LayoutView.html?parkingLotID=${parkingLotID}" target="_blank">주차장 보기</a></button>
+                    ? `<button onclick="navigateToLayout(${parkingLotID})">주차장 보기</button>
                        <button onclick="addToFavorites(${parkingLotID})">즐겨찾기 추가</button>`
                     : `<div>
                          <button onclick="alert('주차장 ID가 필요합니다!')">주차장 보기</button>
@@ -103,6 +124,7 @@
             }
         </div>
     </div>`;
+
 
     const infoWindow = new naver.maps.InfoWindow({
         content: iwContent
