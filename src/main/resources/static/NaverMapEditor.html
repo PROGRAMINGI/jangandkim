@@ -53,20 +53,7 @@
         }
 
 
-        function navigateToLayout(parkingLotID) {
-    window.parent.postMessage({
-        type: 'navigation',
-        page: 'LayoutView.html',
-        parkingLotID: parkingLotID
-    }, '*');
-}
 
-function navigateToEditor() {
-    window.parent.postMessage({
-        type: 'navigation',
-        page: 'Editor.html'
-    }, '*');
-}
 
         // 삭제된 마커 복구
         function restoreDeletedMarkers() {
