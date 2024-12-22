@@ -121,8 +121,8 @@
 
     <svg id="parking-lot">
         <defs>
-            <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="black" stroke-width="1" />
+            <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="black" stroke-width="0.5" />
             </pattern>
         </defs>
         <rect width="100%" height="100%" fill="url(#grid)" style="pointer-events: none;" />
@@ -147,11 +147,11 @@
         let selectedBlock = null;
         let isDragging = false;
         let isRotateMode = false;
-        const blockWidth = 10;
-        const blockHeight = 20;
+        const blockWidth = 20;
+        const blockHeight = 40;
         const entranceExitWidth = 60;
         const entranceExitHeight = 60;
-        const gridSize = 80;
+        const gridSize = 20;
         let parkingLotID = 0; 
         let isUpdate = false;
 
@@ -292,13 +292,15 @@ window.addEventListener("keydown", (e) => {
 
 
         svg.addEventListener("click", (e) => {
-    if (e.target !== svg || isDragging) return;
+    // 드래그 중이거나 SVG가 아닌 다른 요소를 클릭한 경우 return
+    if (isDragging || e.target !== svg || e.defaultPrevented) {
+        return;
+    }
     const x = snapToGrid(e.offsetX, gridSize);
     const y = snapToGrid(e.offsetY, gridSize);
     const group = createBlock("parking-spot", x, y, "P");
     svg.appendChild(group);
 });
-
        
         // 입구 추가
         function addEntrance() {
@@ -360,22 +362,24 @@ window.addEventListener("keydown", (e) => {
                 group.appendChild(rect);
 
     // 텍스트 추가
-    if (label) {
-        const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-        text.setAttribute(
-            "x",
-            x + (isRotateMode ? rectHeight / 2 : rectWidth / 2)
-        );
-        text.setAttribute(
-            "y",
-            y + (isRotateMode ? rectWidth / 2 : rectHeight / 2)
-        );
-        text.setAttribute("text-anchor", "middle");
-        text.setAttribute("dominant-baseline", "middle");
-        text.textContent = label;
-        group.appendChild(text);
+   // createBlock 함수의 텍스트 위치 계산 부분을 수정
+if (label) {
+    const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    if (isRotateMode) {
+        // 회전 모드일 때
+        text.setAttribute("x", x + rectHeight/2);  // 세로로 된 직사각형의 중앙
+        text.setAttribute("y", y + rectWidth/2); // y값 조정
+        
+    } else {
+        // 일반 모드일 때
+        text.setAttribute("x", x + rectWidth/2);
+        text.setAttribute("y", y + rectHeight/2);
     }
-
+    text.setAttribute("text-anchor", "middle");
+    text.setAttribute("dominant-baseline", "middle");
+    text.textContent = label;
+    group.appendChild(text);
+}
     addBlockListeners(group);
     return group;
 }
@@ -446,67 +450,76 @@ function addBlockListeners(group) {
 
         // 드래그 시작
         function startDrag(e) {
-        if (isDragging) return;
-        isDragging = true;
-        const rect = e.target.closest("g").querySelector("rect");
-        const group = e.target.closest("g");
-        const rotation = parseInt(rect.dataset.rotation);
-        const startX = parseFloat(rect.getAttribute("x"));
-        const startY = parseFloat(rect.getAttribute("y"));
-        if(rotation === "90"){
-        startX = parseFloat(rect.getAttribute("y"));
-        startY = parseFloat(rect.getAttribute("x"));
-        }
+    e.stopPropagation(); // 이벤트 전파 중지
+    if (isDragging) return;
+    isDragging = true;
+    
+    const rect = e.target.closest("g").querySelector("rect");
+    const group = e.target.closest("g");
+    const rotation = parseInt(rect.dataset.rotation || "0");
+    const startX = parseFloat(rect.getAttribute("x"));
+    const startY = parseFloat(rect.getAttribute("y"));
 
-        const dragMove = (moveEvent) => {
-            const dx = moveEvent.clientX - e.clientX;
-            const dy = moveEvent.clientY - e.clientY;
+    let initialX = startX;
+    let initialY = startY;
 
-            let newX = startX + dx;
-            let newY = startY + dy;
+    if (rotation === 90 || rotation === 270) {
+        // 회전된 블록의 경우 높이만큼 y값 조정
+        initialY = startY + rect.getAttribute("width");
+    }
 
-            if (rotation === 90 || rotation === 270) {
-                newX = snapToGrid(startX + dx, gridSize);
-                newY = snapToGrid(startY + dy, gridSize);
-            } else {
-                newX = snapToGrid(newX, gridSize);
-                newY = snapToGrid(newY, gridSize);
-            }
+    const dragMove = (moveEvent) => {
+        moveEvent.stopPropagation(); // 이벤트 전파 중지
+        const dx = moveEvent.clientX - e.clientX;
+        const dy = moveEvent.clientY - e.clientY;
 
+        let newX = snapToGrid(startX + dx, gridSize);
+        let newY = snapToGrid(startY + dy, gridSize);
+
+        // rotation이 90도나 270도일 때 위치 조정
+        if (rotation === 90 || rotation === 270) {
             rect.setAttribute("x", newX);
             rect.setAttribute("y", newY);
             rect.setAttribute(
                 "transform",
-                `rotate(${rotation}, ${newX + parseFloat(rect.getAttribute("width")) / 2}, ${newY + parseFloat(rect.getAttribute("height")) / 2})`
+                `rotate(${rotation}, ${newX}, ${newY})`
             );
+        } else {
+            rect.setAttribute("x", newX);
+            rect.setAttribute("y", newY);
+        }
 
-            const text = group.querySelector("text");
-            if (text) {
-                text.setAttribute(
-                    "x",
-                    newX + (rect.getAttribute("class") === "parking-spot" ? blockWidth / 2 : entranceExitWidth / 2)
-                );
-                text.setAttribute(
-                    "y",
-                    newY + (rect.getAttribute("class") === "parking-spot" ? blockHeight / 2 : entranceExitHeight / 2)
-                );
+        // 텍스트 위치 업데이트
+        const text = group.querySelector("text");
+        if (text) {
+            const width = rect.getAttribute("class") === "parking-spot" ? blockWidth : entranceExitWidth;
+            const height = rect.getAttribute("class") === "parking-spot" ? blockHeight : entranceExitHeight;
+            
+            if (rotation === 90 || rotation === 270) {
+                text.setAttribute("x", newX - height / 2);
+                text.setAttribute("y", newY + width / 2);
+            } else {
+                text.setAttribute("x", newX + width / 2);
+                text.setAttribute("y", newY + height / 2);
             }
+        }
     };
 
-
-
-
-
-    const dragEnd = () => {
-        isDragging = false; // 드래그 상태 종료
-        window.removeEventListener("mousemove", dragMove);
-        window.removeEventListener("mouseup", dragEnd);
-    };
+    const dragEnd = (endEvent) => {
+    endEvent.stopPropagation(); // 이벤트 전파 중지
+    endEvent.preventDefault(); // 기본 이벤트 방지
+    isDragging = false;
+    window.removeEventListener("mousemove", dragMove);
+    window.removeEventListener("mouseup", dragEnd);
+    
+    // 약간의 지연을 두어 클릭 이벤트가 발생하지 않도록 함
+    setTimeout(() => {
+        isDragging = false;
+    }, 0);
+};
 
     window.addEventListener("mousemove", dragMove);
     window.addEventListener("mouseup", dragEnd);
-
-
 }
 
 
@@ -516,7 +529,7 @@ window.onload = async function() {
 
 function rotateBlock(group) {
     const rect = group.querySelector("rect");
-    const currentRotation = parseInt(rect.dataset.rotation, 10) || 0;
+    const currentRotation = parseInt(rect.dataset.rotation || "0");
     const newRotation = (currentRotation + 90) % 360;
 
     const x = parseFloat(rect.getAttribute("x"));
@@ -530,7 +543,6 @@ function rotateBlock(group) {
         `rotate(${newRotation}, ${x + width / 2}, ${y + height / 2})`
     );
 }
-
 
 
 
